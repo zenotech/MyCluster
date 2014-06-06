@@ -1,4 +1,4 @@
-
+import os
 
 """"
 SGE notes
@@ -28,7 +28,23 @@ def list_queue():
     # list all parallel env
     # for parallel_env list queues associated
     # Find first node with queue and record node config
-    pass
+    
+    queue_list = []
+    parallel_env_list = []
+    
+    with os.popen('qconf -spl') as f:
+        for line in f:
+            parallel_env_list.append(line.strip())
+
+    for parallel_env in parallel_env_list:
+        with os.popen(' qstat -pe '+parallel_env+' -g c') as f:
+            f.readline(); # read header
+            f.readline(); # read separator
+            for line in f:
+                queue_name = line.split(' ')[0]
+                queue_list.append(parallel_env+':'+queue_name)
+    
+    return queue_list
 
 def list_free_slots(queue_id):
     
