@@ -88,7 +88,7 @@ def node_config(queue_id):
         for line in f:
             if line.split(' ')[0] == 'hostlist':
                 new_line = re.sub(' +',' ',line)
-                host_group = int(new_line.split(' ')[1])
+                host_group = new_line.split(' ')[1]
     
     host_name=''
     with os.popen('qconf -shgrp_resolved '+host_group) as f:
