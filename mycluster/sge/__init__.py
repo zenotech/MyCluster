@@ -50,7 +50,18 @@ def list_free_slots(queue_id):
     
     # split queue id into queue and parallel env
     # list free slots
-    pass
+    free_slots = 0
+    parallel_env = queue_id.split(':')[0]
+    queue_name   = queue_id.split(':')[1]
+    with os.popen(' qstat -pe '+parallel_env+' -g c') as f:
+        f.readline(); # read header
+        f.readline(); # read separator
+        for line in f:
+            qn = line.split(' ')[0]
+            if qn == queue_name:
+                free_slots = line.split(' ')[4]
+                
+    return free_slots
 
 def list_node_config(queue_id):
     # Find first node with queue and record node config
