@@ -155,29 +155,22 @@ def create_submit(queue_id,**kwargs):
 
     num_queue_slots = num_nodes*queue_tpn
     
-    script=Template("""#!/bin/bash
+    script=Template(r"""#!/bin/bash
 
 # Job name
 #$$ -N $my_name
-
 # The batch system should use the current directory as working directory.
 #$$ -cwd
-
 # Redirect output stream to this file.
 #$$ -o $my_output
-
 # Join the error stream to the output stream.
 #$$ -j yes
-
 # Send status information to this email address. 
 #$$ -M $user_email
-
 # Send me an e-mail when the job has finished. 
 #$$ -m be
-
 # Queue name
 #$$ -q $queue_name
-
 # Parallel environment
 #$$ -pe $parallel_env $num_queue_slots
 
@@ -230,6 +223,13 @@ qstat -j $$JOB_ID
                        })
     
     return str
+
+def submit(script_name):
+    job_id = None
+    with os.popen('qsub -terse'+script_name) as f:
+        job_id = int(f.readline().strip())
+        # Get job id and record in database
+    return job_id
 
 def delete(job_id):
     pass

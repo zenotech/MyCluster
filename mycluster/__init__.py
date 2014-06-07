@@ -18,12 +18,18 @@ def detect_scheduling_sys():
 def queues():
     return scheduler.queues()
 
-def create_submit(queue_id,**kwargs):
+def create_submit(queue_id,script_name=None,**kwargs):
     
     script = scheduler.create_submit(queue_id,**kwargs)
     
+    if script_name != None:
+        with open(script_name,'w') as f:
+            f.write(script)
+    
     return script
 
+def submit(script_name):
+    return scheduler.submit(script_name)
 
 def my_import(name):
     mod = __import__(name)
