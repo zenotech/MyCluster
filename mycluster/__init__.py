@@ -30,4 +30,4 @@ Module initialiser functions
 scheduler = detect_scheduling_sys()
 
 if __name__ == "__main__":
-    return queues()
+    queues()
