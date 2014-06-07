@@ -215,7 +215,7 @@ echo -e "\nExecuting command:\n==================\n$my_script\n"
 qstat -j $$JOB_ID
 
 """)
-    script.substitute({'my_name':my_name,
+    str = script.substitute({'my_name':my_name,
                        'my_script':my_script,
                        'my_output':my_output,
                        'user_email':user_email,
@@ -229,7 +229,7 @@ qstat -j $$JOB_ID
                        'num_nodes':num_nodes,
                        })
     
-    return script
+    return str
 
 def delete(job_id):
     pass
