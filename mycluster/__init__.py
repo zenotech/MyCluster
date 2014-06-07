@@ -8,10 +8,10 @@ scheduler = None
 def detect_scheduling_sys():
 
     if os.getenv('SGE_CLUSTER_NAME') != None:
-        scheduler=my_import('mycluster.sge')
+        return my_import('mycluster.sge')
     
     if os.getenv('SLURMHOME') != None:
-        return __import__('mycluster.slurm')
+        return my_import('mycluster.slurm')
     
     return None
 
