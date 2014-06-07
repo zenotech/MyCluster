@@ -20,7 +20,7 @@ def queues():
 
 def create_submit(queue_id,**kwargs):
     
-    script = scheduler.create_submit(queue_id,kwargs)
+    script = scheduler.create_submit(queue_id,**kwargs)
     
     return script
 
