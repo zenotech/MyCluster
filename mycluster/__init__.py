@@ -8,7 +8,7 @@ scheduler = None
 def detect_scheduling_sys():
 
     if os.getenv('SGE_CLUSTER_NAME') != None:
-        return __import__('mycluster.sge')
+        scheduler=my_import('mycluster.sge')
     
     if os.getenv('SLURMHOME') != None:
         return __import__('mycluster.slurm')
@@ -16,15 +16,21 @@ def detect_scheduling_sys():
     return None
 
 def queues():
-    from scheduler import queues
-    
-    return queues()
+    return scheduler.queues()
 
 def create_submit(queue_id,**kwargs):
     
     script = scheduler.create_submit(queue_id,kwargs)
     
     return script
+
+
+def my_import(name):
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 """
 Module initialiser functions
