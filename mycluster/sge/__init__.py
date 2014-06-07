@@ -1,5 +1,6 @@
 import os
 import re
+from string import Template
 
 """"
 SGE notes
@@ -53,7 +54,8 @@ def available_tasks(queue_id):
     
     # split queue id into queue and parallel env
     # list free slots
-    free_slots = 0
+    free_tasks = 0
+    max_tasks = 0
     parallel_env = queue_id.split(':')[0]
     queue_name   = queue_id.split(':')[1]
     with os.popen(' qstat -pe '+parallel_env+' -g c') as f:
@@ -64,9 +66,10 @@ def available_tasks(queue_id):
             new_line = re.sub(' +',' ',line)
             qn = new_line.split(' ')[0]
             if qn == queue_name:
-                free_slots = int(new_line.split(' ')[4])
+                free_tasks = int(new_line.split(' ')[4])
+                max_tasks = int(new_line.split(' ')[5])
                 
-    return free_slots
+    return {'available' : free_tasks, 'max tasks' : max_tasks}
 
 def tasks_per_node(queue_id):
     parallel_env = queue_id.split(':')[0]
@@ -112,8 +115,121 @@ def node_config(queue_id):
                 
     return config
 
-def submit(queue_id):
-    pass
+def create_submit(queue_id,**kwargs):
+
+    parallel_env = queue_id.split(':')[0]
+    queue_name   = queue_id.split(':')[1]
+    
+    num_tasks = 1
+    if 'num_tasks' in kwargs:
+        num_tasks = kwargs['num_tasks']
+    num_threads_per_task = 1
+    if 'num_threads_per_task' in kwargs:
+        num_threads_per_task = kwargs['num_threads_per_task']
+    
+    tpn = tasks_per_node(queue_id)
+    queue_tpn = tpn
+    if 'tasks_per_node' in kwargs:
+        tpn = min(tpn,kwargs['tasks_per_node'])
+    
+    nc = node_config(queue_id)
+    
+    num_tasks = min(num_tasks,nc['max task'])
+    num_threads_per_task = min(num_threads_per_task,nc['max thread']/tpn)
+    
+    my_name = "myclusterjob"
+    if 'my_name' in kwargs:
+        my_name = kwargs['my_name']
+    my_output = "myclusterjob.out"
+    if 'my_output' in kwargs:
+        my_output = kwargs['my_output']
+    if 'my_script' not in kwargs['my_script']:
+        pass
+    my_script = kwargs['my_script']
+    if 'user_email' not in kwargs['user_email']:
+        pass
+    user_email = kwargs['user_email']
+    
+    
+    num_nodes = num_tasks*tpn
+
+    num_queue_slots = num_nodes*queue_tpn
+    
+    script=Template("""#!/bin/bash
+
+# Job name
+#$$ -N $my_name
+
+# The batch system should use the current directory as working directory.
+#$$ -cwd
+
+# Redirect output stream to this file.
+#$$ -o $my_output
+
+# Join the error stream to the output stream.
+#$$ -j yes
+
+# Send status information to this email address. 
+#$$ -M $user_email
+
+# Send me an e-mail when the job has finished. 
+#$$ -m be
+
+# Queue name
+#$$ -q $queue_name
+
+# Parallel environment
+#$$ -pe $parallel_env $num_queue_slots
+
+export NUM_TASKS=$num_tasks
+export TASK_PER_NODE=$tpn
+export THREADS_PER_TASK=$num_threads_per_task
+
+export OMP_NUM_THREADS=$$THREADS_PER_TASK
+
+export OMPI_CMD='mpiexec -n $$NUM_TASKS -npernode $$TASK_PER_NODE -bysocket -bind-to-socket' 
+export MVAPICH_CMD=''
+export IMPI_CMD=''
+
+# Summarise environment
+echo -e "JobID: $$JOB_ID\n======"
+echo "Time: `date`"
+echo "Running on master node: `hostname`"
+echo "Current directory: `pwd`"
+
+if [ "$$PE_HOSTFILE" ]; then
+        #! Create a machine file:
+        cat $$PE_HOSTFILE | uniq > machine.file.$$JOB_ID
+        echo -e "\nNodes allocated:\n================"
+        echo `cat machine.file.$$JOB_ID | sed -e 's/\..*$$//g'`
+fi
+
+echo -e "\nnumtasks=$num_tasks, numnodes=$num_nodes, tasks_per_node=$tpn (OMP_NUM_THREADS=$$OMP_NUM_THREADS)"
+
+echo -e "\nExecuting command:\n==================\n$my_script\n"
+
+# Run user script
+./$my_script
+
+# Report on completion
+qstat -j $$JOB_ID
+
+""")
+    script.substitute({'my_name':my_name,
+                       'my_script':my_script,
+                       'my_output':my_output,
+                       'user_email':user_email,
+                       'queue_name':queue_name,
+                       'parallel_env':parallel_env,
+                       'num_queue_slots':num_queue_slots,
+                       'num_tasks':num_tasks,
+                       'tpn':tpn,
+                       'num_threads_per_task':num_threads_per_task,
+                       'num_queue_slots':num_queue_slots,
+                       'num_nodes':num_nodes,
+                       })
+    
+    return script
 
 def delete(job_id):
     pass
