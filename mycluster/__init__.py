@@ -16,7 +16,9 @@ def detect_scheduling_sys():
     return None
 
 def queues():
-    return scheduler.queues()
+    from scheduler import queues
+    
+    return queues()
 
 def create_submit(queue_id,**kwargs):
     
