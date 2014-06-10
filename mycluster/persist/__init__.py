@@ -35,7 +35,7 @@ class JobDB(object):
         self.job_db[job.id] = job
         transaction.commit()
         
-    def get(self,job_id):
+    def get(self,job_id=-1):
         return self.job_db[job_id]
             
     def close(self):

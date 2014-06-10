@@ -38,6 +38,11 @@ def submit(script_name):
         
     return job_id
 
+def list():
+    if job_db != None:
+        return job_db.job_db
+    
+
 def my_import(name):
     mod = __import__(name)
     components = name.split('.')
