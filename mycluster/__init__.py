@@ -33,7 +33,7 @@ def print_queue_info():
 def create_submit(queue_id,script_name=None,**kwargs):
 
     if job_db != None:
-        if 'user email' not in kwargs:
+        if 'user_email' not in kwargs:
             email = job_db.user_db['user'].email
             if email != 'unknown':
                 kwargs['user_email'] = email
@@ -125,7 +125,7 @@ def sysscribe_update(job_id):
 
 def email_update(email):
     if job_db != None:
-        job_db.user_db['user'].email = email
+        job_db.user_db['user'].update_email(email)
 
 def init():
     global scheduler

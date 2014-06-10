@@ -74,6 +74,10 @@ class User(Persistent):
         self.first_name = first_name
         self.second_name = second_name
         self.email = email
+        
+    def update_email(self,email):
+        self.email
+        transaction.commit()
 
 class Job(Persistent):
     def __init__(self, job_id, time_stamp, scheduler):
