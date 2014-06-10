@@ -17,7 +17,7 @@ def main():
     create_group.add_argument('--script',help='script file (required)')
     parser.add_argument('-s','--submit', help='Submit job file')
     parser.add_argument('--sysscribe',type=int,help='Syscribe update')
-    parser.add_argument('--email',type=int,help='Email update')
+    parser.add_argument('--email',help='Email update')
     args = parser.parse_args()
     
     if args.queues:
