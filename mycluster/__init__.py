@@ -24,10 +24,11 @@ def queues():
     return scheduler.queues()
 
 def print_queue_info():
-    print 'Queue Name | Max Task | Max Thread | Max Memory'
+    print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format('Queue Name','Max Task','Max Thread','Max Memory'))
     for q in queues():
         nc = scheduler.node_config(q)
-        print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format(q, nc['max task'], nc['max thread'], nc['max memory']))
+        tpn = scheduler.tasks_per_node(q)
+        print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format(q, tpn, nc['max thread'], nc['max memory']))
 
 def create_submit(queue_id,script_name=None,**kwargs):
     

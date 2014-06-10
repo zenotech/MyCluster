@@ -6,7 +6,9 @@ import os
 import mycluster
 
 usage_string="""
-mycluster
+mycluster:
+
+   
 """
 
 def usage(status=1):
