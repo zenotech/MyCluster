@@ -107,6 +107,7 @@ def create_db():
         
 def update_db():
     status_dict = scheduler.status()
+    print status_dict
     jobs = job_list()
     for j in jobs:
         if jobs[j].status != 'completed':
