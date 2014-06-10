@@ -253,13 +253,13 @@ def status():
             f.readline(); # read header
             f.readline(); # read separator
             for line in f:
-                new_line = re.sub(' +',' ',line)
+                new_line = re.sub(' +',' ',line.strip())
                 job_id = int(new_line.split(' ')[0])
                 state = new_line.split(' ')[4]
                 
                 status_dict[job_id] = state
-        except:
-            pass
+        except e:
+            print e
         
     return status_dict
     
