@@ -123,6 +123,10 @@ def sysscribe_update(job_id):
         from sysscribe import system
         job_db.get(job_id).sysscribe = system.system_dict()
 
+def email_update(email):
+    if job_db != None:
+        job_db.user_db['user'].email = email
+
 def init():
     global scheduler
     scheduler = detect_scheduling_sys()

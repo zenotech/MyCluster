@@ -17,6 +17,7 @@ def main():
     create_group.add_argument('--script',help='script file (required)')
     parser.add_argument('-s','--submit', help='Submit job file')
     parser.add_argument('--sysscribe',type=int,help='Syscribe update')
+    parser.add_argument('--email',type=int,help='Email update')
     args = parser.parse_args()
     
     if args.queues:
@@ -25,6 +26,8 @@ def main():
         mycluster.submit(args.submit)
     if args.sysscribe:
         mycluster.sysscribe_update(args.sysscribe)
+    if args.email:
+        mycluster.email_update(args.email)
     if args.create:
         if args.create and args.jobqueue and args.script and not args.ntasks and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,script_name=args.create,
