@@ -41,5 +41,5 @@ setup(
     url='https://github.com/zenotech/MyCluster',
     classifiers=classifiers,
     long_description=open('README.md').read(),
-    scripts=['bin/mycluster'],
+    scripts=['scripts/mycluster'],
 )

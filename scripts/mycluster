@@ -1,0 +1,45 @@
+#!/usr/bin/python
+
+import getopt
+import sys
+import os
+import mycluster
+
+usage_string="""
+mycluster
+"""
+
+def usage(status=1):
+    print usage_string
+    sys.exit(status)
+
+def main():
+    try:
+        """
+        opts, args = getopt.getopt(
+            sys.argv[1:], 'a:b:c::d:g:hi:k:np:qs:wr',
+            ['access_key=', 'bucket=', 'callback=', 'debug=', 'help', 'grant=',
+             'ignore=', 'key_prefix=', 'no_op', 'prefix=', 'quiet',
+             'secret_key=', 'no_overwrite', 'reduced', 'header=', 'multipart',
+             'host='])
+        """
+        opts, args = getopt.getopt(
+            sys.argv[1:], 'a:b:c::d:g:hi:k:np:qs:wr',
+            ['help','email='])
+    except:
+        usage(1)
+        
+    # parse opts
+    for o, a in opts:
+        if o in ('-h', '--help'):
+            usage(0)
+        if o in ('-q', '--queues'):
+            mycluster.print_queue_info()
+        if o in ('-s', '--submit'):
+            mycluster.submit(a)
+        if o in ('-u', '--sysscribe'):
+            mycluster.sysscribe_update(a,a)
+
+
+if __name__ == "__main__":
+    main()
