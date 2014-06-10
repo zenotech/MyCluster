@@ -48,7 +48,7 @@ def my_import(name):
 def get_directory():
     from os.path import expanduser
     home = expanduser("~")
-    directory = home+'/.mycluster'
+    directory = home+'/.mycluster/'
     return directory
 
 def create_directory():
