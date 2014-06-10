@@ -76,7 +76,7 @@ class User(Persistent):
         self.email = email
         
     def update_email(self,email):
-        self.email
+        self.email = email
         transaction.commit()
 
 class Job(Persistent):
