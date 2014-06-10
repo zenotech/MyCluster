@@ -152,7 +152,7 @@ def create_submit(queue_id,**kwargs):
     user_email = kwargs['user_email']
     
     
-    num_nodes = math.ceil(float(num_tasks)/float(tpn))
+    num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
     
