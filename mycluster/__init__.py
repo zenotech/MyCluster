@@ -109,7 +109,7 @@ def update_db():
                     jobs[j].update_status('running')
             else:
                 jobs[j].update_status('completed')
-                jobs[j].stats = scheduler.jobs_stats(j)
+                jobs[j].stats = scheduler.job_stats(j)
                 
 def sysscribe_update(job_id,sys_dict):
     if job_db != None:
