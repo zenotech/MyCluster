@@ -27,7 +27,7 @@ def print_queue_info():
     print 'Queue Name | Max Task | Max Thread | Max Memory'
     for q in queues():
         nc = scheduler.node_config(q)
-        print('{0} {1} {2} {3}'.format(q, nc['max task'], nc['max thread'], nc['max memory']))
+        print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format(q, nc['max task'], nc['max thread'], nc['max memory']))
 
 def create_submit(queue_id,script_name=None,**kwargs):
     
