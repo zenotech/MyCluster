@@ -36,7 +36,7 @@ def create_submit(queue_id,script_name=None,**kwargs):
         if 'user email' not in kwargs:
             email = job_db.user_db['user'].email
             if email != 'unknown':
-                kwargs['user email'] = email
+                kwargs['user_email'] = email
     
     script = scheduler.create_submit(queue_id,**kwargs)
     
