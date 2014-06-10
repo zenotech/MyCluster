@@ -1,7 +1,7 @@
 import ZODB
 from persistent import Persistent
 from ZODB import FileStorage, DB
-from mycluster import get_directory
+from mycluster import get_directory,scheduler
 from BTrees.OOBTree import OOBTree
 import transaction
 import logging
@@ -36,7 +36,7 @@ class JobDB(object):
             dbroot['user_db'] = OOBTree()
             self.user_db = dbroot['user_db']
             self.user_db['user'] = User('unknown','unknown','unknown')
-            self.user_db['site'] = Site('unknown')
+            self.user_db['site'] = Site(scheduler.name())
         
         self.user_db = dbroot['user_db']
        
@@ -90,4 +90,9 @@ class Job(Persistent):
         
     def update_status(self,new_status):
         self.status     = new_status
+        transaction.commit()
+        
+    def update_sysscribe(self,sys_dict):
+        self.sysscribe = sys_dict
+        self._p_changed = True
         transaction.commit()

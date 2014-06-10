@@ -147,10 +147,10 @@ def create_submit(queue_id,**kwargs):
     my_output = "myclusterjob.out"
     if 'my_output' in kwargs:
         my_output = kwargs['my_output']
-    if 'my_script' not in kwargs['my_script']:
+    if 'my_script' not in kwargs:
         pass
     my_script = kwargs['my_script']
-    if 'user_email' not in kwargs['user_email']:
+    if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
     
@@ -215,10 +215,8 @@ echo -e "\nExecuting command:\n==================\n$my_script\n"
 
 # Report on completion
 echo -e "\nJob Complete:\n==================\n"
-echo -e "\nResource Usage report:\n==================\n"
-qstat -j $$JOB_ID
-cat /proc/cpuinfo
-/sbin/lspci
+echo -e "\nRecording hardware setup\n==================\n"
+mycluster --sysscribe $$JOB_ID
 echo -e "Complete========\n"
 """)
     script_str = script.substitute({'my_name':my_name,

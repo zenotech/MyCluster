@@ -24,13 +24,19 @@ def queues():
     return scheduler.queues()
 
 def print_queue_info():
-    print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format('Queue Name','Max Task','Max Thread','Max Memory'))
+    print('{0:25} | {1:^10} | {2:^10} | {3:^10}'.format('Queue Name','Max Task','Max Thread','Max Memory'))
     for q in queues():
         nc = scheduler.node_config(q)
         tpn = scheduler.tasks_per_node(q)
-        print('{0:25} | {1:^4} | {2:^4} | {3:^4}'.format(q, tpn, nc['max thread'], nc['max memory']))
+        print('{0:25} | {1:^10} | {2:^10} | {3:^10}'.format(q, tpn, nc['max thread'], nc['max memory']))
 
 def create_submit(queue_id,script_name=None,**kwargs):
+
+    if job_db != None:
+        if 'user email' not in kwargs:
+            email = job_db.user_db['user'].email
+            if email != 'unknown':
+                kwargs['user email'] = email
     
     script = scheduler.create_submit(queue_id,**kwargs)
     
@@ -112,16 +118,18 @@ def update_db():
                 jobs[j].update_status('completed')
                 jobs[j].stats = scheduler.job_stats(j)
                 
-def sysscribe_update(job_id,sys_dict):
+def sysscribe_update(job_id):
     if job_db != None:
-        job_db.get(job_id).sysscribe = sys_dict
+        from sysscribe import system
+        job_db.get(job_id).sysscribe = system.system_dict()
 
 def init():
     global scheduler
+    scheduler = detect_scheduling_sys()
     create_directory()
     create_db()
-    scheduler = detect_scheduling_sys()
     update_db()
+    
     
 """
 Module initialiser functions

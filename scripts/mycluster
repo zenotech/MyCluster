@@ -1,47 +1,47 @@
 #!/usr/bin/python
 
-import getopt
 import sys
 import os
 import mycluster
-
-usage_string="""
-mycluster:
-
-   
-"""
-
-def usage(status=1):
-    print usage_string
-    sys.exit(status)
+import argparse
 
 def main():
-    try:
-        """
-        opts, args = getopt.getopt(
-            sys.argv[1:], 'a:b:c::d:g:hi:k:np:qs:wr',
-            ['access_key=', 'bucket=', 'callback=', 'debug=', 'help', 'grant=',
-             'ignore=', 'key_prefix=', 'no_op', 'prefix=', 'quiet',
-             'secret_key=', 'no_overwrite', 'reduced', 'header=', 'multipart',
-             'host='])
-        """
-        opts, args = getopt.getopt(
-            sys.argv[1:], 'a:b:c::d:g:hi:k:np:qs:wr',
-            ['help','email='])
-    except:
-        usage(1)
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-q','--queues', help='List all available queues',action="store_true")
+    create_group = parser.add_argument_group(title='Create job file')
+    create_group.add_argument('-c','--create', help='Name of job file')
+    create_group.add_argument('--jobqueue', help='Job queue (required)')
+    create_group.add_argument('--ntasks', type=int,help='Number of tasks')
+    create_group.add_argument('--taskpernode', type=int,help='Task per node')
+    create_group.add_argument('--script',help='script file (required)')
+    parser.add_argument('-s','--submit', help='Submit job file')
+    parser.add_argument('--sysscribe',type=int,help='Syscribe update')
+    args = parser.parse_args()
+    
+    if args.queues:
+        mycluster.print_queue_info()
+    if args.submit:
+        mycluster.submit(args.submit)
+    if args.sysscribe:
+        mycluster.sysscribe_update(args.sysscribe)
+    if args.create:
+        if args.create and args.jobqueue and args.script and not args.ntasks and not args.taskpernode:
+            mycluster.create_submit(args.jobqueue,script_name=args.create,
+                                    my_script=args.script)
+        elif args.create and args.jobqueue and args.script and args.ntasks and not args.taskpernode:
+            mycluster.create_submit(args.jobqueue,script_name=args.create,
+                                    my_script=args.script,
+                                    num_tasks=args.ntasks)
+        elif args.create and args.jobqueue and args.script and args.ntasks and args.taskpernode:
+            mycluster.create_submit(args.jobqueue,script_name=args.create,
+                                    my_script=args.script,
+                                    num_tasks=args.ntasks,
+                                    tasks_per_node=args.taskpernode)
+        else:
+            parser.print_help()
         
-    # parse opts
-    for o, a in opts:
-        if o in ('-h', '--help'):
-            usage(0)
-        if o in ('-q', '--queues'):
-            mycluster.print_queue_info()
-        if o in ('-s', '--submit'):
-            mycluster.submit(a)
-        if o in ('-u', '--sysscribe'):
-            mycluster.sysscribe_update(a,a)
-
-
+            
+            
 if __name__ == "__main__":
     main()
