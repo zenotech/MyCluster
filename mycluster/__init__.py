@@ -107,7 +107,6 @@ def create_db():
         
 def update_db():
     status_dict = scheduler.status()
-    print status_dict
     jobs = job_list()
     for j in jobs:
         if jobs[j].status != 'completed':
@@ -122,7 +121,7 @@ def update_db():
 def sysscribe_update(job_id):
     if job_db != None:
         from sysscribe import system
-        job_db.get(job_id).sysscribe = system.system_dict()
+        job_db.get(job_id).update_sysscribe(system.system_dict())
 
 def email_update(email):
     if job_db != None:
