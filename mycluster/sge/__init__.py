@@ -236,7 +236,7 @@ echo -e "Complete========\n"
 
 def submit(script_name):
     job_id = None
-    with os.popen('qsub -V -terse'+script_name) as f:
+    with os.popen('qsub -V -terse '+script_name) as f:
         job_id = int(f.readline().strip())
         # Get job id and record in database
     return job_id
