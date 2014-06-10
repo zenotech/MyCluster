@@ -28,6 +28,9 @@ http://www.uibk.ac.at/zid/systeme/hpc-systeme/common/tutorials/sge-howto.html
 http://www-zeuthen.desy.de/dv/documentation/unixguide/chapter18.html
 """
 
+def name():
+    return os.getenv('SGE_CLUSTER_NAME')
+
 def queues():
     
     # list all parallel env
@@ -178,7 +181,7 @@ def create_submit(queue_id,**kwargs):
 #$$ -pe $parallel_env $num_queue_slots
 
 export NUM_TASKS=$num_tasks
-export TASK_PER_NODE=$tpn
+export TASKS_PER_NODE=$tpn
 export THREADS_PER_TASK=$num_threads_per_task
 export NUM_NODES=$num_nodes
 
@@ -186,7 +189,7 @@ export NUM_NODES=$num_nodes
 export OMP_NUM_THREADS=$$THREADS_PER_TASK
 
 # Default mpiexec commnads for each flavour of mpi
-export OMPI_CMD="mpiexec -n $$NUM_TASKS -npernode $$TASK_PER_NODE -bysocket -bind-to-socket" 
+export OMPI_CMD="mpiexec -n $$NUM_TASKS -npernode $$TASKS_PER_NODE -bysocket -bind-to-socket" 
 export MVAPICH_CMD=''
 export IMPI_CMD=''
 
@@ -245,7 +248,6 @@ def delete(job_id):
     with os.popen('qdel '+job_id) as f:
         int(f.readline().strip())
     
-
 def status():
     status_dict = {}
     with os.popen('qstat') as f:
@@ -262,4 +264,23 @@ def status():
             pass
         
     return status_dict
+    
+def job_stats(job_id):
+    stats_dict = {}
+    output={}
+    with os.popen('qacct -j '+str(job_id)) as f:
+        try:
+            f.readline(); # read header
+            for line in f:
+                new_line = re.sub(' +',' ',line)
+                output[new_line.split(' ')[0]] = new_line.split(' ',1)[1]
+        except:
+            pass
+    
+    stats_dict['wallclock'] = output['ru_wallclock']
+    stats_dict['mem'] = output['mem']
+    stats_dict['cpu'] = output['cpu']
+    stats_dict['queue'] = output['granted_pe']+':'+output['qname']
+    
+    return stats_dict
     

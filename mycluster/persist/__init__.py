@@ -31,6 +31,16 @@ class JobDB(object):
 
         self.job_db = dbroot['job_db']
 
+        if not dbroot.has_key('user_db'):
+            from BTrees.OOBTree import OOBTree
+            dbroot['user_db'] = OOBTree()
+            self.user_db = dbroot['user_db']
+            self.user_db['user'] = User('unknown','unknown','unknown')
+            self.user_db['site'] = Site('unknown')
+        
+        self.user_db = dbroot['user_db']
+       
+
     def add(self,job):
         self.job_db[job.id] = job
         transaction.commit()
@@ -41,11 +51,29 @@ class JobDB(object):
     def list(self):
         pass
     
+    def commit(self):
+        transaction.commit()
             
     def close(self):
         self.connection.close()
         self.db.close()
         self.storage.close()
+
+class Site(Persistent):
+    def __init__(self,name):
+        self.name = name
+        self.PUE = 0.0
+        self.node_power = 0.0
+        self.total_num_nodes = 0
+        self.total_storage_power = 0.0
+        self.total_network_power = 0.0
+        self.total_management_power = 0.0
+        
+class User(Persistent):
+    def __init__(self, first_name, second_name, email):
+        self.first_name = first_name
+        self.second_name = second_name
+        self.email = email
 
 class Job(Persistent):
     def __init__(self, job_id, time_stamp, scheduler):
@@ -53,8 +81,13 @@ class Job(Persistent):
         self.time_stamp = time_stamp
         self.scheduler  = scheduler
         self.status     = 'submitted'
+        self.num_tasks = 0
+        self.tasks_per_node = 0
+        self.threads_per_task = 0
+        self.num_nodes = 0
+        self.stats = {}
+        self.sysscribe = None
         
     def update_status(self,new_status):
         self.status     = new_status
-        self._p_changed = 1
-        
+        transaction.commit()

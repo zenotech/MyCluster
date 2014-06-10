@@ -1,6 +1,10 @@
 import os
 import time
 
+VERSION = (0, 1, 0)
+__version__ = '.'.join(map(str, VERSION)) + '-dev'
+
+
 JOB_SCHEDULERS = ('SGE','SLURM','LSF','PBS','TORQUE','MAUI','LOADLEVELER')
 
 scheduler = None 
@@ -19,6 +23,12 @@ def detect_scheduling_sys():
 def queues():
     return scheduler.queues()
 
+def print_queue_info():
+    print 'Queue Name | Max Task | Max Thread | Max Memory'
+    for q in queues():
+        nc = scheduler.node_config(q)
+        print('{0} {1} {2} {3}'.format(q, nc['max task'], nc['max thread'], nc['max memory']))
+
 def create_submit(queue_id,script_name=None,**kwargs):
     
     script = scheduler.create_submit(queue_id,**kwargs)
@@ -34,9 +44,23 @@ def submit(script_name):
     if job_db != None:
         from mycluster.persist import Job
         job = Job(job_id,time.time(),'sge')
+        with open(script_name,'r') as f:
+            for line in f:
+                if line.split('=')[0] == 'export NUM_TASKS':
+                    job.num_tasks = line.split('=')[1]
+                if line.split('=')[0] == 'export TASKS_PER_NODE':
+                    job.tasks_per_node = line.split('=')[1]
+                if line.split('=')[0] == 'export THREADS_PER_TASK':
+                    job.theads_per_task = line.split('=')[1]
+                if line.split('=')[0] == 'export NUM_NODES':
+                    job.num_nodes = line.split('=')[1]
+                    
         job_db.add(job)
         
     return job_id
+
+def delete(job_id):
+    scheduler.delete(job_id)
 
 def job_list():
     if job_db != None:
@@ -85,6 +109,11 @@ def update_db():
                     jobs[j].update_status('running')
             else:
                 jobs[j].update_status('completed')
+                jobs[j].stats = scheduler.jobs_stats(j)
+                
+def sysscribe_update(job_id,sys_dict):
+    if job_db != None:
+        job_db.get(job_id).sysscribe = sys_dict
 
 def init():
     global scheduler
