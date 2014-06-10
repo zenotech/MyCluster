@@ -246,5 +246,20 @@ def delete(job_id):
         int(f.readline().strip())
     
 
-def status(job_id=None):
-    pass
+def status():
+    status_dict = {}
+    with os.popen('qstat') as f:
+        try:
+            f.readline(); # read header
+            f.readline(); # read separator
+            for line in f:
+                new_line = re.sub(' +',' ',line)
+                job_id = int(new_line.split(' ')[0])
+                state = new_line.split(' ')[4]
+                
+                status_dict[job_id] = state
+        except:
+            pass
+        
+    return status_dict
+    

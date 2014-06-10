@@ -38,10 +38,15 @@ def submit(script_name):
         
     return job_id
 
-def list():
+def job_list():
     if job_db != None:
         return job_db.job_db
+    return None
     
+def get_job(job_id):
+    if job_db != None:
+        return job_db.get(job_id)
+    return None
 
 def my_import(name):
     mod = __import__(name)
@@ -69,11 +74,25 @@ def create_db():
     except:
         pass
         
+def update_db():
+    status_dict = scheduler.status()
+    jobs = job_list()
+    for j in jobs:
+        if jobs[j].status != 'completed':
+            if j in status_dict:
+                state = status_dict[j]
+                if state == 'r':
+                    jobs[j].update_status('running')
+            else:
+                jobs[j].update_status('completed')
+
 def init():
     global scheduler
     create_directory()
     create_db()
     scheduler = detect_scheduling_sys()
+    update_db()
+    
 """
 Module initialiser functions
 """
