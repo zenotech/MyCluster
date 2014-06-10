@@ -4,12 +4,19 @@ from ZODB import FileStorage, DB
 from mycluster import get_directory
 from BTrees.OOBTree import OOBTree
 import transaction
+import logging
+
 
 class JobDB(object):
         
     def __init__(self):
     
         directory = get_directory()
+        
+        self.logger = logging.getLogger('ZODB.FileStorage')
+        fh = logging.FileHandler(directory+'db.log')
+        self.logger.addHandler(fh)
+        
         self.storage = FileStorage.FileStorage(directory+'db.fs')
         self.db = DB(self.storage)
         self.connection = self.db.open()
