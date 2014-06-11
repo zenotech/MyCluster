@@ -276,7 +276,7 @@ def job_stats(job_id):
         try:
             f.readline(); # read header
             for line in f:
-                new_line = re.sub(' +',' ',line)
+                new_line = re.sub(' +',' ',line.strip())
                 output[new_line.split(' ')[0]] = new_line.split(' ',1)[1]
         except:
             pass

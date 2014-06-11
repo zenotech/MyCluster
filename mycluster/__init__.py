@@ -92,13 +92,13 @@ def submit(script_name):
         with open(script_name,'r') as f:
             for line in f:
                 if line.split('=')[0] == 'export NUM_TASKS':
-                    job.num_tasks = line.split('=')[1]
+                    job.num_tasks = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export TASKS_PER_NODE':
-                    job.tasks_per_node = line.split('=')[1]
+                    job.tasks_per_node = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export THREADS_PER_TASK':
-                    job.theads_per_task = line.split('=')[1]
+                    job.theads_per_task = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export NUM_NODES':
-                    job.num_nodes = line.split('=')[1]
+                    job.num_nodes = line.split('=')[1].strip()
                     
         job_db.add(job)
         
