@@ -23,6 +23,20 @@ def detect_scheduling_sys():
 def queues():
     return scheduler.queues()
 
+def printjobs():
+    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
+    jobs = job_list()
+    print('      {0:^10} | {1:^4} | {2:^4} | {3:^6} | {4:^6}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
+    for j in jobs:
+        print('{0:4} | {1:^10} | {2:^4} | {3:^4} | {4:^6} | {5:^6}'.format(j,
+                                                         jobs[j],
+                                                         jobs[j].status,
+                                                         jobs[j].num_tasks,
+                                                         jobs[j].stats['cpu'],
+                                                         jobs[j].stats['wallclock'],
+                                                         )
+              )
+
 def print_queue_info():
     print('{0:25} | {1:^10} | {2:^10} | {3:^10}'.format('Queue Name','Max Task','Max Thread','Max Memory'))
     for q in queues():
@@ -126,6 +140,12 @@ def sysscribe_update(job_id):
 def email_update(email):
     if job_db != None:
         job_db.user_db['user'].update_email(email)
+def firstname_update(name):
+    if job_db != None:
+        job_db.user_db['user'].firstname_email(name)
+def lastname_update(name):
+    if job_db != None:
+        job_db.user_db['user'].lastname_email(name)
 
 def init():
     global scheduler
@@ -140,5 +160,3 @@ Module initialiser functions
 """
 init()
 
-if __name__ == "__main__":
-    queues()

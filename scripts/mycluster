@@ -18,6 +18,12 @@ def main():
     parser.add_argument('-s','--submit', help='Submit job file')
     parser.add_argument('--sysscribe',type=int,help='Syscribe update')
     parser.add_argument('--email',help='Email update')
+    parser.add_argument('--firstname',help='Name update')
+    parser.add_argument('--lastname',help='Name update')
+    parser.add_argument('--printjobs',help='Print jobs')
+    parser.add_argument('--jobid',type=int,help='Job id')
+    parser.add_argument('--appname',help='Application name')
+    parser.add_argument('--appdata',help='Application data')
     args = parser.parse_args()
     
     if args.queues:
@@ -26,8 +32,22 @@ def main():
         mycluster.submit(args.submit)
     if args.sysscribe:
         mycluster.sysscribe_update(args.sysscribe)
+    if args.jobid:
+        if args.appname:
+            mycluster.appname_update(args.jobid,args.appname)
+        if args.appdata:
+            mycluster.appdata_update(args.jobid,args.appdata)
+        if not args.appname and not args.appdata:
+            parser.print_help()
+            
     if args.email:
         mycluster.email_update(args.email)
+    if args.firstname:
+        mycluster.firstname_update(args.firstname)
+    if args.lastname:
+        mycluster.secondname_update(args.lastname)
+    if args.printjobs:
+        mycluster.printjobs()
     if args.create:
         if args.create and args.jobqueue and args.script and not args.ntasks and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,script_name=args.create,

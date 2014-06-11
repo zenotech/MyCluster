@@ -217,6 +217,12 @@ echo -e "\nExecuting command:\n==================\n$my_script\n"
 echo -e "\nJob Complete:\n==================\n"
 echo -e "\nRecording hardware setup\n==================\n"
 mycluster --sysscribe $$JOB_ID
+if [ "$$MYCLUSTER_APP_NAME" ]; then
+    mycluster --jobid $$JOB_ID --appname=$$MYCLUSTER_APP_NAME
+fi
+if [ "$$MYCLUSTER_APP_DATA" ]; then
+    mycluster --jobid $$JOB_ID --appname=$$MYCLUSTER_APP_DATA
+fi
 echo -e "Complete========\n"
 """)
     script_str = script.substitute({'my_name':my_name,

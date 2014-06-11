@@ -41,5 +41,6 @@ setup(
     url='https://github.com/zenotech/MyCluster',
     classifiers=classifiers,
     long_description=open('README.md').read(),
+    install_requires=['ZODB'],
     scripts=['scripts/mycluster'],
 )
