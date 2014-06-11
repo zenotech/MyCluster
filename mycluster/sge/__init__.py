@@ -195,11 +195,24 @@ export NUM_NODES=$num_nodes
 
 # OpenMP configuration
 export OMP_NUM_THREADS=$$THREADS_PER_TASK
+export OMP_PROC_BIND=true
+export OMP_PLACES=sockets
 
-# Default mpiexec commnads for each flavour of mpi
+# OpenMPI
 export OMPI_CMD="mpiexec -n $$NUM_TASKS -npernode $$TASKS_PER_NODE -bysocket -bind-to-socket" 
-export MVAPICH_CMD=''
-export IMPI_CMD=''
+
+# MVAPICH2
+export MV2_CPU_BINDING_LEVEL=SOCKET
+export MV2_CPU_BINDING_POLICY=scatter
+export MVAPICH_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE -bind-to-socket"
+
+# Intel MPI
+# The following variables define a sensible pinning strategy for Intel MPI tasks -
+# this should be suitable for both pure MPI and hybrid MPI/OpenMP jobs:
+export I_MPI_PIN_DOMAIN=omp:compact # Domains are $OMP_NUM_THREADS cores in size
+export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches/sockets
+#export I_MPI_FABRICS=shm:ofa
+export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
 
 # Summarise environment
 echo -e "JobID: $$JOB_ID\n======"
