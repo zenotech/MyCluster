@@ -26,35 +26,40 @@ def queues():
 def printjobs():
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
+    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
     for i,j in enumerate(jobs):
         status = jobs[j].status
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10}s | {5:^10}s'.format(i,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              jobs[j].stats['cpu'],
                                                              jobs[j].stats['wallclock'],
+                                                             jobs[j].job_name,
                                                              )
                   )
         elif status == 'running':
             stats = scheduler.running_stats()
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10}s | {5:^10}s'.format(j,
-                                                             jobs[j],
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
+                                                             j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              stats['cpu'],
                                                              stats['wallclock'],
+                                                             jobs[j].job_name,
+                                                             jobs[j].job_dir,
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10}'.format(j,
-                                                             jobs[j],
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
+                                                             j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              '-',
                                                              '-',
+                                                             jobs[j].job_name,
+                                                             jobs[j].job_dir,
                                                              )
                   )
             
@@ -88,7 +93,7 @@ def submit(script_name):
     job_id = scheduler.submit(script_name)
     if job_db != None:
         from mycluster.persist import Job
-        job = Job(job_id,time.time(),'sge')
+        job = Job(job_id,time.time())
         with open(script_name,'r') as f:
             for line in f:
                 if line.split('=')[0] == 'export NUM_TASKS':
@@ -99,8 +104,15 @@ def submit(script_name):
                     job.theads_per_task = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export NUM_NODES':
                     job.num_nodes = line.split('=')[1].strip()
-                    
+                if line.split('=')[0] == 'export MYCLUSTER_QUEUE':
+                    job.queue = line.split('=')[1].strip()
+                if line.split('=')[0] == 'export MYCLUSTER_JOB_NAME':
+                    job.job_name = line.split('=')[1].strip()
+        
+        job.script_name = script_name
+        job.job_dir = os.path.dirname(script_name)
         job_db.add(job)
+        job_db.add_queue(job.queue,scheduler.name())
         
     return job_id
 

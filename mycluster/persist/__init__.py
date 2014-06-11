@@ -43,14 +43,24 @@ class JobDB(object):
             from BTrees.OOBTree import OOBTree
             dbroot['site_db'] = OOBTree()
             self.site_db = dbroot['site_db']
-            self.site_db[scheduler.name()] = Site(scheduler.name())
+            self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
         
         self.site_db = dbroot['site_db']
       
+        if not dbroot.has_key('queue_db'):
+            from BTrees.OOBTree import OOBTree
+            dbroot['queue_db'] = OOBTree()
+            self.queue_db = dbroot['queue_db']
+        
+        self.queue_db = dbroot['queue_db']
 
     def add(self,job):
         self.job_db[job.id] = job
         transaction.commit()
+        
+    def add_queue(self,queue,site):
+        if not self.queue_db.has_key(queue):
+            self.queue_db[queue] = Queue(queue,site)
         
     def get(self,job_id):
         return self.job_db[job_id]
@@ -67,13 +77,14 @@ class JobDB(object):
         self.storage.close()
 
 class Site(Persistent):
-    def __init__(self,name):
+    def __init__(self,name,scheduler_type):
         self.name = name
         self.PUE = 0.0
         self.total_num_nodes = 0
         self.total_storage_power = 0.0
         self.total_network_power = 0.0
         self.total_management_power = 0.0
+        self.scheduler_type = scheduler_type
         
 class Queue(Persistent):
     def __init__(self,name,site_name):
@@ -99,10 +110,9 @@ class User(Persistent):
         transaction.commit()
 
 class Job(Persistent):
-    def __init__(self, job_id, time_stamp, scheduler):
+    def __init__(self, job_id, time_stamp):
         self.id     = job_id
         self.time_stamp = time_stamp
-        self.scheduler  = scheduler
         self.status     = 'submitted'
         self.num_tasks = 0
         self.tasks_per_node = 0
@@ -112,6 +122,10 @@ class Job(Persistent):
         self.sysscribe = None
         self.app_name = 'unknown'
         self.app_data_metric = 0
+        self.job_script_name = 'unknown'
+        self.job_name = 'unknown'
+        self.job_dir = 'unknown'
+        self.queue = 'unknown'
         
     def update_status(self,new_status):
         self.status     = new_status

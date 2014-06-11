@@ -28,6 +28,9 @@ http://www.uibk.ac.at/zid/systeme/hpc-systeme/common/tutorials/sge-howto.html
 http://www-zeuthen.desy.de/dv/documentation/unixguide/chapter18.html
 """
 
+def scheduler_type():
+    return 'sge'
+
 def name():
     return os.getenv('SGE_CLUSTER_NAME')
 
@@ -180,6 +183,8 @@ def create_submit(queue_id,**kwargs):
 # Parallel environment
 #$$ -pe $parallel_env $num_queue_slots
 
+export MYCLUSTER_QUEUE=$parallel_env:$queue_name
+export MYCLUSTER_JOB_NAME=$my_name
 export NUM_TASKS=$num_tasks
 export TASKS_PER_NODE=$tpn
 export THREADS_PER_TASK=$num_threads_per_task
