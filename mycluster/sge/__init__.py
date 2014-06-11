@@ -304,10 +304,9 @@ def running_stats(job_id):
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 if new_line.split(' ')[0] == 'usage':
-                    str = new_line.split(' ',2)[2]
-                    str.split(',')[0].split('=')[1]
-                    output['cpu'] = str.split(',')[0].split('=')[1]
-                    output['mem'] = str.split(',')[1].split('=')[1]
+                    mstr = new_line.split(' ',2)[2]                    
+                    output['cpu'] = mstr.split(',')[0].split('=')[1]
+                    output['mem'] = mstr.split(',')[1].split('=')[1]
         except:
             pass
     
