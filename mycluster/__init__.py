@@ -26,11 +26,11 @@ def queues():
 def printjobs():
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('    | {0:^10} | {1:^10} | {2:^4} | {3:^6} | {4:^6}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
+    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
     for i,j in enumerate(jobs):
         status = jobs[j].status
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6}s | {5:^6}s'.format(i,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10}s | {5:^10}s'.format(i,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -40,7 +40,7 @@ def printjobs():
                   )
         elif status == 'running':
             stats = scheduler.running_stats()
-            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6}s | {5:^6}s'.format(j,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10}s | {5:^10}s'.format(j,
                                                              jobs[j],
                                                              status,
                                                              jobs[j].num_tasks,
@@ -49,12 +49,12 @@ def printjobs():
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6} | {5:^6}'.format(j,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10}'.format(j,
                                                              jobs[j],
                                                              status,
                                                              jobs[j].num_tasks,
-                                                             0,
-                                                             0,
+                                                             '-',
+                                                             '-',
                                                              )
                   )
             
