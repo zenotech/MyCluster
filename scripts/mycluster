@@ -12,19 +12,20 @@ def main():
     create_group = parser.add_argument_group(title='Create job file')
     create_group.add_argument('-c','--create', help='Name of job file')
     create_group.add_argument('--jobqueue', help='Job queue (required)')
-    create_group.add_argument('--jobname', help='Job name')
-    create_group.add_argument('--ntasks', type=int,help='Number of tasks')
+    create_group.add_argument('--jobname', default='myclusterjob',help='Job name')
+    create_group.add_argument('--joboutput', default='myclusterjob.out', help='Job output name')
+    create_group.add_argument('--ntasks', type=int,default=1,help='Number of tasks')
     create_group.add_argument('--taskpernode', type=int,help='Task per node')
     create_group.add_argument('--script',help='script file (required)')
     parser.add_argument('-s','--submit', help='Submit job file')
-    parser.add_argument('--sysscribe',type=int,help='Syscribe update')
     parser.add_argument('--email',help='Email update')
     parser.add_argument('--firstname',help='Name update')
     parser.add_argument('--lastname',help='Name update')
-    parser.add_argument('--printjobs',action="store_true",help='Print jobs')
-    parser.add_argument('--jobid',type=int,help='Job id')
-    parser.add_argument('--appname',help='Application name')
-    parser.add_argument('--appdata',type=int,help='Application data')
+    parser.add_argument('p','--printjobs',action="store_true",help='Print jobs')
+    parser.add_argument('--sysscribe',type=int,help=argparse.SUPPRESS)
+    parser.add_argument('--jobid',type=int,help=argparse.SUPPRESS)
+    parser.add_argument('--appname',help=argparse.SUPPRESS)
+    parser.add_argument('--appdata',type=int,help=argparse.SUPPRESS)
     args = parser.parse_args()
     
     if args.queues:
@@ -50,18 +51,21 @@ def main():
     if args.printjobs:
         mycluster.printjobs()
     if args.create:
-        if args.create and args.jobqueue and args.script and not args.ntasks and not args.taskpernode:
-            mycluster.create_submit(args.jobqueue,script_name=args.create,
-                                    my_script=args.script)
-        elif args.create and args.jobqueue and args.script and args.ntasks and not args.taskpernode:
-            mycluster.create_submit(args.jobqueue,script_name=args.create,
+        if args.create and args.jobqueue and args.script and not args.taskpernode:
+            mycluster.create_submit(args.jobqueue,
+                                    script_name=args.create,
                                     my_script=args.script,
-                                    num_tasks=args.ntasks)
-        elif args.create and args.jobqueue and args.script and args.ntasks and args.taskpernode:
-            mycluster.create_submit(args.jobqueue,script_name=args.create,
+                                    my_name=args.jobname,
+                                    my_output=args.joboutput,
+                                    num_tasks=args.ntasks,)
+        elif args.create and args.jobqueue and args.script and args.taskpernode:
+            mycluster.create_submit(args.jobqueue,
+                                    script_name=args.create,
                                     my_script=args.script,
+                                    my_name=args.jobname,
+                                    my_output=args.joboutput,
                                     num_tasks=args.ntasks,
-                                    tasks_per_node=args.taskpernode)
+                                    tasks_per_node=args.taskpernode,)
         else:
             parser.print_help()
         
