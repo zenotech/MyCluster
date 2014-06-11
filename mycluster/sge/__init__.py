@@ -258,7 +258,7 @@ def submit(script_name):
 
 def delete(job_id):
     with os.popen('qdel '+job_id) as f:
-        int(f.readline().strip())
+        pass
     
 def status():
     status_dict = {}
