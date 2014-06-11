@@ -95,7 +95,7 @@ class User(Persistent):
         self.first_name = name
         transaction.commit()
     def lastname_email(self,name):
-        self.last_name = name
+        self.second_name = name
         transaction.commit()
 
 class Job(Persistent):
