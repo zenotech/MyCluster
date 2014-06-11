@@ -26,23 +26,47 @@ def queues():
 def printjobs():
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('      {0:^10} | {1:^4} | {2:^4} | {3:^6} | {4:^6}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
-    for j in jobs:
-        print('{0:4} | {1:^10} | {2:^4} | {3:^4} | {4:^6} | {5:^6}'.format(j,
-                                                         jobs[j],
-                                                         jobs[j].status,
-                                                         jobs[j].num_tasks,
-                                                         jobs[j].stats['cpu'],
-                                                         jobs[j].stats['wallclock'],
-                                                         )
-              )
+    print('    | {0:^10} | {1:^10} | {2:^4} | {3:^6} | {4:^6}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
+    for i,j in enumerate(jobs):
+        status = jobs[j].status
+        if status == 'completed':
+            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6}s | {5:^6}s'.format(i,
+                                                             j,
+                                                             status,
+                                                             jobs[j].num_tasks,
+                                                             jobs[j].stats['cpu'],
+                                                             jobs[j].stats['wallclock'],
+                                                             )
+                  )
+        elif status == 'running':
+            stats = scheduler.running_stats()
+            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6}s | {5:^6}s'.format(j,
+                                                             jobs[j],
+                                                             status,
+                                                             jobs[j].num_tasks,
+                                                             stats['cpu'],
+                                                             stats['wallclock'],
+                                                             )
+                  )
+        else:
+            print('{0:4} | {1:^10} | {2:^10} | {3:^4} | {4:^6} | {5:^6}'.format(j,
+                                                             jobs[j],
+                                                             status,
+                                                             jobs[j].num_tasks,
+                                                             0,
+                                                             0,
+                                                             )
+                  )
+            
+            
 
 def print_queue_info():
-    print('{0:25} | {1:^10} | {2:^10} | {3:^10}'.format('Queue Name','Max Task','Max Thread','Max Memory'))
+    print('{0:25} | {1:^15} | {2:^15} | {3:^15} | {4:^15} | {5:^15}'.format('Queue Name','Node Max Task','Node Max Thread','Node Max Memory','Max Task','Available Task'))
     for q in queues():
         nc = scheduler.node_config(q)
         tpn = scheduler.tasks_per_node(q)
-        print('{0:25} | {1:^10} | {2:^10} | {3:^10}'.format(q, tpn, nc['max thread'], nc['max memory']))
+        avail = scheduler.available_tasks(q)
+        print('{0:25} | {1:^15} | {2:^15} | {3:^15} | {4:^15} | {5:^15}'.format(q, tpn, nc['max thread'], nc['max memory'],avail['max tasks'],avail['available']))
 
 def create_submit(queue_id,script_name=None,**kwargs):
 

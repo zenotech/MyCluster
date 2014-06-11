@@ -287,4 +287,25 @@ def job_stats(job_id):
     stats_dict['queue'] = output['granted_pe']+':'+output['qname']
     
     return stats_dict
+
+def running_stats(job_id):
+    stats_dict = {}
+    output={}
+    with os.popen('qstat -j '+str(job_id)) as f:
+        try:
+            f.readline(); # read header
+            for line in f:
+                new_line = re.sub(' +',' ',line.strip())
+                if new_line.split(' ')[0] == 'usage':
+                    str = new_line.split(' ',2)[2]
+                    str.split(',')[0].split('=')[1]
+                    output['cpu'] = str.split(',')[0].split('=')[1]
+                    output['mem'] = str.split(',')[1].split('=')[1]
+        except:
+            pass
     
+    stats_dict['wallclock'] = 0
+    stats_dict['mem'] = output['mem']
+    stats_dict['cpu'] = output['cpu']
+    
+    return stats_dict
