@@ -100,25 +100,27 @@ def node_config(queue_id):
                 new_line = re.sub(' +',' ',line)
                 host_group = new_line.split(' ')[1]
     
+    config = {}
     host_name=''
+    found = False
     with os.popen('qconf -shgrp_resolved '+host_group) as f:
         for line in f:
-            host_name = line.split(' ')[0]
-            break
-
-    config = {}
-
-    with os.popen('qhost -q -h '+host_name) as f:
-        f.readline(); # read header
-        f.readline(); # read separator
-        for line in f:
-            if line[0] != ' ':
-                name = line.split(' ')[0]
-                if name != 'global':
-                    new_line = re.sub(' +',' ',line)
-                    config['max task']   = int(new_line.split(' ')[4])
-                    config['max thread'] = int(new_line.split(' ')[5])
-                    config['max memory'] =     new_line.split(' ')[7]
+            for host_name in line.split(' '):
+                with os.popen('qhost -q -h '+host_name) as f:
+                    f.readline(); # read header
+                    f.readline(); # read separator
+                    for line in f:
+                        if line[0] != ' ':
+                            name = line.split(' ')[0]
+                            if name != 'global':
+                                new_line = re.sub(' +',' ',line).strip()
+                                if new_line.split(' ')[3] != '-':
+                                    config['max task']   = int(new_line.split(' ')[4])
+                                    config['max thread'] = int(new_line.split(' ')[5])
+                                    config['max memory'] =     new_line.split(' ')[7]
+                                    found = True
+                                    break
+                if found: break
                 
     return config
 
