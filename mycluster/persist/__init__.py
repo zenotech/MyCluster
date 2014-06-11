@@ -122,6 +122,11 @@ class Job(Persistent):
         self._p_changed = True
         transaction.commit()
         
+    def update_stats(self,stats):
+        self.stats = stats
+        self._p_changed = True
+        transaction.commit()
+        
     def appname(self,name):
         self.app_name = name
         transaction.commit()
