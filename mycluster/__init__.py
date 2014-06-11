@@ -24,7 +24,7 @@ def queues():
     return scheduler.queues()
 
 def printjobs():
-    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
+    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].second_name))
     jobs = job_list()
     print('      {0:^10} | {1:^4} | {2:^4} | {3:^6} | {4:^6}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock'))
     for j in jobs:
