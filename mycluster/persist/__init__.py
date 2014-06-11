@@ -91,10 +91,10 @@ class User(Persistent):
     def update_email(self,email):
         self.email = email
         transaction.commit()
-    def firstname_email(self,name):
+    def firstname(self,name):
         self.first_name = name
         transaction.commit()
-    def lastname_email(self,name):
+    def lastname(self,name):
         self.second_name = name
         transaction.commit()
 

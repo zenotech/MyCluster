@@ -142,10 +142,10 @@ def email_update(email):
         job_db.user_db['user'].update_email(email)
 def firstname_update(name):
     if job_db != None:
-        job_db.user_db['user'].firstname_email(name)
+        job_db.user_db['user'].firstname(name)
 def lastname_update(name):
     if job_db != None:
-        job_db.user_db['user'].lastname_email(name)
+        job_db.user_db['user'].lastname(name)
 
 def init():
     global scheduler

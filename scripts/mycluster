@@ -45,7 +45,7 @@ def main():
     if args.firstname:
         mycluster.firstname_update(args.firstname)
     if args.lastname:
-        mycluster.secondname_update(args.lastname)
+        mycluster.lastname_update(args.lastname)
     if args.printjobs:
         mycluster.printjobs()
     if args.create:
