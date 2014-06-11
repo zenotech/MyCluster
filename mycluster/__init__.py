@@ -26,22 +26,23 @@ def queues():
 def printjobs():
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
+    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^20} | {6:50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
     for i,j in enumerate(jobs):
         status = jobs[j].status
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              jobs[j].stats['cpu'],
                                                              jobs[j].stats['wallclock'],
                                                              jobs[j].job_name,
+                                                             jobs[j].job_dir,
                                                              )
                   )
         elif status == 'running':
             stats = scheduler.running_stats()
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -52,7 +53,7 @@ def printjobs():
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^10} | {7:^50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,

@@ -52,7 +52,7 @@ def queues():
             f.readline(); # read header
             f.readline(); # read separator
             for line in f:
-                queue_name = line.split(' ')[0]
+                queue_name = line.split(' ')[0].strip()
                 queue_list.append(parallel_env+':'+queue_name)
     
     return queue_list
