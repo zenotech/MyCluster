@@ -41,7 +41,7 @@ def printjobs():
                                                              )
                   )
         elif status == 'running':
-            stats = scheduler.running_stats()
+            stats = scheduler.running_stats(j)
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,

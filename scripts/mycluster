@@ -13,7 +13,6 @@ def main():
     create_group.add_argument('-c','--create', help='Name of job file')
     create_group.add_argument('--jobqueue', help='Job queue (required)')
     create_group.add_argument('--jobname', default='myclusterjob',help='Job name')
-    create_group.add_argument('--joboutput', default='myclusterjob.out', help='Job output name')
     create_group.add_argument('--ntasks', type=int,default=1,help='Number of tasks')
     create_group.add_argument('--taskpernode', type=int,help='Task per node')
     create_group.add_argument('--script',help='script file (required)')
@@ -56,14 +55,14 @@ def main():
                                     script_name=args.create,
                                     my_script=args.script,
                                     my_name=args.jobname,
-                                    my_output=args.joboutput,
+                                    my_output=args.jobname+'.out',
                                     num_tasks=args.ntasks,)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
                                     my_script=args.script,
                                     my_name=args.jobname,
-                                    my_output=args.joboutput,
+                                    my_output=args.jobname+'.out',
                                     num_tasks=args.ntasks,
                                     tasks_per_node=args.taskpernode,)
         else:
