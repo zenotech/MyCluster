@@ -147,6 +147,14 @@ def lastname_update(name):
     if job_db != None:
         job_db.user_db['user'].lastname(name)
 
+def appname_update(job_id,appname):
+    if job_db != None:
+        job_db.get()['job_id'].appname(appname)
+def appdata_update(job_id,appdata):
+    if job_db != None:
+        job_db.get()['job_id'].appdata(appdata)
+    
+
 def init():
     global scheduler
     scheduler = detect_scheduling_sys()

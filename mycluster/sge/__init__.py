@@ -221,7 +221,7 @@ if [ "$$MYCLUSTER_APP_NAME" ]; then
     mycluster --jobid $$JOB_ID --appname=$$MYCLUSTER_APP_NAME
 fi
 if [ "$$MYCLUSTER_APP_DATA" ]; then
-    mycluster --jobid $$JOB_ID --appname=$$MYCLUSTER_APP_DATA
+    mycluster --jobid $$JOB_ID --appdata=$$MYCLUSTER_APP_DATA
 fi
 echo -e "Complete========\n"
 """)

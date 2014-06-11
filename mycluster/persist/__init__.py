@@ -83,9 +83,9 @@ class Queue(Persistent):
         self.node_charge = 0.0
         
 class User(Persistent):
-    def __init__(self, first_name, second_name, email):
+    def __init__(self, first_name, last_name, email):
         self.first_name = first_name
-        self.second_name = second_name
+        self.last_name = last_name
         self.email = email
         
     def update_email(self,email):
@@ -95,7 +95,7 @@ class User(Persistent):
         self.first_name = name
         transaction.commit()
     def lastname(self,name):
-        self.second_name = name
+        self.last_name = name
         transaction.commit()
 
 class Job(Persistent):
@@ -120,4 +120,11 @@ class Job(Persistent):
     def update_sysscribe(self,sys_dict):
         self.sysscribe = sys_dict
         self._p_changed = True
+        transaction.commit()
+        
+    def appname(self,name):
+        self.app_name = name
+        transaction.commit()
+    def appdata(self,data):
+        self.app_data_metric = data
         transaction.commit()

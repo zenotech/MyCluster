@@ -20,10 +20,10 @@ def main():
     parser.add_argument('--email',help='Email update')
     parser.add_argument('--firstname',help='Name update')
     parser.add_argument('--lastname',help='Name update')
-    parser.add_argument('--printjobs',help='Print jobs')
+    parser.add_argument('--printjobs',action="store_true",help='Print jobs')
     parser.add_argument('--jobid',type=int,help='Job id')
     parser.add_argument('--appname',help='Application name')
-    parser.add_argument('--appdata',help='Application data')
+    parser.add_argument('--appdata',type=int,help='Application data')
     args = parser.parse_args()
     
     if args.queues:
