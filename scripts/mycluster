@@ -17,6 +17,7 @@ def main():
     create_group.add_argument('--taskpernode', type=int,help='Task per node')
     create_group.add_argument('--script',help='script file (required)')
     parser.add_argument('-s','--submit', help='Submit job file')
+    parser.add_argument('-d','--delete', help='Delete job')
     parser.add_argument('--email',help='Email update')
     parser.add_argument('--firstname',help='Name update')
     parser.add_argument('--lastname',help='Name update')
@@ -49,6 +50,8 @@ def main():
         mycluster.lastname_update(args.lastname)
     if args.printjobs:
         mycluster.printjobs()
+    if args.delete:
+        mycluster.delete(args.delete)
     if args.create:
         if args.create and args.jobqueue and args.script and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,
