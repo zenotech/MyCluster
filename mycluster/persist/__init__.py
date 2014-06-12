@@ -63,7 +63,10 @@ class JobDB(object):
             self.queue_db[queue] = Queue(queue,site)
         
     def get(self,job_id):
-        return self.job_db[job_id]
+        if self.job_db.has_key(job_id):
+            return self.job_db[job_id]
+        else:
+            raise KeyError('Key: '+str(job_id)+' not found') 
     
     def list(self):
         pass

@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--firstname',help='Name update')
     parser.add_argument('--lastname',help='Name update')
     parser.add_argument('-p','--printjobs',action="store_true",help='Print jobs')
+    parser.add_argument('-e','--export',type=int,help='Export job data')
     parser.add_argument('--sysscribe',type=int,help=argparse.SUPPRESS)
     parser.add_argument('--jobid',type=int,help=argparse.SUPPRESS)
     parser.add_argument('--appname',help=argparse.SUPPRESS)
@@ -41,7 +42,8 @@ def main():
             mycluster.appdata_update(args.jobid,args.appdata)
         if not args.appname and not args.appdata:
             parser.print_help()
-            
+    if args.export:
+        mycluster.export(args.export)
     if args.email:
         mycluster.email_update(args.email)
     if args.firstname:

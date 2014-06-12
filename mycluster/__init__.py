@@ -120,6 +120,10 @@ def submit(script_name):
 def delete(job_id):
     scheduler.delete(job_id)
 
+
+def export(job_id):
+    pass
+
 def job_list():
     if job_db != None:
         return job_db.job_db
