@@ -24,6 +24,7 @@ def queues():
     with os.popen('sinfo -s') as f:
         f.readline(); # read header
         for line in f:
+            q = line.split(' ')[0].strip().replace("*","")
             queue_list.append(line.split(' ')[0].strip())
     
     return queue_list
@@ -62,10 +63,11 @@ def node_config(queue_id):
     config = {}
     with os.popen('sinfo -Nel -p '+queue_name) as f:
         f.readline(); # read header
+        f.readline(); # read header
         line = f.readline();
         new_line = re.sub(' +',' ',line.strip())
-        tasks = int(new_line.split(' ')[3])
-        memory = int(new_line.split(' ')[5])
+        tasks = int(new_line.split(' ')[4])
+        memory = int(new_line.split(' ')[6])
         config['max task']   = tasks
         config['max thread'] = tasks
         config['max memory'] = memory

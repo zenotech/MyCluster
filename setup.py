@@ -38,9 +38,15 @@ setup(
     version=get_package_version(),
     packages=find_packages(exclude=['tests', 'tests.*']),
     license='BSD',
+    author='Zenotech',
+    author_email='admin@zenotech.com',
     url='https://github.com/zenotech/MyCluster',
     classifiers=classifiers,
     long_description=open('README.md').read(),
     install_requires=['ZODB'],
     scripts=['scripts/mycluster'],
+    include_package_data=True,
+    package_data = {
+        '': ['*.md',]
+    },
 )
