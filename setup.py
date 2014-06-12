@@ -42,6 +42,7 @@ setup(
     author_email='admin@zenotech.com',
     url='https://github.com/zenotech/MyCluster',
     classifiers=classifiers,
+    description='Utilities to support interacting with multiple HPC clusters',
     long_description=open('README.md').read(),
     install_requires=['ZODB'],
     scripts=['scripts/mycluster'],
