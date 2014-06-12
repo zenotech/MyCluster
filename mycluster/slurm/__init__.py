@@ -36,13 +36,14 @@ def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0
     queue_name   = queue_id
+    nc = node_config(queue_id)
     with os.popen(' sinfo -s -p '+queue_name) as f:
         f.readline(); # read header
         line = f.readline();
         new_line = re.sub(' +',' ',line.strip())
         line = new_line.split(' ')[3]
-        free_tasks = int(line.split('/')[0])
-        max_tasks  = int(line.split('/')[3])
+        free_tasks = int(line.split('/')[1])*nc['max task']
+        max_tasks  = int(line.split('/')[3])*nc['max task']
 
     return {'available' : free_tasks, 'max tasks' : max_tasks}
 
@@ -248,18 +249,17 @@ def status():
     
 def job_stats(job_id):
     stats_dict = {}
-    with os.popen('sacct --noheader --format Elapsed,TotalCPU,Partition -j '+str(job_id)) as f:
+    with os.popen('sacct --noheader --format Elapsed,TotalCPU,Partition,NTasks,AveRSS -j '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
             stats_dict['wallclock']  = new_line.split(' ')[0]
             stats_dict['cpu'] = new_line.split(' ')[1]
             stats_dict['queue'] = new_line.split(' ')[2]
+            stats_dict['mem'] = float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
             pass
-    
-    stats_dict['mem'] = '-'
-    
+            
     return stats_dict
 
 def running_stats(job_id):
@@ -271,8 +271,15 @@ def running_stats(job_id):
             stats_dict['wallclock']  = new_line.split(' ')[0]
         except:
             pass
-    
-    stats_dict['mem'] = '-'
-    stats_dict['cpu'] = '-'
+        
+    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '+str(job_id)) as f:
+        try:
+            line = f.readline(); 
+            new_line = re.sub(' +',' ',line.strip())
+            ntasks = new_line.split(' ')[2]
+            stats_dict['mem']  = new_line.split(' ')[0]*ntasks
+            stats_dict['cpu']  = float(new_line.split(' ')[0])*ntasks
+        except:
+            pass
     
     return stats_dict

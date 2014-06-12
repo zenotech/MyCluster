@@ -1,11 +1,17 @@
 MyCluster
 =========
 
-Utilities to support interacting with multiple HPC clusters
+Utilities to support interacting with multiple HPC clusters  
+
+Provides the ability to interact with the most popular HPC job scheduling systems using a single interface 
+and enables the creation of job submission scripts. The system also tracks statistics of each job and records
+the hardware details of the compute nodes used.
+ 
 Data is stored in a local database in ~/.mycluster
 
-Tested with SGE and slurm
-LSF and PBS/TORQUE support under development
+Tested with SGE and slurm (LSF and PBS/TORQUE support under development)
+
+Installation - pip install MyCluster or git clone https://github.com/zenotech/MyCluster.git 
 
 Example usage
 
@@ -17,11 +23,11 @@ List all queues
 ```
 mycluster -q
 ```
-Create
+Create job script
 ```
 mycluster --create JOB_SCRIPT --jobqueue QUEUE --script SCRIPT --ntasks=TASKS --jobname=JOB_NAME
 ```
-Submit
+Submit job
 ```
 mycluster --submit JOB_SCRIPT
 ```
@@ -49,8 +55,8 @@ export OMP_NUM_THREADS=$THREADS_PER_TASK
 
 # Default mpiexec commnads for each flavour of mpi
 export OMPI_CMD="mpiexec -n $NUM_TASKS -npernode $TASKS_PER_NODE -bysocket -bind-to-socket"
-export MVAPICH_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE -bind-to-socket"
-export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
+export MVAPICH_CMD="mpiexec -n $NUM_TASKS -ppn $TASKS_PER_NODE -bind-to-socket"
+export IMPI_CMD="mpiexec -n $NUM_TASKS -ppn $TASKS_PER_NODE"
 ```
 
 In order to capture the relevant information it is recommended that the SCRIPT also exports the following
