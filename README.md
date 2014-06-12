@@ -2,31 +2,41 @@ MyCluster
 =========
 
 Utilities to support interacting with multiple HPC clusters
+Data is stored in a local database in ~/.mycluster
 
-Tested with SGE 
-
-SLURM interface under development
+Tested with SGE and slurm
+LSF and PBS/TORQUE support under development
 
 Example usage
 
+Register details
+```
+mycluster --firstname Fred --lastname Bloggs --email fred.bloggs@email.com
+```
 List all queues
+```
 mycluster -q
-
+```
 Create
+```
 mycluster --create JOB_SCRIPT --jobqueue QUEUE --script SCRIPT --ntasks=TASKS --jobname=JOB_NAME
-
+```
 Submit
+```
 mycluster --submit JOB_SCRIPT
-
+```
 Delete job
+```
 mycluster --delete JOB_ID
-
+```
 Print job table
+```
 mycluster -p
-
+```
 Print help
+```
 mycluster --help
-
+```
 The SCRIPT to be executed by the JOB_SCRIPT can make use of the following predefined environment variables
 ```bash
 export NUM_TASKS=

@@ -25,7 +25,7 @@ def queues():
         f.readline(); # read header
         for line in f:
             q = line.split(' ')[0].strip().replace("*","")
-            queue_list.append(line.split(' ')[0].strip())
+            queue_list.append(q)
     
     return queue_list
 
@@ -42,7 +42,7 @@ def available_tasks(queue_id):
         new_line = re.sub(' +',' ',line.strip())
         line = new_line.split(' ')[3]
         free_tasks = int(line.split('/')[0])
-        max_tasks  = int(line.split('/')[128])
+        max_tasks  = int(line.split('/')[3])
 
     return {'available' : free_tasks, 'max tasks' : max_tasks}
 
@@ -51,9 +51,10 @@ def tasks_per_node(queue_id):
     tasks=0
     with os.popen('sinfo -Nel -p '+queue_name) as f:
         f.readline(); # read header
+        f.readline(); # read header
         line = f.readline();
         new_line = re.sub(' +',' ',line.strip())
-        tasks = int(new_line.split(' ')[3])
+        tasks = int(new_line.split(' ')[4])
     return tasks
 
 def node_config(queue_id):
