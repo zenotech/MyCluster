@@ -58,8 +58,8 @@ def queues():
                     try:
                         f2.readline()
                         f2.readline()
-                        f2.readline()
-                        queue_list.append(parallel_env+':'+queue_name)
+                        if len(f2.readline()):
+                            queue_list.append(parallel_env+':'+queue_name)
                     except:
                         pass
     
