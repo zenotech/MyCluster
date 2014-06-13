@@ -1,7 +1,8 @@
+import sys
 import os
 import time
 
-VERSION = (0, 1, 1)
+VERSION = (0, 1, 2)
 __version__ = '.'.join(map(str, VERSION)) + '-dev'
 
 
@@ -199,9 +200,13 @@ def appdata_update(job_id,appdata):
 def init():
     global scheduler
     scheduler = detect_scheduling_sys()
-    create_directory()
-    create_db()
-    update_db()
+    if scheduler != None:
+        create_directory()
+        create_db()
+        update_db()
+    else:
+        print('No job schedulers found - exiting')
+        sys.exit()
     
     
 """
