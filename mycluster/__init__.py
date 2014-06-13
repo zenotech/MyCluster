@@ -19,6 +19,9 @@ def detect_scheduling_sys():
     if os.getenv('SLURMHOME') != None:
         return my_import('mycluster.slurm')
     
+    if os.getenv('LSB_DEFAULTQUEUE') != None:
+        return my_import('mycluster.lsf')
+    
     return None
 
 def queues():

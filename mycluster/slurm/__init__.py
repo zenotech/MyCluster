@@ -276,8 +276,8 @@ def running_stats(job_id):
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
-            ntasks = new_line.split(' ')[2]
-            stats_dict['mem']  = new_line.split(' ')[0]*ntasks
+            ntasks = int(new_line.split(' ')[2])
+            stats_dict['mem']  = float(new_line.split(' ')[1])*ntasks
             stats_dict['cpu']  = float(new_line.split(' ')[0])*ntasks
         except:
             pass

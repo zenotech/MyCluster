@@ -44,7 +44,7 @@ setup(
     classifiers=classifiers,
     description='Utilities to support interacting with multiple HPC clusters',
     long_description=open('README.md').read(),
-    install_requires=['ZODB'],
+    install_requires=['ZODB','SysScribe'],
     scripts=['scripts/mycluster'],
     include_package_data=True,
     package_data = {

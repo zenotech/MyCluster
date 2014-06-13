@@ -53,7 +53,15 @@ def queues():
             f.readline(); # read separator
             for line in f:
                 queue_name = line.split(' ')[0].strip()
-                queue_list.append(parallel_env+':'+queue_name)
+                # Check if user has permission to use queue
+                with os.popen('qstat -g c -U `whoami` -q '+queue_name) as f2:
+                    try:
+                        f2.readline()
+                        f2.readline()
+                        f2.readline()
+                        queue_list.append(parallel_env+':'+queue_name)
+                    except:
+                        pass
     
     return queue_list
 
