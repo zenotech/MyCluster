@@ -26,6 +26,7 @@ Useful sites:
 https://confluence.rcs.griffith.edu.au/display/v20zCluster/SGE+cheat+sheet
 http://www.uibk.ac.at/zid/systeme/hpc-systeme/common/tutorials/sge-howto.html
 http://www-zeuthen.desy.de/dv/documentation/unixguide/chapter18.html
+http://psg.skinforum.org/lsf.html
 """
 
 def scheduler_type():
@@ -48,7 +49,7 @@ def queues():
             parallel_env_list.append(line.strip())
 
     for parallel_env in parallel_env_list:
-        with os.popen('qstat -pe '+parallel_env+' -g c') as f:
+        with os.popen('qstat -pe '+parallel_env+' -U `whoami` -g c') as f:
             f.readline(); # read header
             f.readline(); # read separator
             for line in f:
@@ -73,7 +74,7 @@ def available_tasks(queue_id):
     max_tasks = 0
     parallel_env = queue_id.split(':')[0]
     queue_name   = queue_id.split(':')[1]
-    with os.popen(' qstat -pe '+parallel_env+' -g c') as f:
+    with os.popen(' qstat -pe '+parallel_env+' -U `whoami` -g c') as f:
         f.readline(); # read header
         f.readline(); # read separator
         for line in f:
@@ -168,6 +169,13 @@ def create_submit(queue_id,**kwargs):
         pass
     user_email = kwargs['user_email']
     
+    project_name = 'default'
+    if 'project_name' in kwargs:
+        project_name = kwargs['project_name']
+
+    wall_clock = '12:00:00'
+    if 'wall_clock' in kwargs:
+        wall_clock = kwargs['wall_clock']
     
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
@@ -193,6 +201,10 @@ def create_submit(queue_id,**kwargs):
 #$$ -q $queue_name
 # Parallel environment
 #$$ -pe $parallel_env $num_queue_slots
+# Project name
+#$$ -P $project_name
+# Maximum wall clock
+#$$ -l h_rt=$wall_clock
 
 export MYCLUSTER_QUEUE=$parallel_env:$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
@@ -266,6 +278,8 @@ echo -e "Complete========\n"
                                    'num_threads_per_task':num_threads_per_task,
                                    'num_queue_slots':num_queue_slots,
                                    'num_nodes':num_nodes,
+                                   'project_name': project_name,
+                                   'wall_clock' : wall_clock,
                                    })
     
     return script_str

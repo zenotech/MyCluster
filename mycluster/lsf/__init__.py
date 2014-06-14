@@ -38,13 +38,18 @@ def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0
     queue_name   = queue_id
-    nc = node_config(queue_id)
     with os.popen('bqueues '+queue_name) as f:
         f.readline(); # read header
         line = f.readline();
         new_line = re.sub(' +',' ',line.strip())
-        free_tasks = int(line.split('/')[1])
-        max_tasks  = int(line.split('/')[3])*nc['max task']
+        total_tasks = int(new_line.split(' ')[7])
+        pen_tasks  = int(new_line.split(' ')[8])
+        run_tasks  = int(new_line.split(' ')[9])
+        sus_tasks  = int(new_line.split(' ')[10])
+        resv_tasks  = int(new_line.split(' ')[11])
+        
+        if pend_tasks == 0:
+            free_tasks = 0
 
     return {'available' : free_tasks, 'max tasks' : max_tasks}
 

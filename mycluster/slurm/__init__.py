@@ -37,7 +37,7 @@ def available_tasks(queue_id):
     max_tasks = 0
     queue_name   = queue_id
     nc = node_config(queue_id)
-    with os.popen(' sinfo -s -p '+queue_name) as f:
+    with os.popen('sinfo -s -p '+queue_name) as f:
         f.readline(); # read header
         line = f.readline();
         new_line = re.sub(' +',' ',line.strip())
@@ -111,7 +111,14 @@ def create_submit(queue_id,**kwargs):
         pass
     user_email = kwargs['user_email']
     
+    project_name = 'default'
+    if 'project_name' in kwargs:
+        project_name = kwargs['project_name']
     
+    wall_clock = '12:00:00'
+    if 'wall_clock' in kwargs:
+        wall_clock = kwargs['wall_clock']
+
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
@@ -129,7 +136,7 @@ def create_submit(queue_id,**kwargs):
 # Redirect output stream to this file.
 #SBATCH --output $my_output.$$JOBID
 #! Which project should be charged 
-#SBATCH -A $account_name
+#SBATCH -A $project_name
 # Partition name
 #SBATCH -p $queue_name
 # Number of nodes
@@ -139,7 +146,7 @@ def create_submit(queue_id,**kwargs):
 # Exclusive node use
 #SBATCH --exclusive
 # How much wallclock time will be required?
-##SBATCH --time=02:00:00
+#SBATCH --time=$wall_clock
 
 
 export MYCLUSTER_QUEUE=$parallel_env:$queue_name
@@ -214,6 +221,8 @@ echo -e "Complete========\n"
                                    'num_threads_per_task':num_threads_per_task,
                                    'num_queue_slots':num_queue_slots,
                                    'num_nodes':num_nodes,
+                                   'project_name': project_name,
+                                   'wall_clock' : wall_clock,
                                    })
     
     return script_str

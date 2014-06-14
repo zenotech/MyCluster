@@ -16,6 +16,8 @@ def main():
     create_group.add_argument('--ntasks', type=int,default=1,help='Number of tasks')
     create_group.add_argument('--taskpernode', type=int,help='Task per node')
     create_group.add_argument('--script',help='script file (required)')
+    create_group.add_argument('--project',default='default',help='Project/Account used of accounting usage(required)')
+    create_group.add_argument('--maxtime',default='12:00:00',help='Maximum runtime (hh:mm::ss)')
     parser.add_argument('-s','--submit', help='Submit job file')
     parser.add_argument('-d','--delete', help='Delete job')
     parser.add_argument('--email',help='Email update')
@@ -61,7 +63,9 @@ def main():
                                     my_script=args.script,
                                     my_name=args.jobname,
                                     my_output=args.jobname+'.out',
-                                    num_tasks=args.ntasks,)
+                                    num_tasks=args.ntasks,
+                                    project_name=args.project,
+                                    wall_clock=args.maxtime,)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -69,6 +73,8 @@ def main():
                                     my_name=args.jobname,
                                     my_output=args.jobname+'.out',
                                     num_tasks=args.ntasks,
+                                    project_name=args.project,
+                                    wall_clock=args.maxtime,
                                     tasks_per_node=args.taskpernode,)
         else:
             parser.print_help()
