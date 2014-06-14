@@ -2,9 +2,6 @@ import sys
 import os
 import time
 
-VERSION = (0, 1, 2)
-__version__ = '.'.join(map(str, VERSION)) + '-dev'
-
 
 JOB_SCHEDULERS = ('SGE','SLURM','LSF','PBS','TORQUE','MAUI','LOADLEVELER')
 

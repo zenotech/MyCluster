@@ -1,18 +1,8 @@
 from setuptools import setup, find_packages
 import os
 import re
+from version import get_git_version
 
-version = re.compile(r'VERSION\s*=\s*\((.*?)\)')
-
-def get_package_version():
-    "returns package version without importing it"
-    base = os.path.abspath(os.path.dirname(__file__))
-    with open(os.path.join(base, "mycluster/__init__.py")) as initf:
-        for line in initf:
-            m = version.match(line.strip())
-            if not m:
-                continue
-            return ".".join(m.groups()[0].split(", "))
 
 classes = """
     Development Status :: 4 - Beta
@@ -35,7 +25,7 @@ classifiers = [s.strip() for s in classes.split('\n') if s]
 
 setup(
     name='MyCluster',
-    version=get_package_version(),
+    version=get_git_version(),
     packages=find_packages(exclude=['tests', 'tests.*']),
     license='BSD',
     author='Zenotech',
@@ -48,6 +38,6 @@ setup(
     scripts=['scripts/mycluster'],
     include_package_data=True,
     package_data = {
-        '': ['*.md',]
+        '': ['*.md','RELEASE-VERSION']
     },
 )
