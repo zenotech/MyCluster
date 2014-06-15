@@ -27,7 +27,8 @@ mycluster -q
 ```
 Create job script
 ```
-mycluster --create JOB_SCRIPT --jobqueue QUEUE --script SCRIPT --ntasks=TASKS --jobname=JOB_NAME
+mycluster --create JOB_SCRIPT --jobqueue QUEUE --script SCRIPT --ntasks=TASKS --jobname=JOB_NAME 
+          --project ACCOUNT_NAME --maxtime 12:00:00
 ```
 Submit job
 ```

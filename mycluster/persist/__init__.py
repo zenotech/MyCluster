@@ -53,6 +53,18 @@ class JobDB(object):
             self.queue_db = dbroot['queue_db']
         
         self.queue_db = dbroot['queue_db']
+        
+        if not dbroot.has_key('version'):
+            from version import get_git_version
+            dbroot['version'] = get_git_version()
+        else:
+            from version import get_git_version
+            current_version =  dbroot['version']
+            new_version = get_git_version()
+            # Add any migrations required here
+            
+            dbroot['version'] = new_version
+        
 
     def add(self,job):
         self.job_db[job.id] = job
@@ -78,7 +90,7 @@ class JobDB(object):
         self.connection.close()
         self.db.close()
         self.storage.close()
-
+        
 class Site(Persistent):
     def __init__(self,name,scheduler_type):
         self.name = name
