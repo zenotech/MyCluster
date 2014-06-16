@@ -24,7 +24,7 @@ def detect_scheduling_sys():
 def queues():
     return scheduler.queues()
 
-def printjobs():
+def printjobs(num_lines):
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
     print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^20} | {6:50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))

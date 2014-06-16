@@ -23,7 +23,7 @@ def main():
     parser.add_argument('--email',help='Email update')
     parser.add_argument('--firstname',help='Name update')
     parser.add_argument('--lastname',help='Name update')
-    parser.add_argument('-p','--printjobs',action="store_true",help='Print jobs')
+    parser.add_argument('-p','--printjobs',type=int,default=0,help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
     parser.add_argument('-e','--export',type=int,help='Export job data')
     parser.add_argument('--sysscribe',type=int,help=argparse.SUPPRESS)
     parser.add_argument('--jobid',type=int,help=argparse.SUPPRESS)
@@ -53,7 +53,7 @@ def main():
     if args.lastname:
         mycluster.lastname_update(args.lastname)
     if args.printjobs:
-        mycluster.printjobs()
+        mycluster.printjobs(args.printjobs)
     if args.delete:
         mycluster.delete(args.delete)
     if args.create:

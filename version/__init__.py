@@ -34,7 +34,8 @@
 __all__ = ("get_git_version")
 
 from subprocess import Popen, PIPE
-
+import os
+from pkg_resources import Requirement, resource_filename
 
 def call_git_describe(abbrev=4):
     try:
@@ -50,7 +51,8 @@ def call_git_describe(abbrev=4):
 
 def read_release_version():
     try:
-        f = open("RELEASE-VERSION", "r")
+        filename = resource_filename(Requirement.parse("MyCluster"),"RELEASE-VERSION")
+        f = open(filename, 'r')
 
         try:
             version = f.readlines()[0]
