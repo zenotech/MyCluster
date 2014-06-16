@@ -229,7 +229,7 @@ export MVAPICH_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE -bind-to-socket
 # Intel MPI
 # The following variables define a sensible pinning strategy for Intel MPI tasks -
 # this should be suitable for both pure MPI and hybrid MPI/OpenMP jobs:
-export I_MPI_PIN_DOMAIN=omp:compact # Domains are $OMP_NUM_THREADS cores in size
+export I_MPI_PIN_DOMAIN=omp:compact # Domains are $$OMP_NUM_THREADS cores in size
 export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches/sockets
 #export I_MPI_FABRICS=shm:ofa
 export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
