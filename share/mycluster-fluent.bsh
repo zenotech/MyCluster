@@ -1,0 +1,7 @@
+#!/bin/bash -f
+
+export MYCLUSTER_APP_NAME=fluent
+export MYCLUSTER_APP_DATA='n/a'
+
+fluent 3d -ssh -sge -pinfiniband -g -mpi=hp -t$NUM_TASKS -cnf=$TMPDIR/machines -i $MYINPUTFILE
+

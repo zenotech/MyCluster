@@ -148,8 +148,9 @@ def create_submit(queue_id,**kwargs):
         tpn = min(tpn,kwargs['tasks_per_node'])
     
     nc = node_config(queue_id)
+    qc = available_tasks(queue_id)
     
-    num_tasks = min(num_tasks,nc['max task'])
+    num_tasks = min(num_tasks,qc['max task'])
     
     num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
