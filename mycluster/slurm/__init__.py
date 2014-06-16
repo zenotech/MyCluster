@@ -214,7 +214,6 @@ echo -e "Complete========\n"
                                    'my_output':my_output,
                                    'user_email':user_email,
                                    'queue_name':queue_name,
-                                   'parallel_env':parallel_env,
                                    'num_queue_slots':num_queue_slots,
                                    'num_tasks':num_tasks,
                                    'tpn':tpn,
