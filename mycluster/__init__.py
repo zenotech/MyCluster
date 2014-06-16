@@ -35,7 +35,7 @@ def printjobs(num_lines):
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
-                                                             jobs[j].stats['cpu'],
+                                                             '-' if 'cpu' not in jobs[j].stats else jobs[j].stats['cpu'],
                                                              jobs[j].stats['wallclock'],
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
