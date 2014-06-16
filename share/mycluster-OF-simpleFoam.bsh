@@ -1,0 +1,7 @@
+#!/bin/bash -f
+
+export MYCLUSTER_APP_NAME=OF-simpleFoam
+export MYCLUSTER_APP_DATA=`head -100 constant/polyMesh/neighbour | grep note | cut -d ":" -f3 | cut -d " " -f2`
+
+$OMPI_CMD simpleFoam
+
