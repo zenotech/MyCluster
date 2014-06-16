@@ -149,7 +149,7 @@ def create_submit(queue_id,**kwargs):
 #SBATCH --time=$wall_clock
 
 
-export MYCLUSTER_QUEUE=$parallel_env:$queue_name
+export MYCLUSTER_QUEUE=$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
 export NUM_TASKS=$num_tasks
 export TASKS_PER_NODE=$tpn
@@ -172,7 +172,7 @@ export MVAPICH_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE -bind-to-socket
 # Intel MPI
 # The following variables define a sensible pinning strategy for Intel MPI tasks -
 # this should be suitable for both pure MPI and hybrid MPI/OpenMP jobs:
-export I_MPI_PIN_DOMAIN=omp:compact # Domains are $OMP_NUM_THREADS cores in size
+export I_MPI_PIN_DOMAIN=omp:compact # Domains are $$OMP_NUM_THREADS cores in size
 export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches/sockets
 #export I_MPI_FABRICS=shm:ofa
 export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
