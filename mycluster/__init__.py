@@ -54,7 +54,7 @@ def get_stats_time(stats):
     
     time_ratio = None
     if cputime_delta and wallclock_delta:
-        time_ratio = cputime_delta.total_seconds()/wallclock_delta.total_seconds()
+        time_ratio = float(cputime_delta.total_seconds())/wallclock_delta.total_seconds()
     
     return cputime, wallclock, time_ratio
 
@@ -76,12 +76,12 @@ def printjobs(num_lines):
         efficiency = '-'
         if time_ratio:
             try:
-                efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))
+                efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
             except:
                 pass          
         
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5.1f} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -95,7 +95,13 @@ def printjobs(num_lines):
         elif status == 'running':
             stats = scheduler.running_stats(j)
             cputime, wallclock, time_ratio = get_stats_time(stats)
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
+            efficiency = '-'
+            if time_ratio:
+                try:
+                    efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
+                except:
+                    pass          
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5.1f} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -161,7 +167,7 @@ def submit(script_name):
                 if line.split('=')[0] == 'export TASKS_PER_NODE':
                     job.tasks_per_node = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export THREADS_PER_TASK':
-                    job.theads_per_task = line.split('=')[1].strip()
+                    job.threads_per_task = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export NUM_NODES':
                     job.num_nodes = line.split('=')[1].strip()
                 if line.split('=')[0] == 'export MYCLUSTER_QUEUE':
