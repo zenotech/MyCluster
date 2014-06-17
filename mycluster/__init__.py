@@ -25,15 +25,14 @@ def queues():
     return scheduler.queues()
 
 def get_stats_time(stats):
+    import datetime
     wallclock =  '-' if 'wallclock' not in stats else stats['wallclock']
     try:
-        import datetime
         wallclock = datetime.timedelta(seconds=int(wallclock))
     except:
         pass
     cputime = '-' if 'cpu' not in stats else stats['cpu']
     try:
-        import datetime
         cputime = datetime.timedelta(seconds=int(cputime))
     except:
         pass
