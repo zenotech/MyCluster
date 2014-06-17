@@ -61,12 +61,12 @@ def get_stats_time(stats):
 def printjobs(num_lines):
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
+    print('     | {0:^10} | {1:^10} | {2:^5} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
                                                                                              'Status',
-                                                                                             'Num Tasks',
+                                                                                             'NTasks',
                                                                                              'CPU Time',
                                                                                              'Wallclock',
-                                                                                             'Eff',
+                                                                                             'Eff %',
                                                                                              'Job Name',
                                                                                              'Job Dir')
           )
@@ -77,11 +77,12 @@ def printjobs(num_lines):
         if time_ratio:
             try:
                 efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
+                efficiency  = '{:.1f}'.format(efficiency)
             except:
                 pass          
         
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5.1f} | {7:^20} | {8:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:>5}({9}) | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -90,6 +91,7 @@ def printjobs(num_lines):
                                                              efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
+                                                             jobs[j].threads_per_task
                                                              )
                   )
         elif status == 'running':
@@ -99,9 +101,10 @@ def printjobs(num_lines):
             if time_ratio:
                 try:
                     efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
+                    efficiency  = '{:.1f}'.format(efficiency)
                 except:
                     pass          
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5.1f} | {7:^20} | {8:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:>5}({9}) | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -110,10 +113,11 @@ def printjobs(num_lines):
                                                              efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
+                                                             jobs[j].threads_per_task
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:>5}({9}) | {4:^10} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
@@ -122,6 +126,7 @@ def printjobs(num_lines):
                                                              efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
+                                                             jobs[j].threads_per_task
                                                              )
                   )
             
