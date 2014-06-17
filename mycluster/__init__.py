@@ -24,16 +24,27 @@ def detect_scheduling_sys():
 def queues():
     return scheduler.queues()
 
+
+def print_timedelta(td):
+    if (td.days > 0):
+        out = str(td).replace(" days, ", ":")
+    else:
+        out = "0:" + str(td)
+    outAr = out.split(':')
+    outAr = ["%02d" % (int(float(x))) for x in outAr]
+    out   = ":".join(outAr)
+    return out
+
 def get_stats_time(stats):
     import datetime
     wallclock =  '-' if 'wallclock' not in stats else stats['wallclock']
     try:
-        wallclock = datetime.timedelta(seconds=int(wallclock))
+        wallclock = print_timedelta(datetime.timedelta(seconds=int(wallclock)))
     except:
         pass
     cputime = '-' if 'cpu' not in stats else stats['cpu']
     try:
-        cputime = datetime.timedelta(seconds=int(cputime))
+        cputime = print_timedelta(datetime.timedelta(seconds=int(cputime.split('.')[0])))
     except:
         pass
     return cputime, wallclock
