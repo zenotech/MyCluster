@@ -30,13 +30,26 @@ def printjobs(num_lines):
     print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^20} | {6:50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
     for i,j in enumerate(jobs):
         status = jobs[j].status
+        wallclock =  '-' if 'wallclock' not in jobs[j].stats else jobs[j].stats['wallclock']
+        try:
+            import datetime
+            wallclock = datetime.timedelta(seconds=int(wallclock))
+        except:
+            pass
+        cputime = '-' if 'cpu' not in jobs[j].stats else jobs[j].stats['cpu']
+        try:
+            import datetime
+            cputime = datetime.timedelta(seconds=int(cputime))
+        except:
+            pass
+        
         if status == 'completed':
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
-                                                             '-' if 'cpu' not in jobs[j].stats else jobs[j].stats['cpu'],
-                                                             '-' if 'wallclock' not in jobs[j].stats else jobs[j].stats['wallclock'],
+                                                             cputime,
+                                                             wallclock,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
                                                              )
@@ -47,8 +60,8 @@ def printjobs(num_lines):
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
-                                                             stats['cpu'],
-                                                             stats['wallclock'],
+                                                             cputime,
+                                                             wallclock,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
                                                              )
@@ -86,8 +99,12 @@ def create_submit(queue_id,script_name=None,**kwargs):
     script = scheduler.create_submit(queue_id,**kwargs)
     
     if script_name != None:
-        with open(script_name,'w') as f:
-            f.write(script)
+        import os.path
+        if not os.path.isfile(script_name):
+            with open(script_name,'w') as f:
+                f.write(script)
+        else:
+            print('Warning file: {0} already exists. Please choose a different name'.format(script_name))
     
     return script
 
