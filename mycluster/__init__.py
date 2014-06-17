@@ -27,7 +27,10 @@ def queues():
 
 def print_timedelta(td):
     if (td.days > 0):
-        out = str(td).replace(" days, ", ":")
+        if td.days > 1:
+            out = str(td).replace(" days, ", ":")
+        else:
+            out = str(td).replace(" day, ", ":")
     else:
         out = "0:" + str(td)
     outAr = out.split(':')
@@ -61,7 +64,7 @@ def get_stats_time(stats):
 def printjobs(num_lines):
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^5} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
+    print('     | {0:^10} | {1:^10} | {2:^7} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
                                                                                              'Status',
                                                                                              'NTasks',
                                                                                              'CPU Time',
