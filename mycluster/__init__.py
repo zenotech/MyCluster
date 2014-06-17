@@ -38,55 +38,82 @@ def print_timedelta(td):
 def get_stats_time(stats):
     import datetime
     wallclock =  '-' if 'wallclock' not in stats else stats['wallclock']
+    wallclock_delta = None
+    cputime_delta = None
     try:
-        wallclock = print_timedelta(datetime.timedelta(seconds=int(wallclock)))
+        wallclock_delta = datetime.timedelta(seconds=int(wallclock))
+        wallclock = print_timedelta(wallclock_delta)
     except:
         pass
     cputime = '-' if 'cpu' not in stats else stats['cpu']
     try:
-        cputime = print_timedelta(datetime.timedelta(seconds=int(cputime.split('.')[0])))
+        cputime_delta = datetime.timedelta(seconds=int(cputime.split('.')[0]))
+        cputime = print_timedelta(cputime_delta)
     except:
         pass
-    return cputime, wallclock
+    
+    time_ratio = None
+    if cputime_delta and wallclock_delta:
+        time_ratio = cputime_delta.total_seconds()/wallclock_delta.total_seconds()
+    
+    return cputime, wallclock, time_ratio
 
 def printjobs(num_lines):
     print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^20} | {6:50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
+    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
+                                                                                             'Status',
+                                                                                             'Num Tasks',
+                                                                                             'CPU Time',
+                                                                                             'Wallclock',
+                                                                                             'Eff',
+                                                                                             'Job Name',
+                                                                                             'Job Dir')
+          )
     for i,j in enumerate(jobs):
         status = jobs[j].status
-        cputime, wallclock =  get_stats_time(jobs[j].stats)
+        cputime, wallclock, time_ratio = get_stats_time(jobs[j].stats)
+        efficiency = '-'
+        if time_ratio:
+            try:
+                efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))
+            except:
+                pass          
+        
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              cputime,
                                                              wallclock,
+                                                             efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
                                                              )
                   )
         elif status == 'running':
             stats = scheduler.running_stats(j)
-            cputime, wallclock =  get_stats_time(stats)
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
+            cputime, wallclock, time_ratio = get_stats_time(stats)
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              cputime,
                                                              wallclock,
+                                                             efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              j,
                                                              status,
                                                              jobs[j].num_tasks,
                                                              '-',
                                                              '-',
+                                                             efficiency,
                                                              jobs[j].job_name,
                                                              jobs[j].job_dir,
                                                              )
