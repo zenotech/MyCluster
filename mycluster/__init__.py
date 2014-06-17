@@ -45,7 +45,7 @@ def printjobs(num_lines):
     print('     | {0:^10} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^20} | {6:50}'.format('Job ID','Status','Num Tasks','CPU Time','Wallclock', 'Job Name', 'Job Dir'))
     for i,j in enumerate(jobs):
         status = jobs[j].status
-        wallclock ,cputime =  get_stats_time(status)
+        cputime, wallclock =  get_stats_time(jobs[j].stats)
         if status == 'completed':
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
@@ -59,7 +59,7 @@ def printjobs(num_lines):
                   )
         elif status == 'running':
             stats = scheduler.running_stats(j)
-            wallclock ,cputime =  get_stats_time(stats)
+            cputime, wallclock =  get_stats_time(stats)
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^10} | {6:^20} | {7:50}'.format(i+1,
                                                              j,
                                                              status,
