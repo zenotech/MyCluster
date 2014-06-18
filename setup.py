@@ -40,5 +40,6 @@ setup(
     package_data = {
         '': ['*.md','RELEASE-VERSION']
     },
-    data_files = [('', ['RELEASE-VERSION'])],
+    data_files = [('share/MyCluster', ['RELEASE-VERSION']),
+                  ('share/MyCluster', ['share/*']),],
 )
