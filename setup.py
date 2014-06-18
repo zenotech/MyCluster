@@ -41,5 +41,8 @@ setup(
         '': ['*.md','RELEASE-VERSION']
     },
     data_files = [('share/MyCluster', ['RELEASE-VERSION']),
-                  ('share/MyCluster', ['share/*']),],
+                  ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
+                                       'share/mycluster-fluent.bsh',
+                                       'share/mycluster-zcfd.bsh']),
+                  ],
 )
