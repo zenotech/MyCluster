@@ -227,8 +227,10 @@ def create_db():
     try:
         from mycluster.persist import JobDB
         job_db = JobDB()    
-    except:
-        pass
+    except Exception as e:
+        print 'Database failed to initialise. Error Message: ' + str(e)
+        
+    return job_db
         
 def update_db():
     status_dict = scheduler.status()
@@ -271,8 +273,8 @@ def init():
     scheduler = detect_scheduling_sys()
     if scheduler != None:
         create_directory()
-        create_db()
-        update_db()
+        if create_db() != None:
+            update_db()
     else:
         print('No job schedulers found - exiting')
         sys.exit()
