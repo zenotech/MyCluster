@@ -58,7 +58,7 @@ class JobDB(object):
             from version import get_git_version
             dbroot['version'] = get_git_version()
         else:
-            from version import get_git_version
+            from mycluster.version import get_git_version
             current_version =  dbroot['version']
             new_version = get_git_version()
             # Add any migrations required here

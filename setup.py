@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 import re
-from version import get_git_version
+from mycluster.version import get_git_version
 
 
 classes = """
