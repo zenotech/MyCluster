@@ -1,7 +1,10 @@
 import sys
 import os
 import time
-
+import uuid
+from fabric.api import env, run, cd, get, hide, settings, remote_tunnel, show
+from fabric.tasks import execute
+from fabric.decorators import with_settings
 
 JOB_SCHEDULERS = ('SGE','SLURM','LSF','PBS','TORQUE','MAUI','LOADLEVELER')
 
@@ -22,8 +25,31 @@ def detect_scheduling_sys():
     return None
 
 def queues():
-    return scheduler.queues()
+    if scheduler != None:
+        return scheduler.queues()
+    else:
+        return []
 
+def remote_sites():
+    if job_db != None:
+        return job_db.remote_site_db
+    else:
+        return []
+    
+@with_settings(warn_only=True)
+def remote_cmd():
+    output_file =  '~/.mycluster/'+str(uuid.uuid4())
+    with hide('output','running','warnings'), settings(warn_only=True): 
+        run('mycluster -p >'+output_file,pty=False)
+        import StringIO
+        contents = StringIO.StringIO()
+        get(output_file, contents)
+        # operate on 'contents' like a file object here, e.g. 'print
+        return contents.getvalue()
+    
+def remote_job_list(site):
+    env.use_ssh_config = True
+    return execute(remote_cmd,hosts=[site])
 
 def print_timedelta(td):
     if (td.days > 0):
@@ -130,7 +156,12 @@ def printjobs(num_lines):
                                                              )
                   )
             
-            
+    remotes = remote_sites()
+    for i,j in enumerate(remotes):
+        print 'Remote Site: '+remotes[j].name
+        remote_list = remote_job_list(remotes[j].user+'@'+remotes[j].name)
+        for r in remote_list:
+            print remote_list[r]
 
 def print_queue_info():
     print('{0:25} | {1:^15} | {2:^15} | {3:^15} | {4:^15} | {5:^15}'.format('Queue Name','Node Max Task','Node Max Thread','Node Max Memory','Max Task','Available Task'))
@@ -190,6 +221,9 @@ def submit(script_name):
 def delete(job_id):
     scheduler.delete(job_id)
 
+def add_remote(remote_site):
+    if job_db != None:
+        job_db.add_remote(remote_site)
 
 def export(job_id):
     pass
@@ -233,17 +267,18 @@ def create_db():
     return job_db
         
 def update_db():
-    status_dict = scheduler.status()
-    jobs = job_list()
-    for j in jobs:
-        if jobs[j].status != 'completed':
-            if j in status_dict:
-                state = status_dict[j]
-                if state == 'r':
-                    jobs[j].update_status('running')
-            else:
-                jobs[j].update_status('completed')
-                jobs[j].update_stats(scheduler.job_stats(j))
+    if scheduler != None:
+        status_dict = scheduler.status()
+        jobs = job_list()
+        for j in jobs:
+            if jobs[j].status != 'completed':
+                if j in status_dict:
+                    state = status_dict[j]
+                    if state == 'r':
+                        jobs[j].update_status('running')
+                else:
+                    jobs[j].update_status('completed')
+                    jobs[j].update_stats(scheduler.job_stats(j))
                 
 def sysscribe_update(job_id):
     if job_db != None:
@@ -271,13 +306,11 @@ def appdata_update(job_id,appdata):
 def init():
     global scheduler
     scheduler = detect_scheduling_sys()
-    if scheduler != None:
-        create_directory()
-        if create_db() != None:
-            update_db()
-    else:
-        print('No job schedulers found - exiting')
-        sys.exit()
+    create_directory()
+    if create_db() != None:
+        update_db()
+    if not scheduler:
+        print('No local job schedulers found')
     
     
 """

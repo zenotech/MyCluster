@@ -25,6 +25,7 @@ def main():
     parser.add_argument('--lastname',help='Name update')
     parser.add_argument('-p','--printjobs',type=int,nargs='?', const=0,help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
     parser.add_argument('-e','--export',type=int,help='Export job data')
+    parser.add_argument('--remote',help='Add remote site - user@site')
     parser.add_argument('--sysscribe',type=int,help=argparse.SUPPRESS)
     parser.add_argument('--jobid',type=int,help=argparse.SUPPRESS)
     parser.add_argument('--appname',help=argparse.SUPPRESS)
@@ -56,6 +57,8 @@ def main():
         mycluster.printjobs(args.printjobs)
     if args.delete:
         mycluster.delete(args.delete)
+    if args.remote:
+        mycluster.add_remote(args.remote)
     if args.create:
         if args.create and args.jobqueue and args.script and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,

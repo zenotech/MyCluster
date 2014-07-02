@@ -43,7 +43,8 @@ class JobDB(object):
             from BTrees.OOBTree import OOBTree
             dbroot['site_db'] = OOBTree()
             self.site_db = dbroot['site_db']
-            self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
+            if scheduler != None:
+                self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
         
         self.site_db = dbroot['site_db']
       
@@ -64,6 +65,13 @@ class JobDB(object):
             
             dbroot['version'] = new_version
         
+        if not dbroot.has_key('remote_site_db'):
+            from BTrees.OOBTree import OOBTree
+            dbroot['remote_site_db'] = OOBTree()
+            self.remote_site_db = dbroot['remote_site_db']
+            
+        self.remote_site_db = dbroot['remote_site_db']    
+        
 
     def add(self,job):
         self.job_db[job.id] = job
@@ -72,6 +80,15 @@ class JobDB(object):
     def add_queue(self,queue,site):
         if not self.queue_db.has_key(queue):
             self.queue_db[queue] = Queue(queue,site)
+            transaction.commit()
+        
+    def add_remote(self,remote_site):
+        if not self.remote_site_db.has_key(remote_site):
+            user = remote_site.split('@')[0]
+            site = remote_site.split('@')[1]
+            self.remote_site_db[site] = RemoteSite(site,user)
+            transaction.commit()
+
         
     def get(self,job_id):
         if self.job_db.has_key(job_id):
@@ -89,6 +106,11 @@ class JobDB(object):
         self.connection.close()
         self.db.close()
         self.storage.close()
+        
+class RemoteSite(Persistent):
+    def __init__(self,name,user):
+        self.name = name
+        self.user = user
         
 class Site(Persistent):
     def __init__(self,name,scheduler_type):
