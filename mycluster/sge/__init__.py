@@ -243,7 +243,7 @@ echo "Current directory: `pwd`"
 
 if [ "$$PE_HOSTFILE" ]; then
         #! Create a machine file:
-        cat $$PE_HOSTFILE | uniq > machine.file.$$JOB_ID
+        cat $PE_HOSTFILE | awk '{print $1, " slots=" $2}' > machine.file.$$JOB_ID
         echo -e "\nNodes allocated:\n================"
         echo `cat machine.file.$$JOB_ID | sed -e 's/\..*$$//g'`
 fi
