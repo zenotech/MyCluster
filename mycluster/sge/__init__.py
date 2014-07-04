@@ -174,9 +174,9 @@ def create_submit(queue_id,**kwargs):
     if 'project_name' in kwargs:
         project_name = kwargs['project_name']
 
-    wall_clock = '12::00::00'
+    wall_clock = '12'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])+'::00::00'
+        wall_clock = str(kwargs['wall_clock'])
     
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
@@ -205,7 +205,7 @@ def create_submit(queue_id,**kwargs):
 # Project name
 #$$ -P $project_name
 # Maximum wall clock
-#$$ -l h_rt=$wall_clock
+#$$ -l h_rt=$wall_clock:00:00
 
 export MYCLUSTER_QUEUE=$parallel_env:$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
