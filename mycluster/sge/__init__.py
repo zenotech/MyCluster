@@ -174,9 +174,9 @@ def create_submit(queue_id,**kwargs):
     if 'project_name' in kwargs:
         project_name = kwargs['project_name']
 
-    wall_clock = '12'
+    wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])
+        wall_clock = str(kwargs['wall_clock'])+':00:00'
     
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
@@ -205,7 +205,7 @@ def create_submit(queue_id,**kwargs):
 # Project name
 #$$ -P $project_name
 # Maximum wall clock
-#$$ -l h_rt=$wall_clock:00:00
+#$$ -l h_rt=$wall_clock
 
 export MYCLUSTER_QUEUE=$parallel_env:$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
@@ -243,7 +243,7 @@ echo "Current directory: `pwd`"
 
 if [ "$$PE_HOSTFILE" ]; then
         #! Create a machine file:
-        cat $$PE_HOSTFILE | awk '{print $1, " slots=" $2}' > machine.file.$$JOB_ID
+        cat $$PE_HOSTFILE | awk '{print $$1, " slots=" $$2}' > machine.file.$$JOB_ID
         echo -e "\nNodes allocated:\n================"
         echo `cat machine.file.$$JOB_ID | sed -e 's/\..*$$//g'`
 fi
