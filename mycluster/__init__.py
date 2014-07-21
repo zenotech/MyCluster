@@ -13,12 +13,23 @@ job_db = None
 
 def detect_scheduling_sys():
 
+    # Test for SLURM
+    if os.getenv('SLURMHOME') != None:
+        return my_import('mycluster.slurm')
+
+    try:
+        with os.popen('scontrol ping') as f:
+            line = f.readline()
+            if line.split('(')[0] == 'Slurmctld':
+                return my_import('mycluster.slurm')
+    except:
+        pass
+
+    # Test for SGE
     if os.getenv('SGE_CLUSTER_NAME') != None:
         return my_import('mycluster.sge')
     
-    if os.getenv('SLURMHOME') != None:
-        return my_import('mycluster.slurm')
-    
+    # Test for lsf
     if os.getenv('LSB_DEFAULTQUEUE') != None:
         return my_import('mycluster.lsf')
     
