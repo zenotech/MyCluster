@@ -118,7 +118,7 @@ def create_submit(queue_id,**kwargs):
     
     wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
-        wall_clock = kwargs['wall_clock']
+        wall_clock = str(kwargs['wall_clock'])+':00:00'
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
