@@ -192,29 +192,35 @@ def create_submit(queue_id,script_name=None,**kwargs):
     return script
 
 def submit(script_name):
-    job_id = scheduler.submit(script_name)
-    if job_db != None:
-        from mycluster.persist import Job
-        job = Job(job_id,time.time())
-        with open(script_name,'r') as f:
-            for line in f:
-                if line.split('=')[0] == 'export NUM_TASKS':
-                    job.num_tasks = line.split('=')[1].strip()
-                if line.split('=')[0] == 'export TASKS_PER_NODE':
-                    job.tasks_per_node = line.split('=')[1].strip()
-                if line.split('=')[0] == 'export THREADS_PER_TASK':
-                    job.threads_per_task = line.split('=')[1].strip()
-                if line.split('=')[0] == 'export NUM_NODES':
-                    job.num_nodes = line.split('=')[1].strip()
-                if line.split('=')[0] == 'export MYCLUSTER_QUEUE':
-                    job.queue = line.split('=')[1].strip()
-                if line.split('=')[0] == 'export MYCLUSTER_JOB_NAME':
-                    job.job_name = line.split('=')[1].strip()
-        
-        job.script_name = script_name
-        job.job_dir = os.path.dirname(os.path.abspath(script_name))
-        job_db.add(job)
-        job_db.add_queue(job.queue,scheduler.name())
+    
+    job_id = -1
+    import os.path
+    if os.path.isfile(script_name):    
+        job_id = scheduler.submit(script_name)
+        if job_db != None:
+            from mycluster.persist import Job
+            job = Job(job_id,time.time())
+            with open(script_name,'r') as f:
+                for line in f:
+                    if line.split('=')[0] == 'export NUM_TASKS':
+                        job.num_tasks = line.split('=')[1].strip()
+                    if line.split('=')[0] == 'export TASKS_PER_NODE':
+                        job.tasks_per_node = line.split('=')[1].strip()
+                    if line.split('=')[0] == 'export THREADS_PER_TASK':
+                        job.threads_per_task = line.split('=')[1].strip()
+                    if line.split('=')[0] == 'export NUM_NODES':
+                        job.num_nodes = line.split('=')[1].strip()
+                    if line.split('=')[0] == 'export MYCLUSTER_QUEUE':
+                        job.queue = line.split('=')[1].strip()
+                    if line.split('=')[0] == 'export MYCLUSTER_JOB_NAME':
+                        job.job_name = line.split('=')[1].strip()
+            
+            job.script_name = script_name
+            job.job_dir = os.path.dirname(os.path.abspath(script_name))
+            job_db.add(job)
+            job_db.add_queue(job.queue,scheduler.name())
+    else:
+        print('Error file: {0} does not exist.'.format(script_name))
         
     return job_id
 
