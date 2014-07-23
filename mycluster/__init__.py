@@ -133,7 +133,7 @@ def printjobs(num_lines):
                                                                                              'Job Dir')
           )
     for i,j in enumerate(jobs):
-        job_id - jobs[j].job_id
+        job_id = jobs[j].job_id
         status = jobs[j].status
         site_name = jobs[j].queue.site_name
         scheduler_type = job_db.site_db[site_name].scheduler_type
