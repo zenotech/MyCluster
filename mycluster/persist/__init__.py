@@ -50,8 +50,9 @@ class JobDB(object):
             from BTrees.OOBTree import OOBTree
             dbroot['site_db'] = OOBTree()
             self.site_db = dbroot['site_db']
-            if scheduler != None:
-                self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
+
+        if scheduler != None:
+            self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
         
         self.site_db = dbroot['site_db']
       
@@ -102,13 +103,14 @@ class JobDB(object):
             site = remote_site.split('@')[1]
             self.remote_site_db[site] = RemoteSite(site,user)
             transaction.commit()
-
         
-    def get(self,job_id):
-        if self.job_db.has_key(job_id):
-            return self.job_db[job_id]
-        else:
-            raise KeyError('Key: '+str(job_id)+' not found') 
+    def get(self,job_id,site_name=None):
+        # Find 
+        for key in self.job_db.keys():
+            if self.job_db[key].job_id == job_id:
+               return self.job_db[key]
+        
+        raise KeyError('Key: '+str(job_id)+' not found') 
     
     def list(self):
         pass

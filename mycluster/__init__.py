@@ -135,6 +135,8 @@ def printjobs(num_lines):
     for i,j in enumerate(jobs):
         job_id - jobs[j].job_id
         status = jobs[j].status
+        site_name = jobs[j].queue.site_name
+        scheduler_type = job_db.site_db[site_name].scheduler_type
         cputime, wallclock, time_ratio = get_stats_time(jobs[j].stats)
         efficiency = '-'
         if time_ratio:
@@ -259,7 +261,16 @@ def submit(script_name):
     return job_id
 
 def delete(job_id):
-    scheduler.delete(job_id)
+    # Add check 
+    job = job_db.get(job_id)
+    site_name = job.queue.site_name
+    scheduler_type = job_db.site_db[site_name].scheduler_type
+
+    if scheduler.name() == site_name and scheduler.scheduler_type() == scheduler_type:
+        scheduler.delete(job_id)
+    else:
+        print('JobID: '+ str(job_id) + ' not found at current site')
+
 
 def add_remote(remote_site):
     if job_db != None:
