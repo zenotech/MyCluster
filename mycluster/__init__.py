@@ -253,7 +253,7 @@ def submit(script_name):
             
             job.script_name = script_name
             job.job_dir = os.path.dirname(os.path.abspath(script_name))
-            job_db.add(job)
+            job_db.add_job(job)
             job_db.add_queue(job.queue,scheduler.name())
     else:
         print('Error file: {0} does not exist.'.format(script_name))    
@@ -381,7 +381,7 @@ def init():
 
     print('MyCluster Initialisation Info')
     print('-----------------------------')
-    print('local database in: '+get_directory())
+    print('Local database in: '+get_directory())
     print('User: '+get_user())
     print('Email: '+get_email())
     if not scheduler:
