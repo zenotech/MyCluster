@@ -162,7 +162,7 @@ def printjobs(num_lines):
                                                              )
                   )
         elif status == 'running':
-            stats = scheduler.running_stats(j)
+            stats = scheduler.running_stats(job_id)
             cputime, wallclock, time_ratio = get_stats_time(stats)
             efficiency = '-'
             if time_ratio:
