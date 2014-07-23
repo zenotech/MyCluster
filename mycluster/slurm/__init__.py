@@ -4,6 +4,7 @@ import re
 import math
 from string import Template
 from datetime import timedelta
+from mycluster import get_timedelta
 
 """
 sacctmgr show cluster
@@ -262,7 +263,6 @@ def status():
     return status_dict
     
 def job_stats(job_id):
-    from mycluster import get_timedelta
     stats_dict = {}
     with os.popen('sacct --noheader --format Elapsed,TotalCPU,Partition,NTasks,AveRSS -j '+str(job_id)) as f:
         try:
