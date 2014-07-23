@@ -51,11 +51,11 @@ class JobDB(object):
             dbroot['site_db'] = OOBTree()
             self.site_db = dbroot['site_db']
 
+        self.site_db = dbroot['site_db']
+
         if scheduler != None:
             self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
-        
-        self.site_db = dbroot['site_db']
-      
+              
         if not dbroot.has_key('queue_db'):
             from BTrees.OOBTree import OOBTree
             dbroot['queue_db'] = OOBTree()
