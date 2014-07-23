@@ -135,7 +135,8 @@ def printjobs(num_lines):
     for i,j in enumerate(jobs):
         job_id = jobs[j].job_id
         status = jobs[j].status
-        site_name = jobs[j].queue.site_name
+        queue  = jobs[j].queue
+        site_name = job_db.queue_db[queue].site_name
         scheduler_type = job_db.site_db[site_name].scheduler_type
         cputime, wallclock, time_ratio = get_stats_time(jobs[j].stats)
         efficiency = '-'
