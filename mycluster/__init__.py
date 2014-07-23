@@ -1,10 +1,12 @@
 import sys
 import os
+from subprocess import Popen, PIPE, check_output
 import time
 import uuid
 from fabric.api import env, run, cd, get, hide, settings, remote_tunnel, show
 from fabric.tasks import execute
 from fabric.decorators import with_settings
+from datetime import timedelta
 
 JOB_SCHEDULERS = ('SGE','SLURM','LSF','PBS','TORQUE','MAUI','LOADLEVELER')
 
@@ -18,10 +20,9 @@ def detect_scheduling_sys():
         return my_import('mycluster.slurm')
 
     try:
-        with os.popen('scontrol ping') as f:
-            line = f.readline()
-            if line.split('(')[0] == 'Slurmctld':
-                return my_import('mycluster.slurm')
+        line = check_output(['scontrol','ping'])
+        if line.split('(')[0] == 'Slurmctld':
+            return my_import('mycluster.slurm')
     except:
         pass
 
@@ -30,9 +31,13 @@ def detect_scheduling_sys():
         return my_import('mycluster.sge')
     
     # Test for lsf
-    if os.getenv('LSB_DEFAULTQUEUE') != None:
-        return my_import('mycluster.lsf')
-    
+    try:
+        line = check_output('lsid')
+        if line.split(' ')[0] == 'Platform':
+           return my_import('mycluster.lsf')
+    except:
+        pass
+
     return None
 
 def queues():
@@ -75,19 +80,36 @@ def print_timedelta(td):
     out   = ":".join(outAr)
     return out
 
+def get_timedelta(date_str):
+    # Returns timedelta object from string in [DD-[hh:]]mm:ss format
+    days = 0
+    if date_str.count('-') == 1:
+        days = int(date_str.split('-')[0])
+        date_str = date_str.split('-')[1]
+    hours = 0
+    if date_str.count(':') == 2:
+        hours = int(date_str.split(':')[0])
+        date_str = date_str.split(':')[1]
+
+    return timedelta(   days=days,
+                        hours=hours,
+                        minutes=int(date_str.split(':')[0]),
+                        seconds=int(date_str.split(':')[1])
+                    )
+
 def get_stats_time(stats):
     import datetime
     wallclock =  '-' if 'wallclock' not in stats else stats['wallclock']
     wallclock_delta = None
     cputime_delta = None
     try:
-        wallclock_delta = datetime.timedelta(seconds=int(wallclock))
+        wallclock_delta = wallclock
         wallclock = print_timedelta(wallclock_delta)
     except:
         pass
     cputime = '-' if 'cpu' not in stats else stats['cpu']
     try:
-        cputime_delta = datetime.timedelta(seconds=int(cputime.split('.')[0]))
+        cputime_delta = cputime
         cputime = print_timedelta(cputime_delta)
     except:
         pass
@@ -111,6 +133,7 @@ def printjobs(num_lines):
                                                                                              'Job Dir')
           )
     for i,j in enumerate(jobs):
+        job_id - jobs[j].job_id
         status = jobs[j].status
         cputime, wallclock, time_ratio = get_stats_time(jobs[j].stats)
         efficiency = '-'
@@ -123,7 +146,7 @@ def printjobs(num_lines):
         
         if status == 'completed':
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             j,
+                                                             job_id,
                                                              status,
                                                              str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
                                                              cputime,
@@ -144,7 +167,7 @@ def printjobs(num_lines):
                 except:
                     pass          
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             j,
+                                                             job_id,
                                                              status,
                                                              str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
                                                              cputime,
@@ -156,7 +179,7 @@ def printjobs(num_lines):
                   )
         else:
             print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             j,
+                                                             job_id,
                                                              status,
                                                              str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
                                                              '-',
@@ -208,7 +231,7 @@ def submit(script_name):
     import os.path
     if os.path.isfile(script_name):    
         job_id = scheduler.submit(script_name)
-        if job_db != None:
+        if job_db != None and job_id != None:
             from mycluster.persist import Job
             job = Job(job_id,time.time())
             with open(script_name,'r') as f:
@@ -231,8 +254,8 @@ def submit(script_name):
             job_db.add(job)
             job_db.add_queue(job.queue,scheduler.name())
     else:
-        print('Error file: {0} does not exist.'.format(script_name))
-        
+        print('Error file: {0} does not exist.'.format(script_name))    
+
     return job_id
 
 def delete(job_id):
@@ -272,6 +295,10 @@ def create_directory():
     directory = get_directory()
     if not os.path.exists(directory):
         os.makedirs(directory)
+        return True
+    else:
+        return False
+
 
 def create_db():
     global job_db
@@ -311,6 +338,20 @@ def firstname_update(name):
 def lastname_update(name):
     if job_db != None:
         job_db.user_db['user'].lastname(name)
+def get_user():
+    if job_db != None:
+        return job_db.user_db['user'].first_name + ' ' + job_db.user_db['user'].last_name
+    else:
+        return 'unknown'
+
+def get_email():
+    if job_db != None:
+        return job_db.user_db['user'].email
+    else:
+        return 'unknown'
+
+def get_site():
+    return 'unknown'
 
 def appname_update(job_id,appname):
     if job_db != None:
@@ -323,13 +364,22 @@ def appdata_update(job_id,appdata):
 def init():
     global scheduler
     scheduler = detect_scheduling_sys()
-    create_directory()
+    created = create_directory()
     if create_db() != None:
         update_db()
+
+    print('MyCluster Initialisation Info')
+    print('-----------------------------')
+    print('local database in: '+get_directory())
+    print('User: '+get_user())
+    print('Email: '+get_email())
     if not scheduler:
-        print('No local job schedulers found')
-    
-    
+        print('Local job scheduler: None')
+    else:
+        print('Local job scheduler: '+scheduler.scheduler_type())
+        print('Site name: '+get_site())
+    print('')
+   
 """
 Module initialiser functions
 """

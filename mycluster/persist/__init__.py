@@ -23,6 +23,13 @@ class JobDB(object):
         
         dbroot = self.connection.root()
 
+        if not dbroot.has_key('job_key'):
+            from BTrees.OOBTree import OOBTree
+            dbroot['job_key'] = OOBTree()
+            dbroot['job_key']['val'] = 0
+
+        self.job_key = dbroot['job_key']
+
         # Ensure that a 'job_db' key is present
         # in the root
         if not dbroot.has_key('job_db'):
@@ -62,7 +69,9 @@ class JobDB(object):
             current_version =  dbroot['version']
             new_version = get_git_version()
             # Add any migrations required here
-            
+            if current_version != new_version:
+                pass
+
             dbroot['version'] = new_version
         
         if not dbroot.has_key('remote_site_db'):
@@ -73,8 +82,13 @@ class JobDB(object):
         self.remote_site_db = dbroot['remote_site_db']    
         
 
-    def add(self,job):
-        self.job_db[job.id] = job
+    def add_job(self,job):
+        # Get unique key
+        job_key = self.job_key['val']
+        self.job_key['val'] = job_key+1
+        transaction.commit()
+        # Add job
+        self.job_db[job_key] = job
         transaction.commit()
         
     def add_queue(self,queue,site):
@@ -147,7 +161,7 @@ class User(Persistent):
 
 class Job(Persistent):
     def __init__(self, job_id, time_stamp):
-        self.id     = job_id
+        self.job_id     = job_id
         self.time_stamp = time_stamp
         self.status     = 'submitted'
         self.num_tasks = 0

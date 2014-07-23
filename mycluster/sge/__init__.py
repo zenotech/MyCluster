@@ -324,10 +324,11 @@ def job_stats(job_id):
                 output[new_line.split(' ')[0]] = new_line.split(' ',1)[1]
         except:
             pass
-    
-    stats_dict['wallclock'] = output['ru_wallclock']
+    import datetime
+    from mycluster import print_timedelta
+    stats_dict['wallclock'] = datetime.timedelta(seconds=int(output['ru_wallclock']))
     stats_dict['mem'] = output['mem']
-    stats_dict['cpu'] = output['cpu']
+    stats_dict['cpu'] = datetime.timedelta(seconds=int(output['cpu'].split('.')[0]))
     stats_dict['queue'] = output['granted_pe']+':'+output['qname']
     
     return stats_dict
@@ -342,7 +343,7 @@ def running_stats(job_id):
                 new_line = re.sub(' +',' ',line.strip())
                 if new_line.split(' ')[0] == 'usage':
                     mstr = new_line.split(' ',2)[2]                    
-                    output['cpu'] = mstr.split(',')[0].split('=')[1]
+                    output['cpu'] = mstr.split(',')[0].split('=')[1] # Note this needs to be in timedelta format
                     output['mem'] = mstr.split(',')[1].split('=')[1]
         except:
             pass

@@ -3,6 +3,7 @@ import os
 import re
 import math
 from string import Template
+from datetime import timedelta
 
 """
 sacctmgr show cluster
@@ -136,7 +137,7 @@ def create_submit(queue_id,**kwargs):
 #SBATCH --mail-type=ALL
 # Redirect output stream to this file.
 #SBATCH --output $my_output.$$JOBID
-#! Which project should be charged 
+# Which project should be charged 
 #SBATCH -A $project_name
 # Partition name
 #SBATCH -p $queue_name
@@ -230,7 +231,11 @@ echo -e "Complete========\n"
 def submit(script_name):
     job_id = None
     with os.popen('sbatch '+script_name) as f:
-        job_id = int(f.readline().split(' ')[-1].strip())
+        output = f.readline()
+        try:
+            job_id = int(output.split(' ')[-1].strip())
+        except:
+            print('Job submission failed: '+output)
         # Get job id and record in database
     return job_id
 
@@ -257,15 +262,21 @@ def status():
     return status_dict
     
 def job_stats(job_id):
+    from mycluster import get_timedelta
     stats_dict = {}
     with os.popen('sacct --noheader --format Elapsed,TotalCPU,Partition,NTasks,AveRSS -j '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
-            stats_dict['wallclock']  = new_line.split(' ')[0]
-            stats_dict['cpu'] = new_line.split(' ')[1]
+
+            wallclock_str = new_line.split(' ')[0]
+            stats_dict['wallclock']  = get_timedelta(wallclock_str)
+            
+            cpu_str = new_line.split(' ')[1]
+            stats_dict['cpu'] = get_timedelta(cpu_str)
+
             stats_dict['queue'] = new_line.split(' ')[2]
-            stats_dict['mem'] = float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
+            stats_dict['mem'] = 0 #float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
             pass
             
@@ -277,7 +288,7 @@ def running_stats(job_id):
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
-            stats_dict['wallclock']  = new_line.split(' ')[0]
+            stats_dict['wallclock']  = get_timedelta(new_line)
         except:
             pass
         
@@ -287,7 +298,7 @@ def running_stats(job_id):
             new_line = re.sub(' +',' ',line.strip())
             ntasks = int(new_line.split(' ')[2])
             stats_dict['mem']  = float(new_line.split(' ')[1])*ntasks
-            stats_dict['cpu']  = float(new_line.split(' ')[0])*ntasks
+            stats_dict['cpu']  = '-' #float(new_line.split(' ')[0])*ntasks
         except:
             pass
     
