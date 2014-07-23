@@ -85,11 +85,11 @@ def get_timedelta(date_str):
     days = 0
     if date_str.count('-') == 1:
         days = int(date_str.split('-')[0])
-        date_str = date_str.split('-')[1]
+        date_str = date_str.partition('-')[2]
     hours = 0
     if date_str.count(':') == 2:
         hours = int(date_str.split(':')[0])
-        date_str = date_str.split(':')[1]
+        date_str = date_str.partition(':')[2]
 
     return timedelta(   days=days,
                         hours=hours,
