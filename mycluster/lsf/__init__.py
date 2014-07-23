@@ -262,9 +262,9 @@ def job_stats(job_id):
             stats_dict['wallclock']  = new_line.split(' ')[0]
             stats_dict['cpu'] = new_line.split(' ')[1]
             stats_dict['queue'] = new_line.split(' ')[2]
-            stats_dict['mem'] = float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
+            stats_dict['mem'] = '-'#float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
-            pass
+            print('LSF: Error reading job stats')
             
     return stats_dict
 

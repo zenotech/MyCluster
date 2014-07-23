@@ -104,7 +104,7 @@ class JobDB(object):
             self.remote_site_db[site] = RemoteSite(site,user)
             transaction.commit()
         
-    def get(self,job_id,site_name=None):
+    def get(self,job_id):
         # Find 
         for key in self.job_db.keys():
             if self.job_db[key].job_id == job_id:

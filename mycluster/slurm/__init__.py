@@ -278,7 +278,7 @@ def job_stats(job_id):
             stats_dict['queue'] = new_line.split(' ')[2]
             stats_dict['mem'] = 0 #float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
-            pass
+            print('SLURM: Error reading job stats')
             
     return stats_dict
 

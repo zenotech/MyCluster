@@ -102,17 +102,19 @@ def get_stats_time(stats):
     wallclock =  '-' if 'wallclock' not in stats else stats['wallclock']
     wallclock_delta = None
     cputime_delta = None
-    try:
-        wallclock_delta = wallclock
-        wallclock = print_timedelta(wallclock_delta)
-    except:
-        pass
+    if wallclock != '-':
+        try:
+            wallclock_delta = wallclock
+            wallclock = print_timedelta(wallclock_delta)
+        except:
+            pass
     cputime = '-' if 'cpu' not in stats else stats['cpu']
-    try:
-        cputime_delta = cputime
-        cputime = print_timedelta(cputime_delta)
-    except:
-        pass
+    if cputime != '-':
+        try:
+            cputime_delta = cputime
+            cputime = print_timedelta(cputime_delta)
+        except:
+            pass
     
     time_ratio = None
     if cputime_delta and wallclock_delta:
@@ -328,13 +330,14 @@ def update_db():
         jobs = job_list()
         for j in jobs:
             if jobs[j].status != 'completed':
-                if j in status_dict:
-                    state = status_dict[j]
+                job_id = jobs[j].job_id
+                if job_id in status_dict:
+                    state = status_dict[job_id]
                     if state == 'r':
                         jobs[j].update_status('running')
                 else:
                     jobs[j].update_status('completed')
-                    jobs[j].update_stats(scheduler.job_stats(j))
+                    jobs[j].update_stats(scheduler.job_stats(job_id))
                 
 def sysscribe_update(job_id):
     if job_db != None:
@@ -367,10 +370,10 @@ def get_site():
 
 def appname_update(job_id,appname):
     if job_db != None:
-        job_db.get()['job_id'].appname(appname)
+        job_db.get(job_id).appname(appname)
 def appdata_update(job_id,appdata):
     if job_db != None:
-        job_db.get()['job_id'].appdata(appdata)
+        job_db.get(job_id).appdata(appdata)
     
 
 def init():
