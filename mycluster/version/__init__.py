@@ -35,6 +35,7 @@ __all__ = ("get_git_version")
 
 from subprocess import Popen, PIPE
 import os
+import sys
 from pkg_resources import Requirement, resource_filename
 
 def call_git_describe(abbrev=4):
@@ -51,7 +52,8 @@ def call_git_describe(abbrev=4):
 
 def read_release_version():
     try:
-        filename = resource_filename(Requirement.parse("MyCluster"),"share/MyCluster/RELEASE-VERSION")
+        filename = os.path.join(sys.prefix, "share", "MyCluster", "RELEASE-VERSION")
+        #resource_filename(Requirement.parse("MyCluster"),"share/MyCluster/RELEASE-VERSION")
         if os.path.isfile(filename):
             f = open(filename, 'r')
         else:
