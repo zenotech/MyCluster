@@ -198,7 +198,7 @@ echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
 
-if [ "$LSB_DJOB_HOSTFILE" ]; then
+if [ "$$LSB_DJOB_HOSTFILE" ]; then
         #! Create a machine file:
         cat $$LSB_DJOB_HOSTFILE | uniq > machine.file.$$JOBID
         echo -e "\nNodes allocated:\n================"
