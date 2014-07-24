@@ -17,10 +17,10 @@ def scheduler_type():
     return 'lsf'
 
 def name():
-    with Popen(['lsid'],stdout=PIPE) as proc:
-        for line in proc.stdout:
-            if line.startswith('My cluster name is'):
-                return line.rsplit(' ')[0].strip()
+    lsid_output = check_output(['lsid']).splitlines()
+    for line in lsid_output:
+        if line.startswith('My cluster name is'):
+            return line.rsplit(' ')[0].strip()
 
     return 'undefined'
 
