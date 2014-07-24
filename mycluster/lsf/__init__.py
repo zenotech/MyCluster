@@ -164,7 +164,7 @@ def create_submit(queue_id,**kwargs):
 
 export JOB_ID=%J
 
-export MYCLUSTER_QUEUE=$parallel_env:$queue_name
+export MYCLUSTER_QUEUE=$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
 export NUM_TASKS=$num_tasks
 export TASKS_PER_NODE=$tpn
