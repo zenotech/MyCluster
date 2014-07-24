@@ -144,7 +144,7 @@ def create_submit(queue_id,**kwargs):
 #SBATCH -p $queue_name
 # Number of nodes
 #SBATCH --nodes $num_nodes
-# Tasks per node
+# Number of tasks 
 #SBATCH --ntasks $num_tasks
 # Exclusive node use
 #SBATCH --exclusive
