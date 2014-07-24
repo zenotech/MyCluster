@@ -20,7 +20,7 @@ def name():
     lsid_output = check_output(['lsid']).splitlines()
     for line in lsid_output:
         if line.startswith('My cluster name is'):
-            return line.rsplit(' ')[0].strip()
+            return line.rsplit(' ',1)[1].strip()
 
     return 'undefined'
 
@@ -42,28 +42,24 @@ def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0
     queue_name   = queue_id
-    with os.popen('bqueues '+queue_name) as f:
-        f.readline(); # read header
-        line = f.readline();
-        new_line = re.sub(' +',' ',line.strip())
-        total_tasks = int(new_line.split(' ')[7])
-        pen_tasks  = int(new_line.split(' ')[8])
-        run_tasks  = int(new_line.split(' ')[9])
-        sus_tasks  = int(new_line.split(' ')[10])
-        resv_tasks  = int(new_line.split(' ')[11])
+    q_output = check_output(['bqueues',queue_name]).splitlines()
+    for line in q_output:
+        if line.startswith(queue_name):
+            max_tasks = int(line.split(' ')[5])
+            pen_tasks   = int(new_line.split(' ')[8])
+            run_tasks   = int(new_line.split(' ')[9])
+            sus_tasks   = int(new_line.split(' ')[10])
         
-        if pend_tasks == 0:
-            free_tasks = 0
 
-    return {'available' : free_tasks, 'max tasks' : max_tasks}
+    return {'available' : max_tasks-run_tasks, 'max tasks' : max_tasks}
 
 def tasks_per_node(queue_id):
     host_list = None
-    with Popen(['bqueues','-l',queue_id],stdout=PIPE) as proc:
-        for line in proc.stdout:
-            if line.startswith('HOSTS:'):
-                host_list = line.rsplit(' ')[0].replace('/','')
-
+    q_output = check_output(['bqueues','-l',queue_id]).splitlines()
+    for line in q_output:
+        if line.startswith('HOSTS:'):
+            host_list = line.rsplit(' ')[0].replace('/','')
+   
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
 
     tasks = int(bhosts_output[2].split(' ')[3])    
@@ -74,10 +70,10 @@ def node_config(queue_id):
     # Find first node with queue and record node config
     #bqueues -l queue_id
     host_list = None
-    with Popen(['bqueues','-l',queue_id],stdout=PIPE) as proc:
-        for line in proc.stdout:
-            if line.startswith('HOSTS:'):
-                host_list = line.rsplit(' ')[0].replace('/','')
+    q_output = check_output(['bqueues','-l',queue_id]).splitlines()
+    for line in q_output:
+        if line.startswith('HOSTS:'):
+            host_list = line.rsplit(' ')[0].replace('/','')
 
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
 
