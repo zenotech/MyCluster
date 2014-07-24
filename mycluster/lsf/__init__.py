@@ -146,6 +146,8 @@ def create_submit(queue_id,**kwargs):
 #BSUB -cwd
 # Send status information to this email address. 
 #BSUB -u $user_email
+# Send me an e-mail when the job starts. 
+#BSUB -B
 # Send me an e-mail when the job has finished. 
 #BSUB -N
 # Redirect output stream to this file.
@@ -163,7 +165,7 @@ def create_submit(queue_id,**kwargs):
 # How much wallclock time will be required?
 #BSUB -W $wall_clock
 
-export JOBID=%J
+export JOBID=$LSB_JOBID
 
 export MYCLUSTER_QUEUE=$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
@@ -244,7 +246,7 @@ echo -e "Complete========\n"
 
 def submit(script_name):
     job_id = None
-    with os.popen('bsub '+script_name) as f:
+    with os.popen('bsub <'+script_name) as f:
         job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
         # Get job id and record in database
     return job_id
@@ -255,14 +257,14 @@ def delete(job_id):
     
 def status():
     status_dict = {}
-    with os.popen('bjobs') as f:
+    with os.popen('bjobs -w') as f:
         try:
             f.readline(); # read header
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 job_id = int(new_line.split(' ')[0])
-                state = new_line.split(' ')[4]
-                if state == 'R':
+                state = new_line.split(' ')[2]
+                if state == 'RUN':
                     status_dict[job_id] = 'r'
                 else:
                     status_dict[job_id] = state
