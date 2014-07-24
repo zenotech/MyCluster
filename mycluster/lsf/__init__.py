@@ -123,7 +123,14 @@ def create_submit(queue_id,**kwargs):
         pass
     user_email = kwargs['user_email']
     
-    
+    project_name = 'default'
+    if 'project_name' in kwargs:
+        project_name = kwargs['project_name']
+
+    wall_clock = '12:00:00'
+    if 'wall_clock' in kwargs:
+        wall_clock = str(kwargs['wall_clock'])+':00:00'
+   
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
