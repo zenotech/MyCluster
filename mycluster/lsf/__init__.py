@@ -3,6 +3,7 @@ import os
 import re
 import math
 from string import Template
+from subprocess import Popen, PIPE, check_output
 
 """
 
@@ -16,9 +17,12 @@ def scheduler_type():
     return 'lsf'
 
 def name():
-    with os.popen('lsclusters') as f:
-        f.readline()
-        return f.readline().split(' ')[0].strip()
+    with Popen(['lsid'],stdout=PIPE) as proc:
+        for line in proc.stdout:
+            if line.startswith('My cluster name is'):
+                return line.rsplit(' ')[0].strip()
+
+    return 'undefined'
 
 def queues():
     queue_list = []
@@ -54,31 +58,34 @@ def available_tasks(queue_id):
     return {'available' : free_tasks, 'max tasks' : max_tasks}
 
 def tasks_per_node(queue_id):
-    queue_name   = queue_id
-    tasks=0
-    with os.popen('sinfo -Nel -p '+queue_name) as f:
-        f.readline(); # read header
-        f.readline(); # read header
-        line = f.readline();
-        new_line = re.sub(' +',' ',line.strip())
-        tasks = int(new_line.split(' ')[4])
+    host_list = None
+    with Popen(['bqueues','-l',queue_id],stdout=PIPE) as proc:
+        for line in proc.stdout:
+            if line.startswith('HOSTS:'):
+                host_list = line.rsplit(' ')[0].replace('/','')
+
+    bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
+
+    tasks = int(bhosts_output[2].split(' ')[3])    
+
     return tasks
 
 def node_config(queue_id):
     # Find first node with queue and record node config
-    queue_name   = queue_id
-    tasks=0
-    config = {}
-    with os.popen('sinfo -Nel -p '+queue_name) as f:
-        f.readline(); # read header
-        f.readline(); # read header
-        line = f.readline();
-        new_line = re.sub(' +',' ',line.strip())
-        tasks = int(new_line.split(' ')[4])
-        memory = int(new_line.split(' ')[6])
-        config['max task']   = tasks
-        config['max thread'] = tasks
-        config['max memory'] = memory
+    #bqueues -l queue_id
+    host_list = None
+    with Popen(['bqueues','-l',queue_id],stdout=PIPE) as proc:
+        for line in proc.stdout:
+            if line.startswith('HOSTS:'):
+                host_list = line.rsplit(' ')[0].replace('/','')
+
+    bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
+
+    tasks = int(bhosts_output[2].split(' ')[3])
+    memory = int(bhosts_output[6].split(' ')[11].replace('G',''))
+    config['max task']   = tasks
+    config['max thread'] = tasks
+    config['max memory'] = memory
                         
     return config
 
@@ -258,7 +265,7 @@ def status():
     
 def job_stats(job_id):
     stats_dict = {}
-    with os.popen('sacct --noheader --format Elapsed,TotalCPU,Partition,NTasks,AveRSS -j '+str(job_id)) as f:
+    with os.popen('bacct '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
