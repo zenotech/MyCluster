@@ -46,7 +46,7 @@ def available_tasks(queue_id):
     for line in q_output:
         if line.startswith(queue_name):
             new_line = re.sub(' +',' ',line).strip()
-            max_tasks = int(new_line.split(' ')[5])
+            max_tasks = int(new_line.split(' ')[4])
             pen_tasks   = int(new_line.split(' ')[8])
             run_tasks   = int(new_line.split(' ')[9])
             sus_tasks   = int(new_line.split(' ')[10])
@@ -59,11 +59,11 @@ def tasks_per_node(queue_id):
     q_output = check_output(['bqueues','-l',queue_id]).splitlines()
     for line in q_output:
         if line.startswith('HOSTS:'):
-            host_list = line.rsplit(' ',1)[1].replace('/','')
+            host_list = line.strip().rsplit(' ',1)[1].replace('/','')
    
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
-
-    tasks = int(bhosts_output[2].split(' ')[3])    
+    line = re.sub(' +',' ',bhosts_output[2]).strip()
+    tasks = int(line.split(' ')[3])    
 
     return tasks
 
@@ -74,12 +74,13 @@ def node_config(queue_id):
     q_output = check_output(['bqueues','-l',queue_id]).splitlines()
     for line in q_output:
         if line.startswith('HOSTS:'):
-            host_list = line.rsplit(' ',1)[1].replace('/','')
+            host_list = line.strip().rsplit(' ',1)[1].replace('/','')
 
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
-
-    tasks = int(bhosts_output[2].split(' ')[3])
-    memory = int(bhosts_output[6].split(' ')[11].replace('G',''))
+    line = re.sub(' +',' ',bhosts_output[2]).strip()
+    tasks = int(line.split(' ')[3])
+    line = re.sub(' +',' ',bhosts_output[6]).strip()
+    memory = int(line.split(' ')[11].replace('G',''))
     config['max task']   = tasks
     config['max thread'] = tasks
     config['max memory'] = memory
