@@ -45,7 +45,8 @@ def available_tasks(queue_id):
     q_output = check_output(['bqueues',queue_name]).splitlines()
     for line in q_output:
         if line.startswith(queue_name):
-            max_tasks = int(line.split(' ')[5])
+            new_line = re.sub(' +',' ',line).strip()
+            max_tasks = int(new_line.split(' ')[5])
             pen_tasks   = int(new_line.split(' ')[8])
             run_tasks   = int(new_line.split(' ')[9])
             sus_tasks   = int(new_line.split(' ')[10])
@@ -58,7 +59,7 @@ def tasks_per_node(queue_id):
     q_output = check_output(['bqueues','-l',queue_id]).splitlines()
     for line in q_output:
         if line.startswith('HOSTS:'):
-            host_list = line.rsplit(' ')[0].replace('/','')
+            host_list = line.rsplit(' ',1)[1].replace('/','')
    
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
 
@@ -73,7 +74,7 @@ def node_config(queue_id):
     q_output = check_output(['bqueues','-l',queue_id]).splitlines()
     for line in q_output:
         if line.startswith('HOSTS:'):
-            host_list = line.rsplit(' ')[0].replace('/','')
+            host_list = line.rsplit(' ',1)[1].replace('/','')
 
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
 
