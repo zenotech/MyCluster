@@ -102,8 +102,9 @@ def create_submit(queue_id,**kwargs):
         tpn = min(tpn,kwargs['tasks_per_node'])
     
     nc = node_config(queue_id)
+    qc = available_tasks(queue_id)
     
-    num_tasks = min(num_tasks,nc['max task'])
+    num_tasks = min(num_tasks,qc['max tasks'])
     
     num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
@@ -129,7 +130,7 @@ def create_submit(queue_id,**kwargs):
 
     wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])+':00:00'
+        wall_clock = str(kwargs['wall_clock'])+':00'
    
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
@@ -148,7 +149,7 @@ def create_submit(queue_id,**kwargs):
 # Send me an e-mail when the job has finished. 
 #BSUB -N
 # Redirect output stream to this file.
-#BSUB -oo $my_output.%J
+#BSUB -oo ./$my_output.%J
 # Which project should be charged 
 #BSUB -P $project_name
 # Queue name
@@ -162,7 +163,7 @@ def create_submit(queue_id,**kwargs):
 # How much wallclock time will be required?
 #BSUB -W $wall_clock
 
-export JOB_ID=%J
+export JOBID=%J
 
 export MYCLUSTER_QUEUE=$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
@@ -244,7 +245,7 @@ echo -e "Complete========\n"
 def submit(script_name):
     job_id = None
     with os.popen('bsub '+script_name) as f:
-        job_id = int(f.readline().split(' ')[-1].strip())
+        job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
         # Get job id and record in database
     return job_id
 
