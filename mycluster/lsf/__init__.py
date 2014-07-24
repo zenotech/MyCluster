@@ -71,6 +71,7 @@ def node_config(queue_id):
     # Find first node with queue and record node config
     #bqueues -l queue_id
     host_list = None
+    config = {}
     q_output = check_output(['bqueues','-l',queue_id]).splitlines()
     for line in q_output:
         if line.startswith('HOSTS:'):
