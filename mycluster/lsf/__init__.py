@@ -150,7 +150,7 @@ def create_submit(queue_id,**kwargs):
 # Redirect output stream to this file.
 #BSUB -oo $my_output.%J
 # Which project should be charged 
-#BSUB -P $account_name
+#BSUB -P $project_name
 # Queue name
 #BSUB -q $queue_name
 # Number of tasks
