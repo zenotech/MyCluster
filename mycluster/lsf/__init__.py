@@ -27,7 +27,7 @@ def name():
 def queues():
     queue_list = []
     
-    with os.popen('bqueues -u `whoami`') as f:
+    with os.popen('bqueues -w -u `whoami`') as f:
         f.readline(); # read header
         for line in f:
             q = line.split(' ')[0].strip()
@@ -222,13 +222,14 @@ echo -e "Complete========\n"
                                    'my_output':my_output,
                                    'user_email':user_email,
                                    'queue_name':queue_name,
-                                   'parallel_env':parallel_env,
                                    'num_queue_slots':num_queue_slots,
                                    'num_tasks':num_tasks,
                                    'tpn':tpn,
                                    'num_threads_per_task':num_threads_per_task,
                                    'num_queue_slots':num_queue_slots,
                                    'num_nodes':num_nodes,
+                                   'project_name': project_name,
+                                   'wall_clock' : wall_clock,
                                    })
     
     return script_str
