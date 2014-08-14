@@ -128,7 +128,7 @@ def create_submit(queue_id,**kwargs):
     if 'project_name' in kwargs:
         project_name = kwargs['project_name']
 
-    wall_clock = '12:00:00'
+    wall_clock = '12:00'
     if 'wall_clock' in kwargs:
         wall_clock = str(kwargs['wall_clock'])+':00'
    
@@ -151,7 +151,7 @@ def create_submit(queue_id,**kwargs):
 # Send me an e-mail when the job has finished. 
 #BSUB -N
 # Redirect output stream to this file.
-#BSUB -oo ./$my_output.%J
+#BSUB -oo ./$my_output.$$LSB_JOBID
 # Which project should be charged 
 #BSUB -P $project_name
 # Queue name
@@ -164,8 +164,6 @@ def create_submit(queue_id,**kwargs):
 #BSUB -x
 # How much wallclock time will be required?
 #BSUB -W $wall_clock
-
-export JOBID=$LSB_JOBID
 
 export MYCLUSTER_QUEUE=$queue_name
 export MYCLUSTER_JOB_NAME=$my_name
@@ -196,16 +194,16 @@ export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches
 export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
 
 # Summarise environment
-echo -e "JobID: $$JOBID\n======"
+echo -e "JobID: $$LSB_JOBID\n======"
 echo "Time: `date`"
 echo "Running on master node: `hostname`"
 echo "Current directory: `pwd`"
 
 if [ "$$LSB_DJOB_HOSTFILE" ]; then
         #! Create a machine file:
-        cat $$LSB_DJOB_HOSTFILE | uniq > machine.file.$$JOBID
+        cat $$LSB_DJOB_HOSTFILE | uniq > machine.file.$$LSB_JOBID
         echo -e "\nNodes allocated:\n================"
-        echo `cat machine.file.$$JOBID | sed -e 's/\..*$$//g'`
+        echo `cat machine.file.$$LSB_JOBID | sed -e 's/\..*$$//g'`
 fi
 
 echo -e "\nnumtasks=$num_tasks, numnodes=$num_nodes, tasks_per_node=$tpn (OMP_NUM_THREADS=$$OMP_NUM_THREADS)"
@@ -218,12 +216,12 @@ echo -e "\nExecuting command:\n==================\n$my_script\n"
 # Report on completion
 echo -e "\nJob Complete:\n==================\n"
 echo -e "\nRecording hardware setup\n==================\n"
-mycluster --sysscribe $$JOBID
+mycluster --sysscribe $$LSB_JOBID
 if [ "$$MYCLUSTER_APP_NAME" ]; then
-    mycluster --jobid $$JOBID --appname=$$MYCLUSTER_APP_NAME
+    mycluster --jobid $$LSB_JOBID --appname=$$MYCLUSTER_APP_NAME
 fi
 if [ "$$MYCLUSTER_APP_DATA" ]; then
-    mycluster --jobid $$JOBID --appdata=$$MYCLUSTER_APP_DATA
+    mycluster --jobid $$LSB_JOBID --appdata=$$MYCLUSTER_APP_DATA
 fi
 echo -e "Complete========\n"
 """)
