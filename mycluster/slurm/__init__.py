@@ -158,7 +158,7 @@ export NUM_TASKS=$num_tasks
 export TASKS_PER_NODE=$tpn
 export THREADS_PER_TASK=$num_threads_per_task
 export NUM_NODES=$num_nodes
-export JOBID=$SLURM_JOB_ID
+export JOBID=$$SLURM_JOB_ID
 
 # OpenMP configuration
 export OMP_NUM_THREADS=$$THREADS_PER_TASK
