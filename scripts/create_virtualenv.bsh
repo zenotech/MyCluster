@@ -1,0 +1,46 @@
+#!/bin/bash
+
+echo "MyCluster virtualenv installer"
+
+pushd ..
+
+echo "Checking for python"
+
+PYTHON_VER=`python -c 'import sys; print sys.version_info.minor'`
+if [ $PYTHON_VER -ne 7 ]; then
+    echo "ERROR: Require python version 2.7"
+    exit
+fi
+
+echo "Checking for virtualenv"
+VIRTUAL_ENV=`which virtualenv`
+if [ ! -n $VIRTUAL_ENV ]; then
+	echo "ERROR: virtualenv not found"
+	exit
+fi
+
+if [ -d "mycluster-py27" ]; then
+	\rm -r mycluster-py27
+fi
+
+echo "Creating virtual environment"
+virtualenv mycluster-py27
+
+echo "Activating virtual environment"
+source mycluster-py27/bin/activate
+
+echo "Installing yolk"
+pip install yolk
+
+echo "Installing requirements"
+pip install -r requirements.txt 
+
+echo "Installing MyCluster"
+pip install MyCluster
+
+yolk -l
+
+deactivate
+
+popd
+
