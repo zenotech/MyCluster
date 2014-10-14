@@ -4,14 +4,12 @@ echo "MyCluster installer"
 pushd ..
 
 echo "Checking for Python
-REM Check for python 2.7 or >3.3
+REM Check for python 2.6 or 2.7
+FOR /F "tokens=1,2" %%G IN ('"python.exe -V 2>&1"') DO ECHO %%H | find "2.6" > Nul
+IF NOT ErrorLevel 1 GOTO PythonOK 
 FOR /F "tokens=1,2" %%G IN ('"python.exe -V 2>&1"') DO ECHO %%H | find "2.7" > Nul
 IF NOT ErrorLevel 1 GOTO PythonOK 
-FOR /F "tokens=1,2" %%G IN ('"python.exe -V 2>&1"') DO ECHO %%H | find "3.3" > Nul
-IF NOT ErrorLevel 1 GOTO PythonOK 
-FOR /F "tokens=1,2" %%G IN ('"python.exe -V 2>&1"') DO ECHO %%H | find "3.4" > Nul
-IF NOT ErrorLevel 1 GOTO PythonOK 
-ECHO Requires Python 2.7 or > 3.3
+ECHO Requires Python 2.6 or 2.7
 GOTO EOF
 
 :PythonOK 
@@ -24,13 +22,13 @@ ECHO virtualenv not found
 GOTO EOF
 :VirtualEnvOK
 
-if exist ".\mycluster-py27\" rd /q /s ".\mycluster-py27\"
+if exist ".\mycluster-env\" rd /q /s ".\mycluster-env\"
 
 echo "Creating virtual environment"
-virtualenv mycluster-py27
+virtualenv mycluster-env
 
 echo "Activating virtual environment"
-call mycluster-py27\scripts\activate
+call mycluster-env\scripts\activate
 
 echo "Installing yolk"
 pip install yolk

@@ -6,11 +6,17 @@ pushd ..
 
 echo "Checking for python"
 
-PYTHON_VER=`python -c 'import sys; print sys.version_info.minor'`
-if [ $PYTHON_VER -ne 7 ]; then
-    echo "ERROR: Require python version 2.7"
+PYTHON_VER_MAJOR=`python -c 'import sys; print sys.version_info.major'`
+PYTHON_VER_MINOR=`python -c 'import sys; print sys.version_info.minor'`
+if [ $PYTHON_VER_MAJOR -ne 2 ]; then
+    echo "ERROR: Require python version 2.x"
     exit
 fi
+if [ $PYTHON_VER_MINOR -lt 6 ]; then
+    echo "ERROR: Require python version >= 2.6"
+    exit
+fi
+
 
 echo "Checking for virtualenv"
 VIRTUAL_ENV=`which virtualenv`
@@ -19,15 +25,15 @@ if [ ! -n $VIRTUAL_ENV ]; then
 	exit
 fi
 
-if [ -d "mycluster-py27" ]; then
-	\rm -r mycluster-py27
+if [ -d "mycluster-env" ]; then
+	\rm -r mycluster-env
 fi
 
 echo "Creating virtual environment"
-virtualenv mycluster-py27
+virtualenv mycluster-env
 
 echo "Activating virtual environment"
-source mycluster-py27/bin/activate
+source mycluster-env/bin/activate
 
 echo "Installing yolk"
 pip install yolk
