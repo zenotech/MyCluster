@@ -13,7 +13,7 @@ Tested with SGE and slurm (LSF and PBS/TORQUE support under development)
 
 Installation - pip install MyCluster or git clone https://github.com/zenotech/MyCluster.git 
 
-Dependencies: ZODB
+Dependencies: ZODB, Fabric
 
 Example usage
 
