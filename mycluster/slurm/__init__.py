@@ -208,7 +208,7 @@ echo -e "\nnumtasks=$num_tasks, numnodes=$num_nodes, tasks_per_node=$tpn (OMP_NU
 echo -e "\nExecuting command:\n==================\n$my_script\n"
 
 # Run user script
-./$my_script
+. $my_script
 
 # Report on completion
 echo -e "\nJob Complete:\n==================\n"
