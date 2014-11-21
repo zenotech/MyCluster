@@ -251,17 +251,20 @@ def submit(script_name,immediate):
             # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" '+script_name+' | sed \'s/#SBATCH//\'') as f:
-            partition = f.readline()
+            partition = f.readline().rstrip()
         with os.popen('grep -- "SBATCH --nodes" '+script_name+' | sed \'s/#SBATCH//\'') as f:
-            nnodes = f.readline()
+            nnodes = f.readline().rstrip()
         with os.popen('grep -- "SBATCH --ntasks" '+script_name+' | sed \'s/#SBATCH//\'') as f:
-            ntasks = f.readline()
+            ntasks = f.readline().rstrip()
         with os.popen('grep -- "SBATCH -A" '+script_name+' | sed \'s/#SBATCH//\'') as f:
-            project = f.readline()
+            project = f.readline().rstrip()
         with os.popen('grep -- "SBATCH -J" '+script_name+' | sed \'s/#SBATCH//\'') as f:
-            job = f.readline()
+            job = f.readline().rstrip()
 
-        with os.popen('salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' ./'+script_name) as f:
+        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' ./'+script_name
+        print cmd_line
+
+        with os.popen(cmd_line) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[-1].strip())
