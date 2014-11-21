@@ -250,7 +250,18 @@ def submit(script_name,immediate):
                 print('Job submission failed: '+output)
             # Get job id and record in database
     else:
-        with os.popen('srun '+script_name) as f:
+         with os.popen('grep -- "SBATCH -p" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+            partition = f.readline()
+         with os.popen('grep -- "SBATCH --nodes" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+            nnodes = f.readline()
+         with os.popen('grep -- "SBATCH --ntasks" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+            ntasks = f.readline()
+         with os.popen('grep -- "SBATCH -A" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+            project = f.readline()
+         with os.popen('grep -- "SBATCH -J" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+            job = f.readline()
+
+        with os.popen('salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' ./'+script_name) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[-1].strip())
