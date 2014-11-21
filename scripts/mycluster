@@ -19,6 +19,7 @@ def main():
     create_group.add_argument('--project',default='default',help='Project/Account used of accounting usage(required)')
     create_group.add_argument('--maxtime',default='12:00:00',help='Maximum runtime (hh:mm::ss)')
     parser.add_argument('-s','--submit', help='Submit job file')
+    parser.add_argument('-i','--immediate', action='store_true', help='Submit job immediately')
     parser.add_argument('-d','--delete', help='Delete job')
     parser.add_argument('--email',help='Email update')
     parser.add_argument('--firstname',help='Name update')
@@ -35,7 +36,7 @@ def main():
     if args.queues:
         mycluster.print_queue_info()
     if args.submit:
-        mycluster.submit(args.submit)
+        mycluster.submit(args.submit,args.immediate)
     if args.sysscribe:
         mycluster.sysscribe_update(args.sysscribe)
     if args.jobid:

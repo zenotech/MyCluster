@@ -5,6 +5,8 @@ import math
 from string import Template
 from datetime import timedelta
 from mycluster import get_timedelta
+from subprocess import Popen, PIPE, check_output
+from mycluster import get_data
 
 """
 sacctmgr show cluster
@@ -19,6 +21,9 @@ def name():
         f.readline()
         f.readline()
         return f.readline().strip().split(' ')[0]
+
+def accounts():
+    pass
 
 def queues():
     queue_list = []
@@ -110,6 +115,9 @@ def create_submit(queue_id,**kwargs):
     if 'my_script' not in kwargs:
         pass
     my_script = kwargs['my_script']
+    if 'mycluster-' in my_script:
+        my_script = get_data(my_script)
+
     if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
@@ -120,7 +128,8 @@ def create_submit(queue_id,**kwargs):
     
     wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])+':00:00'
+        if ':' not in kwargs['wall_clock']:
+            wall_clock = str(kwargs['wall_clock'])+':00:00'
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
@@ -230,15 +239,23 @@ echo -e "Complete========\n"
     
     return script_str
 
-def submit(script_name):
+def submit(script_name,immediate):
     job_id = None
-    with os.popen('sbatch '+script_name) as f:
-        output = f.readline()
-        try:
-            job_id = int(output.split(' ')[-1].strip())
-        except:
-            print('Job submission failed: '+output)
-        # Get job id and record in database
+    if not immediate:
+        with os.popen('sbatch '+script_name) as f:
+            output = f.readline()
+            try:
+                job_id = int(output.split(' ')[-1].strip())
+            except:
+                print('Job submission failed: '+output)
+            # Get job id and record in database
+    else:
+        with os.popen('srun '+script_name) as f:
+            output = f.readline()
+            try:
+                job_id = int(output.split(' ')[-1].strip())
+            except:
+                print('Job submission failed: '+output)
     return job_id
 
 def delete(job_id):

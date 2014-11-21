@@ -13,6 +13,14 @@ JOB_SCHEDULERS = ('SGE','SLURM','LSF','PBS','TORQUE','MAUI','LOADLEVELER')
 scheduler = None 
 job_db = None
 
+from os.path import join as pj
+
+def get_data(filename):
+    packagedir = os.path.dirname(__file__)
+    dirname = pj(packagedir, '..', 'share','MyCluster')
+    fullname = os.path.join(dirname, filename)
+    return fullname
+
 def detect_scheduling_sys():
 
     # Test for SLURM
@@ -230,12 +238,12 @@ def create_submit(queue_id,script_name=None,**kwargs):
     
     return script
 
-def submit(script_name):
+def submit(script_name, immediate):
     
     job_id = -1
     import os.path
     if os.path.isfile(script_name):    
-        job_id = scheduler.submit(script_name)
+        job_id = scheduler.submit(script_name,immediate)
         if job_db != None and job_id != None:
             from mycluster.persist import Job
             job = Job(job_id,time.time())

@@ -1,0 +1,6 @@
+#!/bin/bash -f
+
+export MYCLUSTER_APP_NAME=paraview
+export MYCLUSTER_APP_DATA=INTERACTIVE
+
+$OMPI_CMD $PARAVIEW_HOME/pvserver $PARAVIEW_ARGS
