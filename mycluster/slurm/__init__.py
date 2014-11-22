@@ -261,7 +261,7 @@ def submit(script_name,immediate):
         with os.popen('grep -- "SBATCH -J" '+script_name+' | sed \'s/#SBATCH//\'') as f:
             job = f.readline().rstrip()
 
-        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' ./'+script_name
+        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' srun -n 1 ./'+script_name
         print cmd_line
 
         with os.popen(cmd_line) as f:
