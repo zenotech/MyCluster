@@ -1,0 +1,8 @@
+#!/bin/bash -f
+
+export MYCLUSTER_APP_NAME=paraview
+export MYCLUSTER_APP_DATA=INTERACTIVE
+
+export PATH=$PATH:$PARAVIEW_HOME
+
+$PARAVIEW_ARGS
