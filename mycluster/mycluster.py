@@ -245,7 +245,7 @@ def submit(script_name, immediate):
     if os.path.isfile(script_name):    
         job_id = scheduler.submit(script_name,immediate)
         if job_db != None and job_id != None:
-            from mycluster.persist import Job
+            from persist import Job
             job = Job(job_id,time.time())
             with open(script_name,'r') as f:
                 for line in f:
@@ -325,7 +325,7 @@ def create_directory():
 def create_db():
     global job_db
     try:
-        from mycluster.persist import JobDB
+        from persist import JobDB
         job_db = JobDB()    
     except Exception as e:
         print 'Database failed to initialise. Error Message: ' + str(e)
@@ -403,8 +403,3 @@ def init():
         print('Site name: '+get_site())
     print('')
    
-"""
-Module initialiser functions
-"""
-init()
-
