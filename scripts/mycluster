@@ -2,7 +2,7 @@
 
 import sys
 import os
-import mycluster
+from mycluster import mycluster
 import argparse
 
 def main():
