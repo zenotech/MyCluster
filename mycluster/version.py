@@ -40,11 +40,19 @@ from pkg_resources import Requirement, resource_filename
 
 def call_git_describe(abbrev=4):
     try:
-        p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
+        p = Popen(['git', 'describe', '--tags', '--exact-match'],
                   stdout=PIPE, stderr=PIPE)
+        return_code = p.wait()
         p.stderr.close()
         line = p.stdout.readlines()[0]
-        return line.strip()
+        if return_code == 0:
+            return line.strip()
+        else:
+            p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
+                  stdout=PIPE, stderr=PIPE)
+            p.stderr.close()
+            line = p.stdout.readlines()[0] 
+            return line.strip()
 
     except:
         return None
