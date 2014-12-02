@@ -2,7 +2,7 @@
 
 import sys
 import os
-import mycluster
+from mycluster import mycluster
 import argparse
 
 def main():
@@ -33,6 +33,11 @@ def main():
     parser.add_argument('--appdata',type=int,help=argparse.SUPPRESS)
     args = parser.parse_args()
     
+    """
+    Module initialiser function
+    """
+    mycluster.init()
+
     if args.queues:
         mycluster.print_queue_info()
     if args.submit:

@@ -63,7 +63,7 @@ class JobDB(object):
         
         self.queue_db = dbroot['queue_db']
         
-        from mycluster.version import get_git_version
+        from version import get_git_version
         if not dbroot.has_key('version'):            
             dbroot['version'] = get_git_version()
         else:
