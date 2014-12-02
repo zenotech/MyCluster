@@ -43,20 +43,20 @@ def call_git_describe(abbrev=4):
         p = Popen(['git', 'describe', '--tags', '--exact-match'],
                   stdout=PIPE, stderr=PIPE)
         return_code = p.wait()
-        p.stderr.close()
-        line = p.stdout.readlines()[0]
         if return_code == 0:
+            p.stderr.close()
+            line = p.stdout.readlines()[0]
             return line.strip()
         else:
+            p.stderr.close()
+            p.stdout.close()
             p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
                   stdout=PIPE, stderr=PIPE)
             p.stderr.close()
             line = p.stdout.readlines()[0] 
             return line.strip()
-
-    except:
+    except Exception, e:
         return None
-
 
 def read_release_version():
     try:
