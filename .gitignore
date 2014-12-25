@@ -54,3 +54,5 @@ docs/_build/
 
 
 RELEASE-VERSION
+
+*.sublime-workspace
