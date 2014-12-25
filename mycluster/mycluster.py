@@ -19,6 +19,11 @@ def get_data(filename):
     packagedir = os.path.dirname(__file__)
     dirname = pj(packagedir, '..', 'share','MyCluster')
     fullname = os.path.join(dirname, filename)
+    # Need to check if file exists as share location may also be sys.prefix/share
+    if not os.path.isfile(fullname):
+        dirname = pj(sys.prefix,'share','MyCluster')
+        fullname = os.path.join(dirname, filename)
+
     return fullname
 
 def detect_scheduling_sys():
