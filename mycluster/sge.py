@@ -108,8 +108,8 @@ def node_config(queue_id):
                 new_line = re.sub(' +',' ',line)
                 host_group = new_line.split(' ')[1]
     
-    config = {}d 
-    host_name=''
+    config = {}
+    host_name = ''
     found = False
     with os.popen('qconf -shgrp_resolved '+host_group) as f:
         for line in f:
@@ -186,11 +186,14 @@ def create_submit(queue_id,**kwargs):
     project_name = 'default'
     if 'project_name' in kwargs:
         project_name = kwargs['project_name']
-
+    
     wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])+':00:00'
-    
+        if ':' not in str(kwargs['wall_clock']):
+            wall_clock = str(kwargs['wall_clock'])+':00:00'
+        else:
+            wall_clock = str(kwargs['wall_clock'])
+
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
@@ -298,7 +301,7 @@ echo -e "Complete========\n"
     
     return script_str
 
-def submit(script_name):
+def submit(script_name, immediate):
     job_id = None
     with os.popen('qsub -V -terse '+script_name) as f:
         job_id = int(f.readline().strip())
