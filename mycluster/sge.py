@@ -116,19 +116,33 @@ def node_config(queue_id):
         for line in f:
             for host_name in line.split(' '):
                 with os.popen('qhost -q -h '+host_name) as f:
-                    f.readline(); # read header
+                    header = f.readline(); # read header
                     f.readline(); # read separator
-                    for line in f:
-                        if line[0] != ' ':
-                            name = line.split(' ')[0]
-                            if name != 'global':
-                                new_line = re.sub(' +',' ',line).strip()
-                                if new_line.split(' ')[3] != '-':
-                                    config['max task']   = int(new_line.split(' ')[4])
-                                    config['max thread'] = int(new_line.split(' ')[5])
-                                    config['max memory'] =     new_line.split(' ')[7]
-                                    found = True
-                                    break
+                    new_header = re.sub(' +',' ',header).strip()
+                    if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
+                        for line in f:
+                            if line[0] != ' ':
+                                name = line.split(' ')[0]
+                                if name != 'global':
+                                    new_line = re.sub(' +',' ',line).strip()
+                                    if new_line.split(' ')[3] != '-':
+                                        config['max task']   = int(new_line.split(' ')[2])
+                                        config['max thread'] = int(new_line.split(' ')[2])
+                                        config['max memory'] =     new_line.split(' ')[4]
+                                        found = True
+                                        break
+                    else:
+                        for line in f:
+                            if line[0] != ' ':
+                                name = line.split(' ')[0]
+                                if name != 'global':
+                                    new_line = re.sub(' +',' ',line).strip()
+                                    if new_line.split(' ')[3] != '-':
+                                        config['max task']   = int(new_line.split(' ')[4])
+                                        config['max thread'] = int(new_line.split(' ')[5])
+                                        config['max memory'] =     new_line.split(' ')[7]
+                                        found = True
+                                        break
                 if found: break
                 
     return config
