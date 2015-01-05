@@ -94,8 +94,7 @@ def tasks_per_node(queue_id):
     with os.popen('qconf -sq '+queue_name) as f:
         for line in f:
             if line.split(' ')[0] == 'slots':
-                new_line = re.sub(' +',' ',line)
-                tasks = int(new_line.split(' ')[1])
+                tasks = int(re.split('\W+', line)[1])
     return tasks
 
 def node_config(queue_id):
@@ -109,7 +108,7 @@ def node_config(queue_id):
                 new_line = re.sub(' +',' ',line)
                 host_group = new_line.split(' ')[1]
     
-    config = {}
+    config = {}d 
     host_name=''
     found = False
     with os.popen('qconf -shgrp_resolved '+host_group) as f:
