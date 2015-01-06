@@ -94,8 +94,7 @@ def tasks_per_node(queue_id):
     with os.popen('qconf -sq '+queue_name) as f:
         for line in f:
             if line.split(' ')[0] == 'slots':
-                new_line = re.sub(' +',' ',line)
-                tasks = int(new_line.split(' ')[1])
+                tasks = int(re.split('\W+', line)[1])
     return tasks
 
 def node_config(queue_id):
@@ -110,25 +109,39 @@ def node_config(queue_id):
                 host_group = new_line.split(' ')[1]
     
     config = {}
-    host_name=''
+    host_name = ''
     found = False
     with os.popen('qconf -shgrp_resolved '+host_group) as f:
         for line in f:
             for host_name in line.split(' '):
                 with os.popen('qhost -q -h '+host_name) as f:
-                    f.readline(); # read header
+                    header = f.readline(); # read header
                     f.readline(); # read separator
-                    for line in f:
-                        if line[0] != ' ':
-                            name = line.split(' ')[0]
-                            if name != 'global':
-                                new_line = re.sub(' +',' ',line).strip()
-                                if new_line.split(' ')[3] != '-':
-                                    config['max task']   = int(new_line.split(' ')[4])
-                                    config['max thread'] = int(new_line.split(' ')[5])
-                                    config['max memory'] =     new_line.split(' ')[7]
-                                    found = True
-                                    break
+                    new_header = re.sub(' +',' ',header).strip()
+                    if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
+                        for line in f:
+                            if line[0] != ' ':
+                                name = line.split(' ')[0]
+                                if name != 'global':
+                                    new_line = re.sub(' +',' ',line).strip()
+                                    if new_line.split(' ')[3] != '-':
+                                        config['max task']   = int(new_line.split(' ')[2])
+                                        config['max thread'] = int(new_line.split(' ')[2])
+                                        config['max memory'] =     new_line.split(' ')[4]
+                                        found = True
+                                        break
+                    else:
+                        for line in f:
+                            if line[0] != ' ':
+                                name = line.split(' ')[0]
+                                if name != 'global':
+                                    new_line = re.sub(' +',' ',line).strip()
+                                    if new_line.split(' ')[3] != '-':
+                                        config['max task']   = int(new_line.split(' ')[4])
+                                        config['max thread'] = int(new_line.split(' ')[5])
+                                        config['max memory'] =     new_line.split(' ')[7]
+                                        found = True
+                                        break
                 if found: break
                 
     return config
@@ -173,14 +186,15 @@ def create_submit(queue_id,**kwargs):
     project_name = 'default'
     if 'project_name' in kwargs:
         project_name = kwargs['project_name']
-
+    
     wall_clock = '12:00:00'
     if 'wall_clock' in kwargs:
         if ':' not in str(kwargs['wall_clock']):
             wall_clock = str(kwargs['wall_clock'])+':00:00'
-        else
+        else:
             wall_clock = str(kwargs['wall_clock'])
-    
+
+
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
@@ -288,7 +302,7 @@ echo -e "Complete========\n"
     
     return script_str
 
-def submit(script_name):
+def submit(script_name, immediate):
     job_id = None
     with os.popen('qsub -V -terse '+script_name) as f:
         job_id = int(f.readline().strip())

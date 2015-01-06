@@ -58,18 +58,23 @@ def call_git_describe(abbrev=4):
     except Exception, e:
         return None
 
+
 def read_release_version():
     try:
         filename = os.path.join(sys.prefix, "share", "MyCluster", "RELEASE-VERSION")
         if os.path.isfile(filename):
             f = open(filename, 'r')
         else:
-            filename = resource_filename(Requirement.parse("MyCluster"),"share/MyCluster/RELEASE-VERSION")
+            filename = os.path.join(sys.prefix, "local", "share", "MyCluster", "RELEASE-VERSION")
             if os.path.isfile(filename):
                 f = open(filename, 'r')
             else:
-                filename = resource_filename(Requirement.parse("MyCluster"),"RELEASE-VERSION")
-                f = open(filename, 'r')
+                filename = resource_filename(Requirement.parse("MyCluster"),"share/MyCluster/RELEASE-VERSION")
+                if os.path.isfile(filename):
+                    f = open(filename, 'r')
+                else:
+                    filename = resource_filename(Requirement.parse("MyCluster"),"RELEASE-VERSION")
+                    f = open(filename, 'r')
         try:
             version = f.readlines()[0]
             return version.strip()

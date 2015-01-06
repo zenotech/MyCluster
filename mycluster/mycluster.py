@@ -249,6 +249,8 @@ def submit(script_name, immediate):
     import os.path
     if os.path.isfile(script_name):    
         job_id = scheduler.submit(script_name,immediate)
+        if job_id != None:
+            print('Job submitted with ID {0}'.format(job_id))
         if job_db != None and job_id != None:
             from persist import Job
             job = Job(job_id,time.time())
