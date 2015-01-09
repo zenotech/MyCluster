@@ -165,7 +165,7 @@ def create_submit(queue_id,**kwargs):
 # Send me an e-mail when the job has finished. 
 #BSUB -N
 # Redirect output stream to this file.
-#BSUB -oo ./$my_output
+#BSUB -oo ./$my_output.%J
 # Which project should be charged 
 #BSUB -P $project_name
 # Queue name
@@ -290,7 +290,7 @@ def status():
     
 def job_stats(job_id):
     stats_dict = {}
-    with os.popen('bacct '+str(job_id)) as f:
+    with os.popen('bacct -l '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
