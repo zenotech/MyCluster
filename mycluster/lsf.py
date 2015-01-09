@@ -157,7 +157,7 @@ def create_submit(queue_id,**kwargs):
 # Job name
 #BSUB -J $my_name
 # The batch system should use the current directory as working directory.
-#BSUB -cwd
+##BSUB -cwd
 # Send status information to this email address. 
 #BSUB -u $user_email
 # Send me an e-mail when the job starts. 
@@ -259,7 +259,10 @@ echo -e "Complete========\n"
 def submit(script_name,immediate):
     job_id = None
     with os.popen('bsub <'+script_name) as f:
-        job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
+        try:
+            job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
+        except:
+            print f
         # Get job id and record in database
     return job_id
 
