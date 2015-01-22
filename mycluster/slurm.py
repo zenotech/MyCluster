@@ -130,6 +130,8 @@ def create_submit(queue_id,**kwargs):
     if 'wall_clock' in kwargs:
         if ':' not in str(kwargs['wall_clock']):
             wall_clock = str(kwargs['wall_clock'])+':00:00'
+        else:
+            wall_clock = str(kwargs['wall_clock'])
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 

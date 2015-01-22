@@ -4,6 +4,7 @@ import re
 import math
 from string import Template
 from subprocess import Popen, PIPE, check_output
+from mycluster import get_data
 
 """
 
@@ -41,12 +42,16 @@ def available_tasks(queue_id):
     # list free slots
     free_tasks = 0
     max_tasks = 0
+    run_tasks = 0
     queue_name   = queue_id
     q_output = check_output(['bqueues',queue_name]).splitlines()
     for line in q_output:
         if line.startswith(queue_name):
             new_line = re.sub(' +',' ',line).strip()
-            max_tasks = int(new_line.split(' ')[4])
+            try:
+                max_tasks = int(new_line.split(' ')[4])
+            except:
+                pass
             pen_tasks   = int(new_line.split(' ')[8])
             run_tasks   = int(new_line.split(' ')[9])
             sus_tasks   = int(new_line.split(' ')[10])
@@ -104,7 +109,8 @@ def create_submit(queue_id,**kwargs):
     nc = node_config(queue_id)
     qc = available_tasks(queue_id)
     
-    num_tasks = min(num_tasks,qc['max tasks'])
+    if qc['max tasks'] > 0:
+        num_tasks = min(num_tasks,qc['max tasks'])
     
     num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
@@ -117,9 +123,14 @@ def create_submit(queue_id,**kwargs):
     my_output = "myclusterjob.out"
     if 'my_output' in kwargs:
         my_output = kwargs['my_output']
+    
     if 'my_script' not in kwargs:
         pass
+    
     my_script = kwargs['my_script']
+    if 'mycluster-' in my_script:
+        my_script = get_data(my_script)
+    
     if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
@@ -130,8 +141,11 @@ def create_submit(queue_id,**kwargs):
 
     wall_clock = '12:00'
     if 'wall_clock' in kwargs:
-        wall_clock = str(kwargs['wall_clock'])+':00'
-   
+        if ':' not in str(kwargs['wall_clock']):
+            wall_clock = str(kwargs['wall_clock'])+':00'
+        else:
+            wall_clock = str(kwargs['wall_clock'])
+
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
     num_queue_slots = num_nodes*queue_tpn
@@ -143,7 +157,7 @@ def create_submit(queue_id,**kwargs):
 # Job name
 #BSUB -J $my_name
 # The batch system should use the current directory as working directory.
-#BSUB -cwd
+##BSUB -cwd
 # Send status information to this email address. 
 #BSUB -u $user_email
 # Send me an e-mail when the job starts. 
@@ -151,7 +165,7 @@ def create_submit(queue_id,**kwargs):
 # Send me an e-mail when the job has finished. 
 #BSUB -N
 # Redirect output stream to this file.
-#BSUB -oo ./$my_output.$$LSB_JOBID
+#BSUB -oo ./$my_output.%J
 # Which project should be charged 
 #BSUB -P $project_name
 # Queue name
@@ -211,7 +225,7 @@ echo -e "\nnumtasks=$num_tasks, numnodes=$num_nodes, tasks_per_node=$tpn (OMP_NU
 echo -e "\nExecuting command:\n==================\n$my_script\n"
 
 # Run user script
-./$my_script
+. $my_script
 
 # Report on completion
 echo -e "\nJob Complete:\n==================\n"
@@ -242,10 +256,13 @@ echo -e "Complete========\n"
     
     return script_str
 
-def submit(script_name):
+def submit(script_name,immediate):
     job_id = None
     with os.popen('bsub <'+script_name) as f:
-        job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
+        try:
+            job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
+        except:
+            print f
         # Get job id and record in database
     return job_id
 
@@ -273,7 +290,7 @@ def status():
     
 def job_stats(job_id):
     stats_dict = {}
-    with os.popen('bacct '+str(job_id)) as f:
+    with os.popen('bacct -l '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())

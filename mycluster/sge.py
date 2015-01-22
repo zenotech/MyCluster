@@ -2,6 +2,7 @@ import os
 import re
 import math
 from string import Template
+from mycluster import get_data
 
 """"
 SGE notes
@@ -208,6 +209,9 @@ def create_submit(queue_id,**kwargs):
     if 'my_script' not in kwargs:
         pass
     my_script = kwargs['my_script']
+    if 'mycluster-' in my_script:
+        my_script = get_data(my_script)
+
     if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
@@ -222,6 +226,7 @@ def create_submit(queue_id,**kwargs):
             wall_clock = str(kwargs['wall_clock'])+':00:00'
         else:
             wall_clock = str(kwargs['wall_clock'])
+
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
