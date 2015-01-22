@@ -97,6 +97,7 @@ def tasks_per_node(queue_id):
                 tasks = int(re.split('\W+', line)[1])
     return tasks
 
+
 def node_config(queue_id):
     # Find first node with queue and record node config
     parallel_env = queue_id.split(':')[0]
@@ -111,39 +112,67 @@ def node_config(queue_id):
     config = {}
     host_name = ''
     found = False
-    with os.popen('qconf -shgrp_resolved '+host_group) as f:
-        for line in f:
-            for host_name in line.split(' '):
-                with os.popen('qhost -q -h '+host_name) as f:
-                    header = f.readline(); # read header
-                    f.readline(); # read separator
-                    new_header = re.sub(' +',' ',header).strip()
-                    if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
-                        for line in f:
-                            if line[0] != ' ':
-                                name = line.split(' ')[0]
-                                if name != 'global':
-                                    new_line = re.sub(' +',' ',line).strip()
-                                    if new_line.split(' ')[3] != '-':
-                                        config['max task']   = int(new_line.split(' ')[2])
-                                        config['max thread'] = int(new_line.split(' ')[2])
-                                        config['max memory'] =     new_line.split(' ')[4]
-                                        found = True
-                                        break
-                    else:
-                        for line in f:
-                            if line[0] != ' ':
-                                name = line.split(' ')[0]
-                                if name != 'global':
-                                    new_line = re.sub(' +',' ',line).strip()
-                                    if new_line.split(' ')[3] != '-':
-                                        config['max task']   = int(new_line.split(' ')[4])
-                                        config['max thread'] = int(new_line.split(' ')[5])
-                                        config['max memory'] =     new_line.split(' ')[7]
-                                        found = True
-                                        break
-                if found: break
-                
+    if host_group[0] is '@':
+        #Is a host group
+        with os.popen('qconf -shgrp_resolved '+host_group) as f:
+            for line in f:
+                for host_name in line.split(' '):
+                    with os.popen('qhost -q -h '+host_name) as f:
+                        header = f.readline(); # read header
+                        f.readline(); # read separator
+                        new_header = re.sub(' +',' ',header).strip()
+                        if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
+                            for line in f:
+                                if line[0] != ' ':
+                                    name = line.split(' ')[0]
+                                    if name != 'global':
+                                        new_line = re.sub(' +',' ',line).strip()
+                                        if new_line.split(' ')[3] != '-':
+                                            config['max task']   = int(new_line.split(' ')[2])
+                                            config['max thread'] = int(new_line.split(' ')[2])
+                                            config['max memory'] =     new_line.split(' ')[4]
+                                            found = True
+                                            break
+                        else:
+                            for line in f:
+                                if line[0] != ' ':
+                                    name = line.split(' ')[0]
+                                    if name != 'global':
+                                        new_line = re.sub(' +',' ',line).strip()
+                                        if new_line.split(' ')[3] != '-':
+                                            config['max task']   = int(new_line.split(' ')[4])
+                                            config['max thread'] = int(new_line.split(' ')[5])
+                                            config['max memory'] =     new_line.split(' ')[7]
+                                            found = True
+                                            break
+                    if found: break
+    else:
+        #Is a host
+        host_name = host_group
+        with os.popen('qhost -q -h '+host_name) as f:
+            header = f.readline(); # read header
+            f.readline(); # read separator
+            new_header = re.sub(' +',' ',header).strip()
+            if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
+                for line in f:
+                    if line[0] != ' ':
+                        name = line.split(' ')[0]
+                        if name != 'global':
+                            new_line = re.sub(' +',' ',line).strip()
+                            if new_line.split(' ')[3] != '-':
+                                config['max task']   = int(new_line.split(' ')[2])
+                                config['max thread'] = int(new_line.split(' ')[2])
+                                config['max memory'] =     new_line.split(' ')[4]
+            else:
+                for line in f:
+                    if line[0] != ' ':
+                        name = line.split(' ')[0]
+                        if name != 'global':
+                            new_line = re.sub(' +',' ',line).strip()
+                            if new_line.split(' ')[3] != '-':
+                                config['max task']   = int(new_line.split(' ')[4])
+                                config['max thread'] = int(new_line.split(' ')[5])
+                                config['max memory'] =     new_line.split(' ')[7]                
     return config
 
 def create_submit(queue_id,**kwargs):
