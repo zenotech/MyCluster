@@ -2,7 +2,6 @@ import os
 import re
 import math
 from string import Template
-from mycluster import get_data
 
 """"
 SGE notes
@@ -164,6 +163,10 @@ def node_config(queue_id):
                                 config['max task']   = int(new_line.split(' ')[2])
                                 config['max thread'] = int(new_line.split(' ')[2])
                                 config['max memory'] =     new_line.split(' ')[4]
+                            else:
+                                config['max task']   = 0
+                                config['max thread'] = 0
+                                config['max memory'] = 0
             else:
                 for line in f:
                     if line[0] != ' ':
@@ -173,7 +176,11 @@ def node_config(queue_id):
                             if new_line.split(' ')[3] != '-':
                                 config['max task']   = int(new_line.split(' ')[4])
                                 config['max thread'] = int(new_line.split(' ')[5])
-                                config['max memory'] =     new_line.split(' ')[7]                
+                                config['max memory'] =     new_line.split(' ')[7]  
+                            else:
+                                config['max task']   = 0
+                                config['max thread'] = 0
+                                config['max memory'] = 0              
     return config
 
 def create_submit(queue_id,**kwargs):
@@ -209,9 +216,6 @@ def create_submit(queue_id,**kwargs):
     if 'my_script' not in kwargs:
         pass
     my_script = kwargs['my_script']
-    if 'mycluster-' in my_script:
-        my_script = get_data(my_script)
-
     if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
@@ -226,7 +230,6 @@ def create_submit(queue_id,**kwargs):
             wall_clock = str(kwargs['wall_clock'])+':00:00'
         else:
             wall_clock = str(kwargs['wall_clock'])
-
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
