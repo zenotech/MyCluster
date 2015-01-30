@@ -305,7 +305,7 @@ def job_stats(job_id):
 
 def running_stats(job_id):
     stats_dict = {}
-    with os.popen('sacct --noheader --format Elapsed -j '+str(job_id)) as f:
+    with os.popen('bjobs -W '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
@@ -313,7 +313,7 @@ def running_stats(job_id):
         except:
             pass
         
-    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '+str(job_id)) as f:
+    with os.popen('bjobs -W '+str(job_id)) as f:
         try:
             line = f.readline(); 
             new_line = re.sub(' +',' ',line.strip())
