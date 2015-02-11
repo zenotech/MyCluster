@@ -95,8 +95,41 @@ def tasks_per_node(queue_id):
         for line in f:
             if line.split(' ')[0] == 'slots':
                 tasks = int(re.split('\W+', line)[1])
-    return tasks
 
+    pe_tasks = tasks
+    with os.popen('qconf -sp '+parallel_env) as f:
+        try:
+            for line in f:
+                if line.split(' ')[0] == 'allocation_rule':
+                    # This may throw exception as allocation rule
+                    # may not always be an integer
+                    pe_tasks = int(re.split('\W+', line)[1])
+        except:
+            pass
+
+    return min(tasks,pe_tasks)
+
+def min_tasks_per_node(queue_id):
+    """ 
+    This function is used when requesting non exclusive use
+    as the parallel environment might enforce a minimum number
+    of tasks
+    """
+    parallel_env = queue_id.split(':')[0]
+    queue_name   = queue_id.split(':')[1]
+    tasks=1
+    pe_tasks = tasks
+    with os.popen('qconf -sp '+parallel_env) as f:
+        try:
+            for line in f:
+                if line.split(' ')[0] == 'allocation_rule':
+                    # This may throw exception as allocation rule
+                    # may not always be an integer
+                    pe_tasks = int(re.split('\W+', line)[1])
+        except:
+            pass
+
+    return max(tasks,pe_tasks)
 
 def node_config(queue_id):
     # Find first node with queue and record node config
@@ -233,7 +266,12 @@ def create_submit(queue_id,**kwargs):
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
 
+    # For exclusive node use total number of slots required
+    # is number of nodes x number of slots offer by queue
     num_queue_slots = num_nodes*queue_tpn
+    if 'shared' in kwargs:
+        if kwargs['shared'] and num_nodes == 1: # Assumes fill up rule
+            num_queue_slots = num_nodes*max(tpn,min_tasks_per_node(queue_id))
     
     script=Template(r"""#!/bin/bash
 #

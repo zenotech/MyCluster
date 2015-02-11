@@ -18,6 +18,7 @@ def main():
     create_group.add_argument('--script',help='script file (required)')
     create_group.add_argument('--project',default='default',help='Project/Account used of accounting usage(required)')
     create_group.add_argument('--maxtime',default='12:00:00',help='Maximum runtime (hh:mm::ss)')
+    create_group.add_argument('--shared', default=False,action='store_true',help='Non exclusive node use')
     parser.add_argument('-s','--submit', help='Submit job file')
     parser.add_argument('-i','--immediate', action='store_true', help='Submit job immediately')
     parser.add_argument('-d','--delete', help='Delete job')
@@ -74,7 +75,8 @@ def main():
                                     my_output=args.jobname+'.out',
                                     num_tasks=args.ntasks,
                                     project_name=args.project,
-                                    wall_clock=args.maxtime,)
+                                    wall_clock=args.maxtime,
+                                    shared=args.shared,)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -84,7 +86,8 @@ def main():
                                     num_tasks=args.ntasks,
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
-                                    tasks_per_node=args.taskpernode,)
+                                    tasks_per_node=args.taskpernode,
+                                    shared=args.shared,)
         else:
             parser.print_help()
         
