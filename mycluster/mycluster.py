@@ -96,18 +96,27 @@ def print_timedelta(td):
 def get_timedelta(date_str):
     # Returns timedelta object from string in [DD-[hh:]]mm:ss format
     days = 0
+    hours = 0
+    minutes = 0
+    seconds = 0
+
     if date_str.count('-') == 1:
         days = int(date_str.split('-')[0])
         date_str = date_str.partition('-')[2]
-    hours = 0
     if date_str.count(':') == 2:
         hours = int(date_str.split(':')[0])
         date_str = date_str.partition(':')[2]
 
+    try:
+        minutes=int(date_str.split(':')[0])
+        seconds=int(date_str.split(':')[1])
+    except:
+        pass
+
     return timedelta(   days=days,
                         hours=hours,
-                        minutes=int(date_str.split(':')[0]),
-                        seconds=int(date_str.split(':')[1])
+                        minutes=minutes,
+                        seconds=seconds
                     )
 
 def get_stats_time(stats):
@@ -196,7 +205,7 @@ def printjobs(num_lines):
                                                              )
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^10} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
+            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
                                                              job_id,
                                                              status,
                                                              str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
