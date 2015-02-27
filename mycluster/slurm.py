@@ -159,6 +159,8 @@ def create_submit(queue_id,**kwargs):
 #SBATCH --ntasks $num_tasks
 # Exclusive node use
 #SBATCH --exclusive
+# Do not requeue job on node failure
+#SBATCH --no-requeue
 # How much wallclock time will be required?
 #SBATCH --time=$wall_clock
 
