@@ -1,20 +1,40 @@
 {
-	"folders":
-	[
-		{
-			"path": "../MyCluster",
-			"folder_exclude_patterns": ["build","dist","MyCluster.egg-info",".settings"],
-			"file_exclude_patterns": [".project",".pydevproject"]
-		}
-	],
 	"build_systems":
 	[
 		{
-			"cmd": ["/Users/jamil/Documents/py27/bin/python", "-u","${file}"],
-    		"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
-    		"selector": "source.python",            
-    		"name": "MyCluster"
+			"cmd":
+			[
+				"/Users/jamil/Documents/py27/bin/python",
+				"-u",
+				"${file}"
+			],
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "MyCluster",
+			"selector": "source.python"
+		},
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "python -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				".project",
+				".pydevproject"
+			],
+			"folder_exclude_patterns":
+			[
+				"build",
+				"dist",
+				"MyCluster.egg-info",
+				".settings"
+			],
+			"path": "../MyCluster"
 		}
 	]
-
 }

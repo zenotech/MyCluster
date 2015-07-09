@@ -3,9 +3,9 @@ import os
 import re
 import math
 from string import Template
-from datetime import timedelta
+# from datetime import timedelta
 from mycluster import get_timedelta
-from subprocess import Popen, PIPE, check_output
+# from subprocess import Popen, PIPE, check_output
 from mycluster import get_data
 
 """
@@ -16,28 +16,32 @@ sacctmgr show cluster
 def scheduler_type():
     return 'slurm'
 
+
 def name():
     with os.popen('sacctmgr show cluster') as f:
         f.readline()
         f.readline()
         return f.readline().strip().split(' ')[0]
 
+
 def accounts():
     pass
 
+
 def queues():
     queue_list = []
-    
+
     with os.popen('sinfo -s') as f:
         f.readline(); # read header
         for line in f:
             q = line.split(' ')[0].strip().replace("*","")
             queue_list.append(q)
-    
+
     return queue_list
 
+
 def available_tasks(queue_id):
-    
+
     # split queue id into queue and parallel env
     # list free slots
     free_tasks = 0
@@ -54,6 +58,7 @@ def available_tasks(queue_id):
 
     return {'available' : free_tasks, 'max tasks' : max_tasks}
 
+
 def tasks_per_node(queue_id):
     queue_name   = queue_id
     tasks=0
@@ -64,6 +69,7 @@ def tasks_per_node(queue_id):
         new_line = re.sub(' +',' ',line.strip())
         tasks = int(new_line.split(' ')[4])
     return tasks
+
 
 def node_config(queue_id):
     # Find first node with queue and record node config
@@ -82,6 +88,7 @@ def node_config(queue_id):
         config['max memory'] = memory
                         
     return config
+
 
 def create_submit(queue_id,**kwargs):
 
@@ -251,6 +258,7 @@ echo -e "Complete========\n"
 
     return script_str
 
+
 def submit(script_name,immediate):
     job_id = None
     if not immediate:
@@ -284,10 +292,12 @@ def submit(script_name,immediate):
                 print('Job submission failed: '+output)
     return job_id
 
+
 def delete(job_id):
     with os.popen('scancel '+job_id) as f:
         pass
-    
+
+
 def status():
     status_dict = {}
     with os.popen('squeue -u `whoami`') as f:
