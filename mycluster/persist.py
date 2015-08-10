@@ -180,7 +180,7 @@ class Job(Persistent):
         self.queue = 'unknown'
         
     def update_status(self,new_status):
-        self.status     = new_status
+        self.status = new_status
         transaction.commit()
         
     def update_sysscribe(self,sys_dict):
@@ -196,6 +196,7 @@ class Job(Persistent):
     def appname(self,name):
         self.app_name = name
         transaction.commit()
+        
     def appdata(self,data):
         self.app_data_metric = data
         transaction.commit()
