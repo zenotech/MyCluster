@@ -401,7 +401,7 @@ def job_stats_enhanced(job_id):
                 step['start'] = cols[8]
                 step['end'] = cols[9]
                 steps.append(step)
-            stats_dict['steps':steps]
+            stats_dict['steps'] = steps
         except:
             print('SLURM: Error reading job stats')
     return stats_dict
