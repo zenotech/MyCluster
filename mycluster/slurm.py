@@ -403,9 +403,44 @@ def job_stats_enhanced(job_id):
                 steps.append(step)
             stats_dict['steps'] = steps
         except:
-            print('SLURM: Error reading job stats')
+            with os.popen('squeue -j %s' % str(job_id)) as f:
+                try:
+                    f.readline() # read header
+                    for line in f:
+                        new_line = re.sub(' +',' ',line.strip())
+                        job_id = int(new_line.split(' ')[0])
+                        state = new_line.split(' ')[4]
+                        stats_dict['job_id'] = str(job_id)
+                        stats_dict['status'] = state
+                except:
+                    print('SLURM: Error reading job stats')
+    with os.popen('squeue --format %%S -h -j '+str(job_id)) as f:
+        try:
+            line = f.readline()
+            if len(line) > 0:
+                stats_dict['start_time'] = line
+            else:
+                stats_dict['start_time'] = ""
+        except:
+            print('SLURM: Error getting start time')
     return stats_dict
 
+    return stats_dict
+
+
+def is_in_queue(job_id):
+    with os.popen('squeue -j %s' % job_id) as f:
+        try:
+            f.readline(); # read header
+            for line in f:
+                new_line = re.sub(' +',' ',line.strip())
+                q_id = int(new_line.split(' ')[0])
+                if q_id == job_id:
+                    return True
+        except e:
+            pass
+    return False
+        
 
 def running_stats(job_id):
     stats_dict = {}
@@ -428,3 +463,12 @@ def running_stats(job_id):
             pass
     
     return stats_dict
+
+
+
+
+
+
+
+
+
