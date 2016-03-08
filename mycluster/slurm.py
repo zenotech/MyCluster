@@ -430,8 +430,6 @@ def job_stats_enhanced(job_id):
         except:
             print('SLURM: Error getting start time')
     return stats_dict
-if 
-
 
 def is_in_queue(job_id):
     with os.popen('squeue -j %s' % job_id) as f:
