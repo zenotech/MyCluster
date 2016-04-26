@@ -149,7 +149,8 @@ def get_stats_time(stats):
 
     time_ratio = None
     if cputime_delta and wallclock_delta:
-        time_ratio = float(cputime_delta.total_seconds())/wallclock_delta.total_seconds()
+        time_ratio = (float(cputime_delta.total_seconds())
+                      / wallclock_delta.total_seconds())
 
     return cputime, wallclock, time_ratio
 
