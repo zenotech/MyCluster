@@ -1,26 +1,26 @@
-import ZODB
+
 from persistent import Persistent
 from ZODB import FileStorage, DB
-from mycluster import get_directory,scheduler
-from BTrees.OOBTree import OOBTree
+from mycluster import get_directory, scheduler
+# from BTrees.OOBTree import OOBTree
 import transaction
 import logging
 
 
 class JobDB(object):
-        
+
     def __init__(self):
-    
+
         directory = get_directory()
-        
+
         self.logger = logging.getLogger('ZODB.FileStorage')
         fh = logging.FileHandler(directory+'db.log')
         self.logger.addHandler(fh)
-        
+
         self.storage = FileStorage.FileStorage(directory+'db.fs')
         self.db = DB(self.storage)
         self.connection = self.db.open()
-        
+
         dbroot = self.connection.root()
 
         if not dbroot.has_key('job_key'):
@@ -42,8 +42,8 @@ class JobDB(object):
             from BTrees.OOBTree import OOBTree
             dbroot['user_db'] = OOBTree()
             self.user_db = dbroot['user_db']
-            self.user_db['user'] = User('unknown','unknown','unknown')
-            
+            self.user_db['user'] = User('unknown', 'unknown', 'unknown')
+
         self.user_db = dbroot['user_db']
 
         if not dbroot.has_key('site_db'):
@@ -53,37 +53,37 @@ class JobDB(object):
 
         self.site_db = dbroot['site_db']
 
-        if scheduler != None:
-            self.site_db[scheduler.name()] = Site(scheduler.name(),scheduler.scheduler_type())
-              
+        if scheduler is not None:
+            self.site_db[scheduler.name()] = Site(scheduler.name(),
+                                                  scheduler.scheduler_type())
+
         if not dbroot.has_key('queue_db'):
             from BTrees.OOBTree import OOBTree
             dbroot['queue_db'] = OOBTree()
             self.queue_db = dbroot['queue_db']
-        
+
         self.queue_db = dbroot['queue_db']
-        
+
         from version import get_git_version
-        if not dbroot.has_key('version'):            
+        if not dbroot.has_key('version'):
             dbroot['version'] = get_git_version()
         else:
-            current_version =  dbroot['version']
+            current_version = dbroot['version']
             new_version = get_git_version()
             # Add any migrations required here
             if current_version != new_version:
                 pass
 
             dbroot['version'] = new_version
-        
+
         if not dbroot.has_key('remote_site_db'):
             from BTrees.OOBTree import OOBTree
             dbroot['remote_site_db'] = OOBTree()
             self.remote_site_db = dbroot['remote_site_db']
-            
-        self.remote_site_db = dbroot['remote_site_db']    
-        
 
-    def add_job(self,job):
+        self.remote_site_db = dbroot['remote_site_db']
+
+    def add_job(self, job):
         # Get unique key
         job_key = self.job_key['val']
         self.job_key['val'] = job_key+1
@@ -91,45 +91,47 @@ class JobDB(object):
         # Add job
         self.job_db[job_key] = job
         transaction.commit()
-        
-    def add_queue(self,queue,site):
+
+    def add_queue(self, queue, site):
         if not self.queue_db.has_key(queue):
-            self.queue_db[queue] = Queue(queue,site)
+            self.queue_db[queue] = Queue(queue, site)
             transaction.commit()
-        
-    def add_remote(self,remote_site):
+
+    def add_remote(self, remote_site):
         if not self.remote_site_db.has_key(remote_site):
             user = remote_site.split('@')[0]
             site = remote_site.split('@')[1]
-            self.remote_site_db[site] = RemoteSite(site,user)
+            self.remote_site_db[site] = RemoteSite(site, user)
             transaction.commit()
-        
-    def get(self,job_id):
-        # Find 
+
+    def get(self, job_id):
+        # Find
         for key in self.job_db.keys():
             if self.job_db[key].job_id == job_id:
-               return self.job_db[key]
-        
-        raise KeyError('Key: '+str(job_id)+' not found') 
-    
+                return self.job_db[key]
+
+        raise KeyError('Key: '+str(job_id)+' not found')
+
     def list(self):
         pass
-    
+
     def commit(self):
         transaction.commit()
-            
+
     def close(self):
         self.connection.close()
         self.db.close()
         self.storage.close()
-        
+
+
 class RemoteSite(Persistent):
-    def __init__(self,name,user):
+    def __init__(self, name, user):
         self.name = name
         self.user = user
-        
+
+
 class Site(Persistent):
-    def __init__(self,name,scheduler_type):
+    def __init__(self, name, scheduler_type):
         self.name = name
         self.PUE = 0.0
         self.total_num_nodes = 0
@@ -137,35 +139,40 @@ class Site(Persistent):
         self.total_network_power = 0.0
         self.total_management_power = 0.0
         self.scheduler_type = scheduler_type
-        
+
+
 class Queue(Persistent):
-    def __init__(self,name,site_name):
+    def __init__(self, name, site_name):
         self.name = name
         self.site_name = site_name
         self.node_power = 0.0
         self.node_charge = 0.0
-        
+
+
 class User(Persistent):
     def __init__(self, first_name, last_name, email):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        
-    def update_email(self,email):
+
+    def update_email(self, email):
         self.email = email
         transaction.commit()
-    def firstname(self,name):
+
+    def firstname(self, name):
         self.first_name = name
         transaction.commit()
-    def lastname(self,name):
+
+    def lastname(self, name):
         self.last_name = name
         transaction.commit()
 
+
 class Job(Persistent):
     def __init__(self, job_id, time_stamp):
-        self.job_id     = job_id
+        self.job_id = job_id
         self.time_stamp = time_stamp
-        self.status     = 'submitted'
+        self.status = 'submitted'
         self.num_tasks = 0
         self.tasks_per_node = 0
         self.threads_per_task = 0
@@ -178,24 +185,25 @@ class Job(Persistent):
         self.job_name = 'unknown'
         self.job_dir = 'unknown'
         self.queue = 'unknown'
-        
-    def update_status(self,new_status):
-        self.status     = new_status
+
+    def update_status(self, new_status):
+        self.status = new_status
         transaction.commit()
-        
-    def update_sysscribe(self,sys_dict):
+
+    def update_sysscribe(self, sys_dict):
         self.sysscribe = sys_dict
         self._p_changed = True
         transaction.commit()
-        
-    def update_stats(self,stats):
+
+    def update_stats(self, stats):
         self.stats = stats
         self._p_changed = True
         transaction.commit()
-        
-    def appname(self,name):
+
+    def appname(self, name):
         self.app_name = name
         transaction.commit()
-    def appdata(self,data):
+
+    def appdata(self, data):
         self.app_data_metric = data
         transaction.commit()
