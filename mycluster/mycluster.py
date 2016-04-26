@@ -165,7 +165,7 @@ def printjobs(num_lines):
                                                                                              'Wallclock',
                                                                                              'Util %',
                                                                                              'Job Name',
-                                                                                             'Job Dir')
+                                                                                             'Job Dir',)
           )
     for i,j in enumerate(jobs):
         job_id = jobs[j].job_id

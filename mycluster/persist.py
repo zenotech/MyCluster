@@ -186,7 +186,9 @@ class Job(Persistent):
         self.job_dir = 'unknown'
         self.queue = 'unknown'
 
+
     def update_status(self, new_status):
+
         self.status = new_status
         transaction.commit()
 
@@ -204,6 +206,8 @@ class Job(Persistent):
         self.app_name = name
         transaction.commit()
 
+
     def appdata(self, data):
+
         self.app_data_metric = data
         transaction.commit()

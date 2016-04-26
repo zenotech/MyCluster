@@ -366,6 +366,14 @@ def job_stats(job_id):
         except:
             print('SLURM: Error reading job stats')
 
+    with os.popen('squeue --format %%S -h -j ' + str(job_id)) as f:
+        try:
+            line = f.readline()
+            if len(line) > 0:
+                stats_dict['start_time'] = line
+            else:
+                stats_dict['start_time'] = ""
+
     return stats_dict
 
 
