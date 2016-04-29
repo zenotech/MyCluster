@@ -297,12 +297,12 @@ def submit(script_name, immediate):
             try:
                 job_id = int(output.split(' ')[-1].strip())
             except:
-                print('Job submission failed: '+output)
+                print('Job submission failed: ' + output)
     return job_id
 
 
 def delete(job_id):
-    with os.popen('scancel '+job_id) as f:
+    with os.popen('scancel ' + job_id) as f:
         pass
 
 
@@ -373,6 +373,8 @@ def job_stats(job_id):
                 stats_dict['start_time'] = line
             else:
                 stats_dict['start_time'] = ""
+        except:
+            print('SLURM: Error reading job stats')
 
     return stats_dict
 
