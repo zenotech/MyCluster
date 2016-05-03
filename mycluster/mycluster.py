@@ -9,7 +9,8 @@ from fabric.decorators import with_settings
 from datetime import timedelta
 from os.path import join as pj
 
-JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF', 'PBS', 'TORQUE', 'MAUI', 'LOADLEVELER')
+JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
+                  'PBS', 'TORQUE', 'MAUI', 'LOADLEVELER')
 
 scheduler = None
 job_db = None
@@ -230,10 +231,10 @@ def printjobs(num_lines):
 
     remotes = remote_sites()
     for i, j in enumerate(remotes):
-        print 'Remote Site: ' + remotes[j].name
+        print('Remote Site: ' + remotes[j].name)
         remote_list = remote_job_list(remotes[j].user + '@' + remotes[j].name)
         for r in remote_list:
-            print remote_list[r]
+            print(remote_list[r])
 
 
 def print_queue_info():
@@ -381,7 +382,7 @@ def create_db():
         from persist import JobDB
         job_db = JobDB()
     except Exception as e:
-        print 'Database failed to initialise. Error Message: ' + str(e)
+        print('Database failed to initialise. Error Message: ' + str(e))
 
     return job_db
 
