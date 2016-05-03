@@ -14,4 +14,4 @@ mycluster.create_submit('hybrid:hybrid.q',
 mycluster.submit('test.job', True)
 
 for i in mycluster.job_list():
-    print i, mycluster.get_job(i).status
+    print(' {0} {1}'.format(i, mycluster.get_job(i).status))
