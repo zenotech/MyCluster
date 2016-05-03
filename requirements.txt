@@ -1,3 +1,5 @@
 Fabric
 ZODB
-
+SysScribe
+zodbpickle
+nose

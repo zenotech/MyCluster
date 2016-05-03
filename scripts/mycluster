@@ -25,6 +25,7 @@ def main():
                               help='Maximum runtime (hh:mm::ss)')
     create_group.add_argument('--shared', default=False, action='store_true',
                               help='Non exclusive node use')
+    create_group.add_argument('--ompiargs', default='-bysocket -bind-to-socket', help='Arguments for OpenMPI')
     parser.add_argument('-s', '--submit', help='Submit job file')
     parser.add_argument('-i', '--immediate', action='store_true',
                         help='Submit job immediately')
@@ -85,7 +86,8 @@ def main():
                                     num_tasks=args.ntasks,
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
-                                    shared=args.shared,)
+                                    shared=args.shared,
+                                    openmpi_args = args.ompiargs,)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -96,7 +98,8 @@ def main():
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
                                     tasks_per_node=args.taskpernode,
-                                    shared=args.shared,)
+                                    shared=args.shared,
+                                    openmpi_args = args.ompiargs,)
         else:
             parser.print_help()
 
