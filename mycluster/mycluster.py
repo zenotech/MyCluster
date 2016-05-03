@@ -31,7 +31,7 @@ def get_data(filename):
 def detect_scheduling_sys():
 
     # Test for SLURM
-    if os.getenv('SLURMHOME') != None:
+    if os.getenv('SLURMHOME') is not None:
         return my_import('mycluster.slurm')
 
     try:
@@ -42,7 +42,7 @@ def detect_scheduling_sys():
         pass
 
     # Test for SGE
-    if os.getenv('SGE_CLUSTER_NAME') != None:
+    if os.getenv('SGE_CLUSTER_NAME') is not None:
         return my_import('mycluster.sge')
 
     # Test for lsf
@@ -74,7 +74,7 @@ def remote_sites():
 def remote_cmd():
     output_file = '~/.mycluster/' + str(uuid.uuid4())
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
-        run('mycluster -p >'+output_file, pty=False)
+        run('mycluster -p >' + output_file, pty=False)
         import StringIO
         contents = StringIO.StringIO()
         get(output_file, contents)
@@ -149,8 +149,8 @@ def get_stats_time(stats):
 
     time_ratio = None
     if cputime_delta and wallclock_delta:
-        time_ratio = (float(cputime_delta.total_seconds())
-                      / wallclock_delta.total_seconds())
+        time_ratio = (float(cputime_delta.total_seconds()) /
+                      wallclock_delta.total_seconds())
 
     return cputime, wallclock, time_ratio
 
@@ -229,20 +229,28 @@ def printjobs(num_lines):
                   )
 
     remotes = remote_sites()
-    for i,j in enumerate(remotes):
-        print 'Remote Site: '+remotes[j].name
-        remote_list = remote_job_list(remotes[j].user+'@'+remotes[j].name)
+    for i, j in enumerate(remotes):
+        print 'Remote Site: ' + remotes[j].name
+        remote_list = remote_job_list(remotes[j].user + '@' + remotes[j].name)
         for r in remote_list:
             print remote_list[r]
 
 
 def print_queue_info():
-    print('{0:25} | {1:^15} | {2:^15} | {3:^15} | {4:^15} | {5:^15}'.format('Queue Name','Node Max Task','Node Max Thread','Node Max Memory','Max Task','Available Task'))
+    print('{0:25} | {1:^15} | {2:^15} | {3:^15} |\
+           {4:^15} | {5:^15}'.format('Queue Name', 'Node Max Task',
+                                     'Node Max Thread', 'Node Max Memory',
+                                     'Max Task', 'Available Task'))
     for q in queues():
         nc = scheduler.node_config(q)
         tpn = scheduler.tasks_per_node(q)
         avail = scheduler.available_tasks(q)
-        print('{0:25} | {1:^15} | {2:^15} | {3:^15} | {4:^15} | {5:^15}'.format(q, tpn, nc['max thread'], nc['max memory'],avail['max tasks'],avail['available']))
+        print('{0:25} | {1:^15} | {2:^15} |\
+               {3:^15} | {4:^15} | {5:^15}'.format(q, tpn,
+                                                   nc['max thread'],
+                                                   nc['max memory'],
+                                                   avail['max tasks'],
+                                                   avail['available']))
 
 
 def create_submit(queue_id, script_name=None, **kwargs):
@@ -253,20 +261,27 @@ def create_submit(queue_id, script_name=None, **kwargs):
             if email != 'unknown':
                 kwargs['user_email'] = email
 
-    script = scheduler.create_submit(queue_id, **kwargs)
+    if scheduler is not None:
+        script = scheduler.create_submit(queue_id, **kwargs)
 
-    if script_name is not None:
-        import os.path
-        if not os.path.isfile(script_name):
-            with open(script_name, 'w') as f:
-                f.write(script)
-        else:
-            print('Warning file: {0} already exists. Please choose a different name'.format(script_name))
-
-    return script
+        if script_name is not None:
+            import os.path
+            if not os.path.isfile(script_name):
+                with open(script_name, 'w') as f:
+                    f.write(script)
+            else:
+                print('Warning file: {0} already exists.\
+                       Please choose a different name'.format(script_name))
+        return script
+    else:
+        print('Warning job scheduler not detected')
+        return None
 
 
 def submit(script_name, immediate):
+
+    if scheduler is None:
+        return None
 
     job_id = -1
     import os.path
@@ -308,7 +323,8 @@ def delete(job_id):
     site_name = job.queue.site_name
     scheduler_type = job_db.site_db[site_name].scheduler_type
 
-    if scheduler.name() == site_name and scheduler.scheduler_type() == scheduler_type:
+    if (scheduler.name() == site_name and
+       scheduler.scheduler_type() == scheduler_type):
         scheduler.delete(job_id)
     else:
         print('JobID: ' + str(job_id) + ' not found at current site')
@@ -326,7 +342,7 @@ def export(job_id):
 def job_list():
     if job_db is not None:
         return job_db.job_db
-    return None
+    return []
 
 
 def get_job(job_id):
@@ -346,7 +362,7 @@ def my_import(name):
 def get_directory():
     from os.path import expanduser
     home = expanduser("~")
-    directory = home+'/.mycluster/'
+    directory = home + '/.mycluster/'
     return directory
 
 
@@ -387,35 +403,36 @@ def update_db():
 
 
 def sysscribe_update(job_id):
-    if job_db != None:
+    if job_db is not None:
         from sysscribe import system
         job_db.get(job_id).update_sysscribe(system.system_dict())
 
 
 def email_update(email):
-    if job_db != None:
+    if job_db is not None:
         job_db.user_db['user'].update_email(email)
 
 
 def firstname_update(name):
-    if job_db != None:
+    if job_db is not None:
         job_db.user_db['user'].firstname(name)
 
 
 def lastname_update(name):
-    if job_db != None:
+    if job_db is not None:
         job_db.user_db['user'].lastname(name)
 
 
 def get_user():
-    if job_db != None:
-        return job_db.user_db['user'].first_name + ' ' + job_db.user_db['user'].last_name
+    if job_db is not None:
+        return (job_db.user_db['user'].first_name + ' ' +
+                job_db.user_db['user'].last_name)
     else:
         return 'unknown'
 
 
 def get_email():
-    if job_db != None:
+    if job_db is not None:
         return job_db.user_db['user'].email
     else:
         return 'unknown'
@@ -439,17 +456,17 @@ def init():
     global scheduler
     scheduler = detect_scheduling_sys()
     created = create_directory()
-    if create_db() != None:
+    if create_db() is not None:
         update_db()
 
     print('MyCluster Initialisation Info')
     print('-----------------------------')
-    print('Local database in: '+get_directory())
-    print('User: '+get_user())
-    print('Email: '+get_email())
+    print('Local database in: ' + get_directory())
+    print('User: ' + get_user())
+    print('Email: ' + get_email())
     if not scheduler:
         print('Local job scheduler: None')
     else:
-        print('Local job scheduler: '+scheduler.scheduler_type())
-        print('Site name: '+get_site())
+        print('Local job scheduler: ' + scheduler.scheduler_type())
+        print('Site name: ' + get_site())
     print('')
