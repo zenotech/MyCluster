@@ -1,6 +1,8 @@
 MyCluster
 =========
-[![Build Status](https://travis-ci.org/zenotech/MyCluster.svg?branch=master)](https://travis-ci.org/zenotech/MyCluster)
+Master [![Build Status](https://travis-ci.org/zenotech/MyCluster.svg?branch=master)](https://travis-ci.org/zenotech/MyCluster)
+
+Develop [![Build Status](https://travis-ci.org/zenotech/MyCluster.svg?branch=develop)](https://travis-ci.org/zenotech/MyCluster)
 
 Utilities to support interacting with multiple HPC clusters  
 
