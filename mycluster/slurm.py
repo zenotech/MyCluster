@@ -380,6 +380,9 @@ def job_stats_enhanced(job_id):
     with os.popen('sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode,start,end -P -j '+str(job_id)) as f:
         try:
             line = f.readline()
+            if line in ["SLURM accounting storage is disabled",
+                        "slurm_load_job error: Invalid job id specified"]:
+                raise
             cols = line.split('|')
             stats_dict['job_id'] = cols[0]
             stats_dict['wallclock'] = get_timedelta(cols[1])
@@ -406,9 +409,8 @@ def job_stats_enhanced(job_id):
                 steps.append(step)
             stats_dict['steps'] = steps
         except:
-            with os.popen('squeue -j %s' % str(job_id)) as f:
+            with os.popen('squeue -h -j %s' % str(job_id)) as f:
                 try:
-                    f.readline() # read header
                     for line in f:
                         new_line = re.sub(' +', ' ', line.strip())
                         job_id = int(new_line.split(' ')[0])
@@ -417,6 +419,7 @@ def job_stats_enhanced(job_id):
                         stats_dict['status'] = state
                 except:
                     print('SLURM: Error reading job stats')
+                    stats_dict['status'] = 'UNKNOWN'
     with os.popen('squeue --format %%S -h -j '+str(job_id)) as f:
         try:
             line = f.readline()
