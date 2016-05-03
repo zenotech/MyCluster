@@ -6,6 +6,9 @@ export MYCLUSTER_APP_DATA=`h5dump --attribute /mesh/numCells $PROBLEM | grep "(0
 #export PYTHON_HOME="$( cd "$( dirname "`which python`" )" && pwd )"
 #export OMPI_MCA_orte_tmpdir_base=/tmp
 
-$OMPI_CMD $ZCFD_HOME/smartlaunch.bsh $PROBLEM -c $CASE  >& ${CASE}_log
+#$OMPI_CMD $ZCFD_HOME/smartlaunch.bsh $PROBLEM -c $CASE  >& ${CASE}_log
+
+$ZCFD_HOME/run_zcfd --ntask $NUM_TASKS --tpn $TASKS_PER_NODE -p $PROBLEM -c $CASE >& ${CASE}_log
+
 zdeactivate
 

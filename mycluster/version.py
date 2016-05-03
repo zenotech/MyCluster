@@ -31,12 +31,14 @@
 #
 #   include RELEASE-VERSION
 
-__all__ = ("get_git_version")
 
 from subprocess import Popen, PIPE
 import os
 import sys
 from pkg_resources import Requirement, resource_filename
+
+__all__ = ("get_git_version")
+
 
 def call_git_describe(abbrev=4):
     try:
@@ -51,9 +53,9 @@ def call_git_describe(abbrev=4):
             p.stderr.close()
             p.stdout.close()
             p = Popen(['git', 'describe', '--abbrev=%d' % abbrev],
-                  stdout=PIPE, stderr=PIPE)
+                      stdout=PIPE, stderr=PIPE)
             p.stderr.close()
-            line = p.stdout.readlines()[0] 
+            line = p.stdout.readlines()[0]
             return line.strip()
     except Exception, e:
         return None
@@ -61,19 +63,24 @@ def call_git_describe(abbrev=4):
 
 def read_release_version():
     try:
-        filename = os.path.join(sys.prefix, "share", "MyCluster", "RELEASE-VERSION")
+        filename = os.path.join(sys.prefix,
+                                "share", "MyCluster", "RELEASE-VERSION")
         if os.path.isfile(filename):
             f = open(filename, 'r')
         else:
-            filename = os.path.join(sys.prefix, "local", "share", "MyCluster", "RELEASE-VERSION")
+            filename = os.path.join(sys.prefix,
+                                    "local", "share", "MyCluster",
+                                    "RELEASE-VERSION")
             if os.path.isfile(filename):
                 f = open(filename, 'r')
             else:
-                filename = resource_filename(Requirement.parse("MyCluster"),"share/MyCluster/RELEASE-VERSION")
+                filename = resource_filename(Requirement.parse("MyCluster"),
+                                             "share/MyCluster/RELEASE-VERSION")
                 if os.path.isfile(filename):
                     f = open(filename, 'r')
                 else:
-                    filename = resource_filename(Requirement.parse("MyCluster"),"RELEASE-VERSION")
+                    filename = resource_filename(Requirement.parse("MyCluster"),
+                                                 "RELEASE-VERSION")
                     f = open(filename, 'r')
         try:
             version = f.readlines()[0]

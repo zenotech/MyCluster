@@ -25,6 +25,7 @@ def name():
 
 
 def accounts():
+    # sacctmgr list assoc user=exjap
     pass
 
 
@@ -54,7 +55,7 @@ def available_tasks(queue_id):
         free_tasks = int(line.split('/')[1])*nc['max task']
         max_tasks = int(line.split('/')[3])*nc['max task']
 
-    return {'available' : free_tasks, 'max tasks' : max_tasks}
+    return {'available': free_tasks, 'max tasks': max_tasks}
 
 
 def tasks_per_node(queue_id):
@@ -87,7 +88,6 @@ def node_config(queue_id):
     return config
 
 
-
 def create_submit(queue_id, **kwargs):
 
     queue_name = queue_id
@@ -109,7 +109,9 @@ def create_submit(queue_id, **kwargs):
     num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']
-    num_threads_per_task = min(num_threads_per_task, int(math.ceil(float(nc['max thread'])/float(tpn))))
+    num_threads_per_task = min(num_threads_per_task,
+                               int(math.ceil(float(nc['max thread'])
+                                             / float(tpn))))
 
     my_name = "myclusterjob"
     if 'my_name' in kwargs:
@@ -194,6 +196,8 @@ export OMP_PLACES=sockets
 
 # OpenMPI
 export OMPI_CMD="mpiexec -n $$NUM_TASKS -npernode $$TASKS_PER_NODE $openmpi_args"
+# OpenMPI 1.10
+export OMPI_NEW_CMD="mpiexec -n $$NUM_TASKS --map-by ppr:1:numa --bind-to numa"
 
 # MVAPICH2
 export MV2_CPU_BINDING_LEVEL=SOCKET
@@ -206,6 +210,8 @@ export MVAPICH_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE -bind-to-socket
 export I_MPI_PIN_DOMAIN=omp:compact # Domains are $$OMP_NUM_THREADS cores in size
 export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches/sockets
 #export I_MPI_FABRICS=shm:ofa
+#export I_MPI_FABRICS=shm:tmi
+#export TMI_CONFIG=<path_to_impi>/intel64/etc/tmi.conf
 export IMPI_CMD="mpiexec -n $$NUM_TASKS -ppn $$TASKS_PER_NODE"
 
 # Summarise environment
@@ -273,7 +279,8 @@ def submit(script_name, immediate):
                 print 'Job submission failed: '+output
             # Get job id and record in database
     else:
-        with os.popen('grep -- "SBATCH -p" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH -p" ' + script_name
+                      + ' | sed \'s/#SBATCH//\'') as f:
             partition = f.readline().rstrip()
         with os.popen('grep -- "SBATCH --nodes" '+script_name+' | sed \'s/#SBATCH//\'') as f:
             nnodes = f.readline().rstrip()
@@ -292,12 +299,12 @@ def submit(script_name, immediate):
             try:
                 job_id = int(output.split(' ')[-1].strip())
             except:
-                print('Job submission failed: '+output)
+                print('Job submission failed: ' + output)
     return job_id
 
 
 def delete(job_id):
-    with os.popen('scancel '+job_id) as f:
+    with os.popen('scancel ' + job_id) as f:
         pass
 
 
@@ -314,7 +321,7 @@ def status():
                     status_dict[job_id] = 'r'
                 else:
                     status_dict[job_id] = state
-        except e:
+        except Exception as e:
             print e
 
     return status_dict
@@ -360,7 +367,8 @@ def job_stats(job_id):
             # stats_dict['mem'] = 0 #float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
             print('SLURM: Error reading job stats')
-    with os.popen('squeue --format %%S -h -j '+str(job_id)) as f:
+
+    with os.popen('squeue --format %%S -h -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             if len(line) > 0:
@@ -451,17 +459,19 @@ def running_stats(job_id):
         try:
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
-            stats_dict['wallclock']  = get_timedelta(new_line)
+            stats_dict['wallclock'] = get_timedelta(new_line)
         except:
             pass
 
-    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '+str(job_id)) as f:
+    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '
+                  + str(job_id)) as f:
         try:
-            line = f.readline();
+            line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
             ntasks = int(new_line.split(' ')[2])
-            stats_dict['mem']  = float(new_line.split(' ')[1].replace('K',''))*ntasks
-            stats_dict['cpu']  = '-' #float(new_line.split(' ')[0])*ntasks
+            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', ''))
+                                 * ntasks)
+            stats_dict['cpu'] = '-'  # float(new_line.split(' ')[0])*ntasks
         except:
             pass
 
