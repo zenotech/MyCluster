@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/zenotech/MyCluster.svg?branch=develop)](https://travis-ci.org/zenotech/MyCluster)
-
 MyCluster
 =========
 
