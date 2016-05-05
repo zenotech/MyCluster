@@ -157,43 +157,52 @@ def get_stats_time(stats):
 
 
 def printjobs(num_lines):
-    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,job_db.user_db['user'].last_name))
+    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,
+                                      job_db.user_db['user'].last_name))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} | {2:^10} | {3:^12} | {4:^12} | {5:^5} | {6:^20} | {7:50}'.format('Job ID',
-                                                                                             'Status',
-                                                                                             'NTasks',
-                                                                                             'CPU Time',
-                                                                                             'Wallclock',
-                                                                                             'Util %',
-                                                                                             'Job Name',
-                                                                                             'Job Dir',)
+    print('     | {0:^10} | {1:^10} |\
+          {2:^10} | {3:^12} | {4:^12} |\
+          {5:^5} | {6:^20} | {7:50}'.format('Job ID',
+                                            'Status',
+                                            'NTasks',
+                                            'CPU Time',
+                                            'Wallclock',
+                                            'Util %',
+                                            'Job Name',
+                                            'Job Dir',)
           )
-    for i,j in enumerate(jobs):
+    for i, j in enumerate(jobs):
         job_id = jobs[j].job_id
         status = jobs[j].status
-        queue  = jobs[j].queue
-        site_name = job_db.queue_db[queue].site_name
-        scheduler_type = job_db.site_db[site_name].scheduler_type
+        # queue = jobs[j].queue
+        # site_name = job_db.queue_db[queue].site_name
+        # scheduler_type = job_db.site_db[site_name].scheduler_type
         cputime, wallclock, time_ratio = get_stats_time(jobs[j].stats)
         efficiency = '-'
         if time_ratio:
             try:
-                efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
-                efficiency  = '{:.1f}'.format(efficiency)
+                efficiency = (time_ratio / (int(jobs[j].num_tasks) *
+                              int(jobs[j].threads_per_task)) * 100.0)
+                efficiency = '{:.1f}'.format(efficiency)
             except:
-                pass          
-        
+                pass
+
         if status == 'completed':
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             job_id,
-                                                             status,
-                                                             str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
-                                                             cputime,
-                                                             wallclock,
-                                                             efficiency,
-                                                             jobs[j].job_name,
-                                                             jobs[j].job_dir,
-                                                             )
+            print('{0:4} | {1:^10} |\
+                  {2:^10} | {3:^10} |\
+                  {4:^12} | {5:^12} |\
+                  {6:^5} | {7:^20} | {8:50}'.format(i + 1,
+                                                    job_id,
+                                                    status,
+                                                    str(jobs[j].num_tasks) +
+                                                    ' (' +
+                                                    str(jobs[j].threads_per_task) +
+                                                    ')',
+                                                    cputime,
+                                                    wallclock,
+                                                    efficiency,
+                                                    jobs[j].job_name,
+                                                    jobs[j].job_dir)
                   )
         elif status == 'running':
             stats = scheduler.running_stats(job_id)
@@ -201,32 +210,41 @@ def printjobs(num_lines):
             efficiency = '-'
             if time_ratio:
                 try:
-                    efficiency = time_ratio/(int(jobs[j].num_tasks) * int(jobs[j].threads_per_task))*100.0
-                    efficiency  = '{:.1f}'.format(efficiency)
+                    efficiency = (time_ratio / (int(jobs[j].num_tasks) *
+                                  int(jobs[j].threads_per_task)) * 100.0)
+                    efficiency = '{:.1f}'.format(efficiency)
                 except:
-                    pass          
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             job_id,
-                                                             status,
-                                                             str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
-                                                             cputime,
-                                                             wallclock,
-                                                             efficiency,
-                                                             jobs[j].job_name,
-                                                             jobs[j].job_dir,
-                                                             )
+                    pass
+            print('{0:4} | {1:^10} | {2:^10} |\
+                   {3:^10} | {4:^12} | {5:^12} |\
+                   {6:^5} | {7:^20} | {8:50}'.format(i + 1,
+                                                     job_id,
+                                                     status,
+                                                     str(jobs[j].num_tasks) +
+                                                     ' (' +
+                                                     str(jobs[j].threads_per_task) +
+                                                     ')',
+                                                     cputime,
+                                                     wallclock,
+                                                     efficiency,
+                                                     jobs[j].job_name,
+                                                     jobs[j].job_dir)
                   )
         else:
-            print('{0:4} | {1:^10} | {2:^10} | {3:^10} | {4:^12} | {5:^12} | {6:^5} | {7:^20} | {8:50}'.format(i+1,
-                                                             job_id,
-                                                             status,
-                                                             str(jobs[j].num_tasks)+' ('+str(jobs[j].threads_per_task)+')',
-                                                             '-',
-                                                             '-',
-                                                             efficiency,
-                                                             jobs[j].job_name,
-                                                             jobs[j].job_dir,
-                                                             )
+            print('{0:4} | {1:^10} | {2:^10} |\
+                   {3:^10} | {4:^12} | {5:^12} |\
+                   {6:^5} | {7:^20} | {8:50}'.format(i + 1,
+                                                     job_id,
+                                                     status,
+                                                     str(jobs[j].num_tasks) +
+                                                     ' (' +
+                                                     str(jobs[j].threads_per_task) +
+                                                     ')',
+                                                     '-',
+                                                     '-',
+                                                     efficiency,
+                                                     jobs[j].job_name,
+                                                     jobs[j].job_dir)
                   )
 
     remotes = remote_sites()
