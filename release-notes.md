@@ -1,4 +1,7 @@
 
+run prospector
+> prospector --die-on-tool-error
+Fix issues
 
 Create annotated tag
 
