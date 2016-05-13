@@ -1,40 +1,49 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
-import sys
-import os
+
 from mycluster import mycluster
 import argparse
 
+
 def main():
-    
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-q','--queues', help='List all available queues',action="store_true")
+    parser.add_argument('-q', '--queues',
+                        help='List all available queues', action="store_true")
     create_group = parser.add_argument_group(title='Create job file')
-    create_group.add_argument('-c','--create', help='Name of job file')
+    create_group.add_argument('-c', '--create', help='Name of job file')
     create_group.add_argument('--jobqueue', help='Job queue (required)')
-    create_group.add_argument('--jobname', default='myclusterjob',help='Job name')
-    create_group.add_argument('--ntasks', type=int,default=1,help='Number of tasks')
-    create_group.add_argument('--taskpernode', type=int,help='Task per node')
-    create_group.add_argument('--script',help='script file (required)')
-    create_group.add_argument('--project',default='default',help='Project/Account used of accounting usage(required)')
-    create_group.add_argument('--maxtime',default='12:00:00',help='Maximum runtime (hh:mm::ss)')
-    create_group.add_argument('--shared', default=False,action='store_true',help='Non exclusive node use')
+    create_group.add_argument('--jobname', default='myclusterjob',
+                              help='Job name')
+    create_group.add_argument('--ntasks', type=int, default=1,
+                              help='Number of tasks')
+    create_group.add_argument('--taskpernode', type=int, help='Task per node')
+    create_group.add_argument('--script', help='script file (required)')
+    create_group.add_argument('--project', default='default',
+                              help='Project/Account used of accounting usage(required)')
+    create_group.add_argument('--maxtime', default='12:00:00',
+                              help='Maximum runtime (hh:mm::ss)')
+    create_group.add_argument('--shared', default=False, action='store_true',
+                              help='Non exclusive node use')
     create_group.add_argument('--ompiargs', default='-bysocket -bind-to-socket', help='Arguments for OpenMPI')
-    parser.add_argument('-s','--submit', help='Submit job file')
-    parser.add_argument('-i','--immediate', action='store_true', help='Submit job immediately')
-    parser.add_argument('-d','--delete', help='Delete job')
-    parser.add_argument('--email',help='Email update')
-    parser.add_argument('--firstname',help='Name update')
-    parser.add_argument('--lastname',help='Name update')
-    parser.add_argument('-p','--printjobs',type=int,nargs='?', const=0,help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
-    parser.add_argument('-e','--export',type=int,help='Export job data')
-    parser.add_argument('--remote',help='Add remote site - user@site')
-    parser.add_argument('--sysscribe',type=int,help=argparse.SUPPRESS)
-    parser.add_argument('--jobid',type=int,help=argparse.SUPPRESS)
-    parser.add_argument('--appname',help=argparse.SUPPRESS)
-    parser.add_argument('--appdata',type=int,help=argparse.SUPPRESS)
+    parser.add_argument('-s', '--submit', help='Submit job file')
+    parser.add_argument('-i', '--immediate', action='store_true',
+                        help='Submit job immediately')
+    parser.add_argument('-d', '--delete', help='Delete job')
+    parser.add_argument('--email', help='Email update')
+    parser.add_argument('--firstname', help='Name update')
+    parser.add_argument('--lastname', help='Name update')
+    parser.add_argument('-p', '--printjobs', type=int, nargs='?',
+                        const=0,
+                        help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
+    parser.add_argument('-e', '--export', type=int, help='Export job data')
+    parser.add_argument('--remote', help='Add remote site - user@site')
+    parser.add_argument('--sysscribe', type=int, help=argparse.SUPPRESS)
+    parser.add_argument('--jobid', type=int, help=argparse.SUPPRESS)
+    parser.add_argument('--appname', help=argparse.SUPPRESS)
+    parser.add_argument('--appdata', type=int, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    
+
     """
     Module initialiser function
     """
@@ -43,14 +52,14 @@ def main():
     if args.queues:
         mycluster.print_queue_info()
     if args.submit:
-        mycluster.submit(args.submit,args.immediate)
+        mycluster.submit(args.submit, args.immediate)
     if args.sysscribe:
         mycluster.sysscribe_update(args.sysscribe)
     if args.jobid:
         if args.appname:
-            mycluster.appname_update(args.jobid,args.appname)
+            mycluster.appname_update(args.jobid, args.appname)
         if args.appdata:
-            mycluster.appdata_update(args.jobid,args.appdata)
+            mycluster.appdata_update(args.jobid, args.appdata)
         if not args.appname and not args.appdata:
             parser.print_help()
     if args.export:
@@ -61,7 +70,7 @@ def main():
         mycluster.firstname_update(args.firstname)
     if args.lastname:
         mycluster.lastname_update(args.lastname)
-    if args.printjobs != None:
+    if args.printjobs is not None:
         mycluster.printjobs(args.printjobs)
     if args.delete:
         mycluster.delete(args.delete)
@@ -93,8 +102,6 @@ def main():
                                     openmpi_args = args.ompiargs,)
         else:
             parser.print_help()
-        
-            
-            
+
 if __name__ == "__main__":
     main()

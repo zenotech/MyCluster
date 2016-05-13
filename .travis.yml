@@ -1,0 +1,15 @@
+language: python
+python:
+  - "2.7"
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/62b3c84209b405d881f4
+    on_success: always
+    on_failure: always
+    on_start: always
+
+
+install: "pip install -r requirements.txt"
+script: nosetests

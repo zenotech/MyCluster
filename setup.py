@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
-import os
-import re
+#import os
+#import re
 from mycluster.version import get_git_version
 
 
@@ -11,13 +11,7 @@ classes = """
     Topic :: System :: Logging
     Programming Language :: Python
     Programming Language :: Python :: 2
-    Programming Language :: Python :: 2.6
     Programming Language :: Python :: 2.7
-    Programming Language :: Python :: 3
-    Programming Language :: Python :: 3.2
-    Programming Language :: Python :: 3.3
-    Programming Language :: Python :: 3.4
-    Programming Language :: Python :: Implementation :: CPython
     Operating System :: POSIX :: Linux
 """
 classifiers = [s.strip() for s in classes.split('\n') if s]
@@ -34,16 +28,16 @@ setup(
     classifiers=classifiers,
     description='Utilities to support interacting with multiple HPC clusters',
     long_description=open('README.md').read(),
-    install_requires=['ZODB','SysScribe','fabric','zodbpickle'],
+    install_requires=['ZODB', 'SysScribe', 'fabric', 'zodbpickle'],
     scripts=['scripts/mycluster'],
     include_package_data=True,
-    package_data = {
-        '': ['*.md','RELEASE-VERSION']
+    package_data={
+        '': ['*.md', 'RELEASE-VERSION']
     },
-    data_files = [('share/MyCluster', ['RELEASE-VERSION']),
-                  ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
-                                       'share/mycluster-fluent.bsh',
-                                       'share/mycluster-zcfd.bsh',
-                                       'share/mycluster-paraview.bsh']),
-                  ],
+    data_files=[('share/MyCluster', ['RELEASE-VERSION']),
+                ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
+                                     'share/mycluster-fluent.bsh',
+                                     'share/mycluster-zcfd.bsh',
+                                     'share/mycluster-paraview.bsh']),
+                ],
 )
