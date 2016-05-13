@@ -268,7 +268,7 @@ echo -e "Complete========\n"
     return script_str
 
 
-def submit(script_name, immediate, depends_on = False, depends_on_always_run = False):
+def submit(script_name, immediate, depends_on = None, depends_on_always_run = False):
     job_id = None
     if not immediate:
         if depends_on and depends_on_always_run:
@@ -278,7 +278,7 @@ def submit(script_name, immediate, depends_on = False, depends_on_always_run = F
                     job_id = int(output.split(' ')[-1].strip())
                 except:
                     print 'Job submission failed: '+output   
-        elif depends_on:
+        elif depends_on is not None:
             with os.popen('sbatch --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
