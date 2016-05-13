@@ -262,16 +262,31 @@ echo -e "Complete========\n"
     return script_str
 
 
-def submit(script_name, immediate):
+def submit(script_name, immediate, depends_on = False, depends_on_always_run = False):
     job_id = None
     if not immediate:
-        with os.popen('sbatch '+script_name) as f:
-            output = f.readline()
-            try:
-                job_id = int(output.split(' ')[-1].strip())
-            except:
-                print 'Job submission failed: '+output
-            # Get job id and record in database
+        if depends_on and depends_on_always_run:
+            with os.popen('sbatch --dependency=afterany:%s %s' % (depends_on, script_name)) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output   
+        elif depends_on:
+            with os.popen('sbatch --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output   
+        else:
+            with os.popen('sbatch '+script_name) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output
+                # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" '+script_name+' | sed \'s/#SBATCH//\'') as f:
             partition = f.readline().rstrip()
