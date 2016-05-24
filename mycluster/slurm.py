@@ -95,23 +95,18 @@ def create_submit(queue_id, **kwargs):
     num_tasks = 1
     if 'num_tasks' in kwargs:
         num_tasks = kwargs['num_tasks']
+    else:
+        raise ValueError("num_tasks must be specified")
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
     if 'tasks_per_node' in kwargs:
         tpn = min(tpn, kwargs['tasks_per_node'])
 
-    nc = node_config(queue_id)
-    qc = available_tasks(queue_id)
-
-    num_tasks = min(num_tasks, qc['max tasks'])
-
-    num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']
-    num_threads_per_task = min(num_threads_per_task,
-                               int(math.ceil(float(nc['max thread'])
-                                             / float(tpn))))
+    else:
+        raise ValueError("num_threads_per_task must be specified")
 
     my_name = "myclusterjob"
     if 'my_name' in kwargs:
