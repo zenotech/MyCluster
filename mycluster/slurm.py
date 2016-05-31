@@ -95,23 +95,18 @@ def create_submit(queue_id, **kwargs):
     num_tasks = 1
     if 'num_tasks' in kwargs:
         num_tasks = kwargs['num_tasks']
+    else:
+        raise ValueError("num_tasks must be specified")
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
     if 'tasks_per_node' in kwargs:
         tpn = min(tpn, kwargs['tasks_per_node'])
 
-    nc = node_config(queue_id)
-    qc = available_tasks(queue_id)
-
-    num_tasks = min(num_tasks, qc['max tasks'])
-
-    num_threads_per_task = nc['max thread']
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']
-    num_threads_per_task = min(num_threads_per_task,
-                               int(math.ceil(float(nc['max thread'])
-                                             / float(tpn))))
+    else:
+        raise ValueError("num_threads_per_task must be specified")
 
     my_name = "myclusterjob"
     if 'my_name' in kwargs:
@@ -268,16 +263,31 @@ echo -e "Complete========\n"
     return script_str
 
 
-def submit(script_name, immediate):
+def submit(script_name, immediate, depends_on = None, depends_on_always_run = False):
     job_id = None
     if not immediate:
-        with os.popen('sbatch '+script_name) as f:
-            output = f.readline()
-            try:
-                job_id = int(output.split(' ')[-1].strip())
-            except:
-                print 'Job submission failed: '+output
-            # Get job id and record in database
+        if depends_on and depends_on_always_run:
+            with os.popen('sbatch --dependency=afterany:%s %s' % (depends_on, script_name)) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output   
+        elif depends_on is not None:
+            with os.popen('sbatch --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output   
+        else:
+            with os.popen('sbatch '+script_name) as f:
+                output = f.readline()
+                try:
+                    job_id = int(output.split(' ')[-1].strip())
+                except:
+                    print 'Job submission failed: '+output
+                # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" ' + script_name
                       + ' | sed \'s/#SBATCH//\'') as f:
