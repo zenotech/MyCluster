@@ -17,6 +17,8 @@ def main():
                               help='Job name')
     create_group.add_argument('--ntasks', type=int, default=1,
                               help='Number of tasks')
+    create_group.add_argument('--nthreadspertask', type=int, default=1,
+                              help='Number of threads per task')
     create_group.add_argument('--taskpernode', type=int, help='Task per node')
     create_group.add_argument('--script', help='script file (required)')
     create_group.add_argument('--project', default='default',
@@ -84,6 +86,7 @@ def main():
                                     my_name=args.jobname,
                                     my_output=args.jobname+'.out',
                                     num_tasks=args.ntasks,
+                                    num_threads_per_task=args.nthreadspertask,
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
                                     shared=args.shared,
@@ -98,6 +101,7 @@ def main():
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
                                     tasks_per_node=args.taskpernode,
+                                    num_threads_per_task=args.nthreadspertask,
                                     shared=args.shared,
                                     openmpi_args = args.ompiargs,)
         else:
