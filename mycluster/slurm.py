@@ -181,8 +181,8 @@ export MYCLUSTER_JOB_NAME=$my_name
 export NUM_TASKS=$num_tasks
 export TASKS_PER_NODE=$tpn
 export THREADS_PER_TASK=$num_threads_per_task
-if [ "{$THREADS_PER_TASK}" -eq -1 ]; then
-    export THREADS_PER_TASK=`expr ${SLURM_JOB_CPUS_PER_NODE} / ${TASKS_PER_NODE}`
+if [ "$${THREADS_PER_TASK}" -eq -1 ]; then
+    export THREADS_PER_TASK=`expr $${SLURM_JOB_CPUS_PER_NODE} / $${TASKS_PER_NODE}`
 fi
 
 export NUM_NODES=$num_nodes
