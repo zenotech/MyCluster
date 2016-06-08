@@ -17,7 +17,7 @@ def main():
                               help='Job name')
     create_group.add_argument('--ntasks', type=int, default=1,
                               help='Number of tasks')
-    create_group.add_argument('--nthreadspertask', type=int, default=1,
+    create_group.add_argument('--nthreadspertask', type=int, default=-1,
                               help='Number of threads per task')
     create_group.add_argument('--taskpernode', type=int, help='Task per node')
     create_group.add_argument('--script', help='script file (required)')
