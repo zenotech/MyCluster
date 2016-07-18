@@ -2,6 +2,7 @@ import os
 import re
 import math
 from string import Template
+from mycluster import get_data
 
 """"
 SGE notes
@@ -249,6 +250,8 @@ def create_submit(queue_id,**kwargs):
     if 'my_script' not in kwargs:
         pass
     my_script = kwargs['my_script']
+    if 'mycluster-' in my_script:
+        my_script = get_data(my_script)
     if 'user_email' not in kwargs:
         pass
     user_email = kwargs['user_email']
@@ -384,6 +387,7 @@ echo -e "Complete========\n"
                                    'project_name': project_name,
                                    'wall_clock' : wall_clock,
                                    'openmpi_args': openmpi_args,
+                                   'record_job' : record_job,
                                    })
     
     return script_str
@@ -391,7 +395,13 @@ echo -e "Complete========\n"
 def submit(script_name, immediate):
     job_id = None
     with os.popen('qsub -V -terse '+script_name) as f:
-        job_id = int(f.readline().strip())
+        job_id = 0
+        try:
+            job_id = int(f.readline().strip())
+        except:
+            print 'job id not returned'
+            print f.readline()
+            pass
         # Get job id and record in database
     return job_id
 
