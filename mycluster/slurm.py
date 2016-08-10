@@ -306,15 +306,19 @@ def submit(script_name, immediate, depends_on = None, depends_on_always_run = Fa
         with os.popen('grep -- "SBATCH -J" '+script_name+' | sed \'s/#SBATCH//\'') as f:
             job = f.readline().rstrip()
 
-        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' srun -n 1 ./'+script_name
+        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' bash ./'+script_name
         print cmd_line
 
-        with os.popen(cmd_line) as f:
-            output = f.readline()
+        import subprocess
+        try:
+            output = subprocess.check_output(cmd_line, shell=True)
             try:
                 job_id = int(output.split(' ')[-1].strip())
             except:
                 print('Job submission failed: ' + output)
+        except:
+            print('Job submission failed: ' + cmd_line)
+
     return job_id
 
 
