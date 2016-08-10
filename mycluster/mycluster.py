@@ -406,19 +406,22 @@ def create_db():
 
 
 def update_db():
-    if scheduler is not None:
-        status_dict = scheduler.status()
-        jobs = job_list()
-        for j in jobs:
-            if jobs[j].status != 'completed':
-                job_id = jobs[j].job_id
-                if job_id in status_dict:
-                    state = status_dict[job_id]
-                    if state == 'r':
-                        jobs[j].update_status('running')
-                else:
-                    jobs[j].update_status('completed')
-                    jobs[j].update_stats(scheduler.job_stats(job_id))
+    try:
+        if scheduler is not None:
+            status_dict = scheduler.status()
+            jobs = job_list()
+            for j in jobs:
+                if jobs[j].status != 'completed':
+                    job_id = jobs[j].job_id
+                    if job_id in status_dict:
+                        state = status_dict[job_id]
+                        if state == 'r':
+                            jobs[j].update_status('running')
+                    else:
+                        jobs[j].update_status('completed')
+                        jobs[j].update_stats(scheduler.job_stats(job_id))
+    except Exception as e:
+        print('Database failed to update. Error Message: ' + str(e))
 
 
 def sysscribe_update(job_id):
