@@ -42,6 +42,14 @@ def detect_scheduling_sys():
     except:
         pass
 
+
+    # Test for PBS
+    try:
+        line = check_output(['pbsnodes', '-a'])
+        return my_import('mycluster.pbs')
+    except:
+        pass
+
     # Test for SGE
     if os.getenv('SGE_CLUSTER_NAME') is not None:
         return my_import('mycluster.sge')
@@ -297,7 +305,7 @@ def create_submit(queue_id, script_name=None, **kwargs):
         return None
 
 
-def submit(script_name, immediate, depends):
+def submit(script_name, immediate, depends=None):
 
     if scheduler is None:
         return None
