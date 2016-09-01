@@ -297,7 +297,7 @@ def create_submit(queue_id, script_name=None, **kwargs):
         return None
 
 
-def submit(script_name, immediate):
+def submit(script_name, immediate, depends):
 
     if scheduler is None:
         return None
@@ -305,7 +305,7 @@ def submit(script_name, immediate):
     job_id = -1
     import os.path
     if os.path.isfile(script_name):
-        job_id = scheduler.submit(script_name, immediate)
+        job_id = scheduler.submit(script_name, immediate, depends)
         if job_id is not None:
             print('Job submitted with ID {0}'.format(job_id))
         if job_db is not None and job_id is not None:

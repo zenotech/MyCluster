@@ -392,7 +392,7 @@ echo -e "Complete========\n"
     
     return script_str
 
-def submit(script_name, immediate):
+def submit(script_name, immediate, depends):
     job_id = None
     with os.popen('qsub -V -terse '+script_name) as f:
         job_id = 0
