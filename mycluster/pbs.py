@@ -1,4 +1,8 @@
+import math
 import os
+from string import Template
+import subprocess
+
 from mycluster import get_data
 
 def scheduler_type():
@@ -9,7 +13,15 @@ def name():
 
 def queues():
     queue_list = []
-
+    try:
+        output = subprocess.check_output(['qstat', '-Q'])
+        lines = output.splitlines()[2:]
+        for queue in lines:
+            queue_list.append(queue.split(' ')[0])
+    except Exception,e:
+        print "ERROR"
+        print e
+        pass
     return queue_list
 
 def available_tasks(queue_id):
@@ -18,18 +30,17 @@ def available_tasks(queue_id):
     return {'available': free_tasks, 'max tasks': max_tasks}
 
 def tasks_per_node(queue_id):
-    return 0
+    return 2
 
 def min_tasks_per_node(queue_id):
     return 1
 
 def node_config(queue_id):
-    return {}
+    return {'max thread': 1, 'max memory': "Unknown"}
 
 def create_submit(queue_id,**kwargs):
 
-    parallel_env = queue_id.split(':')[0]
-    queue_name   = queue_id.split(':')[1]
+    queue_name = queue_id
 
     num_tasks = 1
     if 'num_tasks' in kwargs:
@@ -57,12 +68,12 @@ def create_submit(queue_id,**kwargs):
     if 'my_output' in kwargs:
         my_output = kwargs['my_output']
     if 'my_script' not in kwargs:
-        pass
+        raise ValueError("Script name not set")
     my_script = kwargs['my_script']
     if 'mycluster-' in my_script:
         my_script = get_data(my_script)
     if 'user_email' not in kwargs:
-        pass
+        raise ValueError("Email not set")
     user_email = kwargs['user_email']
 
     project_name = 'default'
@@ -77,6 +88,9 @@ def create_submit(queue_id,**kwargs):
             wall_clock = str(kwargs['wall_clock'])
 
     num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
+
+    if num_nodes == 0:
+        raise ValueError("Must request 1 or more nodes")
 
     # For exclusive node use total number of slots required
     # is number of nodes x number of slots offer by queue
@@ -187,7 +201,6 @@ echo -e "Complete========\n"
                                    'my_output':my_output,
                                    'user_email':user_email,
                                    'queue_name':queue_name,
-                                   'parallel_env':parallel_env,
                                    'num_queue_slots':num_queue_slots,
                                    'num_tasks':num_tasks,
                                    'tpn':tpn,
@@ -206,7 +219,7 @@ echo -e "Complete========\n"
 
 def submit(script_name, immediate, depends=None):
     job_id = None
-    with os.popen('qsub' + scipt_name) as f:
+    with os.popen('qsub' + script_name) as f:
         job_id = 0
         try:
             job_id = f.readline.strip()
@@ -235,3 +248,4 @@ def running_stats(job_id):
     stats_dict = {}
 
     return stats_dict
+

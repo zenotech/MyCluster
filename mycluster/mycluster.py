@@ -269,9 +269,14 @@ def print_queue_info():
                                      'Node Max Thread', 'Node Max Memory',
                                      'Max Task', 'Available Task'))
     for q in queues():
-        nc = scheduler.node_config(q)
-        tpn = scheduler.tasks_per_node(q)
-        avail = scheduler.available_tasks(q)
+        try:
+            nc = scheduler.node_config(q)
+            tpn = scheduler.tasks_per_node(q)
+            avail = scheduler.available_tasks(q)
+        except:
+            nc = None
+            tpn = None
+            avail = None
         print('{0:25} | {1:^15} | {2:^15} |\
                {3:^15} | {4:^15} | {5:^15}'.format(q, tpn,
                                                    nc['max thread'],
