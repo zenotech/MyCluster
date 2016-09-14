@@ -3,3 +3,4 @@ ZODB
 SysScribe
 zodbpickle
 nose
+Jinja2

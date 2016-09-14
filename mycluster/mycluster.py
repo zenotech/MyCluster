@@ -9,6 +9,8 @@ from fabric.decorators import with_settings
 from datetime import timedelta
 from os.path import join as pj
 
+from jinja2 import Environment, FileSystemLoader
+
 JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
                   'PBS', 'TORQUE', 'MAUI', 'LOADLEVELER')
 
@@ -29,6 +31,11 @@ def get_data(filename):
     return fullname
 
 
+def load_template(template_name):
+    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+    return env.get_template(template_name)
+
+
 def detect_scheduling_sys():
 
     # Test for SLURM
@@ -41,7 +48,6 @@ def detect_scheduling_sys():
             return my_import('mycluster.slurm')
     except:
         pass
-
 
     # Test for PBS
     try:
