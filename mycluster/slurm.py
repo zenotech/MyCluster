@@ -167,14 +167,14 @@ def submit(script_name, immediate, depends_on = None, depends_on_always_run = Fa
     job_id = None
     if not immediate:
         if depends_on and depends_on_always_run:
-            with os.popen('sbatch --dependency=afterany:%s %s' % (depends_on, script_name)) as f:
+            with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterany:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
                     print 'Job submission failed: '+output   
         elif depends_on is not None:
-            with os.popen('sbatch --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
+            with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
