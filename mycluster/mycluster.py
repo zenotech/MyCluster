@@ -77,6 +77,12 @@ def queues():
     else:
         return []
 
+def accounts():
+    if scheduler is not None:
+        return scheduler.accounts()
+    else:
+        return []
+
 
 def remote_sites():
     if job_db is not None:

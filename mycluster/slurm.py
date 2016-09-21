@@ -30,9 +30,13 @@ def name():
 
 
 def accounts():
-    # sacctmgr list assoc user=exjap
-    pass
+    account_list = []
 
+    with os.popen('sacctmgr --noheader list assoc user=`id -un` format=Account') as f:
+        for line in f:
+            account_list.append(line)
+
+    return account_list
 
 def queues():
     queue_list = []

@@ -25,6 +25,11 @@ def queues():
         pass
     return queue_list
 
+
+def accounts():
+    return []
+
+
 def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0

@@ -37,6 +37,11 @@ def queues():
 
     return queue_list
 
+
+def accounts():
+    return []
+
+
 def available_tasks(queue_id):
 
     # split queue id into queue and parallel env
