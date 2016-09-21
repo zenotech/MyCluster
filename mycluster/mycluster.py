@@ -499,21 +499,22 @@ def appdata_update(job_id, appdata):
         job_db.get(job_id).appdata(appdata)
 
 
-def init():
+def init(silent=False):
     global scheduler
     scheduler = detect_scheduling_sys()
     created = create_directory()
     if create_db() is not None:
         update_db()
 
-    print('MyCluster Initialisation Info')
-    print('-----------------------------')
-    print('Local database in: ' + get_directory())
-    print('User: ' + get_user())
-    print('Email: ' + get_email())
-    if not scheduler:
-        print('Local job scheduler: None')
-    else:
-        print('Local job scheduler: ' + scheduler.scheduler_type())
-        print('Site name: ' + get_site())
-    print('')
+    if not silent:
+        print('MyCluster Initialisation Info')
+        print('-----------------------------')
+        print('Local database in: ' + get_directory())
+        print('User: ' + get_user())
+        print('Email: ' + get_email())
+        if not scheduler:
+            print('Local job scheduler: None')
+        else:
+            print('Local job scheduler: ' + scheduler.scheduler_type())
+            print('Site name: ' + get_site())
+        print('')
