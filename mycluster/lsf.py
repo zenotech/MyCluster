@@ -66,7 +66,8 @@ def tasks_per_node(queue_id):
     for line in q_output:
         if line.startswith('HOSTS:'):
             host_list = line.strip().rsplit(' ',1)[1].replace('/','')
-
+            if host_list == 'none':
+                return 0
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
     line = re.sub(' +',' ',bhosts_output[2]).strip()
     tasks = int(line.split(' ')[3])
@@ -82,12 +83,16 @@ def node_config(queue_id):
     for line in q_output:
         if line.startswith('HOSTS:'):
             host_list = line.strip().rsplit(' ',1)[1].replace('/','')
-
+            if host_list == 'none':
+                config['max task']   = 0
+                config['max thread'] = 0
+                config['max memory'] = 0
+                return config
     bhosts_output = check_output(['bhosts','-l',host_list]).splitlines()
     line = re.sub(' +',' ',bhosts_output[2]).strip()
     tasks = int(line.split(' ')[3])
     line = re.sub(' +',' ',bhosts_output[6]).strip()
-    memory = int(line.split(' ')[11].replace('G',''))
+    memory = float(line.split(' ')[11].replace('G',''))
     config['max task']   = tasks
     config['max thread'] = tasks
     config['max memory'] = memory
