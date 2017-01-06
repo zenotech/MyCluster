@@ -47,12 +47,14 @@ def main():
     parser.add_argument('--jobid', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--appname', help=argparse.SUPPRESS)
     parser.add_argument('--appdata', type=int, help=argparse.SUPPRESS)
+    parser.add_argument('--silent', default=False, action='store_true',
+                        help='Non exclusive node use')
     args = parser.parse_args()
 
     """
     Module initialiser function
     """
-    mycluster.init()
+    mycluster.init(args.silent)
 
     if args.queues:
         mycluster.print_queue_info()
