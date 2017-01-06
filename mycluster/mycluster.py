@@ -63,7 +63,7 @@ def detect_scheduling_sys():
     # Test for lsf
     try:
         line = check_output('lsid')
-        if line.split(' ')[0] == 'Platform':
+        if line.split(' ')[0] == 'Platform' or line.split(' ')[0] == 'IBM':
             return my_import('mycluster.lsf')
     except:
         pass
