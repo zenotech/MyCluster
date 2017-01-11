@@ -40,7 +40,7 @@ def detect_scheduling_sys():
 
     # Test for custom scheduler
     if os.getenv('MYCLUSTER_SCHED') is not None:
-        return os.getenv('MYCLUSTER_SCHED')
+        return my_import('MYCLUSTER_SCHED')
 
     # Test for SLURM
     if os.getenv('SLURMHOME') is not None:
