@@ -38,6 +38,10 @@ def load_template(template_name):
 
 def detect_scheduling_sys():
 
+    # Test for custom scheduler
+    if os.getenv('MYCLUSTER_SCHED') is not None:
+        return os.getenv('MYCLUSTER_SCHED')
+
     # Test for SLURM
     if os.getenv('SLURMHOME') is not None:
         return my_import('mycluster.slurm')
