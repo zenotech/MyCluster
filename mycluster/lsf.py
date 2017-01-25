@@ -3,6 +3,7 @@ import os
 import re
 import math
 from string import Template
+from datetime import timedelta
 from subprocess import Popen, PIPE, check_output
 from mycluster import get_data
 from mycluster import load_template
@@ -173,19 +174,37 @@ def create_submit(queue_id,**kwargs):
     return script_str
 
 
-def submit(script_name,immediate, depends=None):
+def submit(script_name,immediate, depends_on = None, depends_on_always_run = False):
     job_id = None
-    with os.popen('bsub <'+script_name) as f:
-        try:
-            job_id = int(f.readline().split(' ')[1].replace('<','').replace('>',''))
-        except:
-            print f
-        # Get job id and record in database
+
+    if depends_on and depends_on_always_run:
+        with os.popen('bsub -w "ended(%s)" < %s ' % (depends_on, script_name)) as f:
+            output = f.readline()
+            try:
+                job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
+            except:
+                print 'Job submission failed: ' + output
+    elif depends_on is not None:
+        with os.popen('bsub -w "done(%s)" < %s ' % (depends_on, script_name)) as f:
+            output = f.readline()
+            try:
+                job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
+            except:
+                print 'Job submission failed: ' + output
+    else:
+        with os.popen('bsub <'+script_name) as f:
+            output = f.readline()
+            try:
+                job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
+            except:
+                print 'Job submission failed: ' + output
     return job_id
+
 
 def delete(job_id):
     with os.popen('bkill '+job_id) as f:
         pass
+
 
 def status():
     status_dict = {}
@@ -205,6 +224,7 @@ def status():
 
     return status_dict
 
+
 def job_stats(job_id):
     stats_dict = {}
     with os.popen('bacct -l '+str(job_id)) as f:
@@ -219,6 +239,51 @@ def job_stats(job_id):
             print('LSF: Error reading job stats')
 
     return stats_dict
+
+
+def job_stats_enhanced(job_id):
+    """
+    Get full job and step stats for job_id
+    """
+    stats_dict = {}
+    with os.popen('bjobs -o "jobid run_time cpu_used  queue slots  stat exit_code start_time estimated_start_time finish_time delimiter=\'|\'" -noheader '+str(job_id)) as f:
+        try:
+            line = f.readline()
+            cols = line.split('|')
+            stats_dict['job_id'] = cols[0]
+            if cols[1] != '-':
+                stats_dict['wallclock'] = timedelta(seconds=float(cols[1].split(' ')[0]))
+            if cols[2] != '-':
+                stats_dict['cpu'] = timedelta(seconds=float(cols[2].split(' ')[0]))
+            stats_dict['queue'] = cols[3]
+            stats_dict['status'] = cols[5]
+            stats_dict['exit_code'] = cols[6]
+            stats_dict['start'] = cols[7]
+            stats_dict['start_time'] = cols[8]
+            if stats_dict['status'] in ['DONE', 'EXIT']:
+                stats_dict['end'] = cols[9]
+
+            steps = []
+            stats_dict['steps'] = steps
+        except:
+            with os.popen('bhist -l '+str(job_id)) as f:
+                try:
+                    output = f.readlines()
+            for line in output:
+                        if "Done successfully" in line:
+                            stats_dict['status'] = 'DONE'
+                return stats_dict
+                        elif "Completed <exit>" in line:
+                            stats_dict['status'] = 'EXIT'
+                return stats_dict
+                        else:
+                            stats_dict['status'] = 'UNKNOWN'
+                except Exception as e:
+                print(e)
+                    print('LSF: Error reading job stats')
+                    stats_dict['status'] = 'UNKNOWN'
+    return stats_dict
+
 
 def running_stats(job_id):
     stats_dict = {}
