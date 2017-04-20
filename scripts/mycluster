@@ -28,6 +28,7 @@ def main():
     create_group.add_argument('--shared', default=False, action='store_true',
                               help='Non exclusive node use')
     create_group.add_argument('--ompiargs', default='-bysocket -bind-to-socket', help='Arguments for OpenMPI')
+    create_group.add_argument('--qos', help='QOS level to submit to')
     parser.add_argument('-s', '--submit', help='Submit job file')
     parser.add_argument('-i', '--immediate', action='store_true',
                         help='Submit job immediately')
@@ -46,12 +47,14 @@ def main():
     parser.add_argument('--jobid', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--appname', help=argparse.SUPPRESS)
     parser.add_argument('--appdata', type=int, help=argparse.SUPPRESS)
+    parser.add_argument('--silent', default=False, action='store_true',
+                        help='Non exclusive node use')
     args = parser.parse_args()
 
     """
     Module initialiser function
     """
-    mycluster.init()
+    mycluster.init(args.silent)
 
     if args.queues:
         mycluster.print_queue_info()
@@ -92,7 +95,8 @@ def main():
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
                                     shared=args.shared,
-                                    openmpi_args = args.ompiargs,)
+                                    openmpi_args = args.ompiargs,
+                                    qos = args.qos)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -105,7 +109,8 @@ def main():
                                     tasks_per_node=args.taskpernode,
                                     num_threads_per_task=args.nthreadspertask,
                                     shared=args.shared,
-                                    openmpi_args = args.ompiargs,)
+                                    openmpi_args = args.ompiargs,
+                                    qos = args.qos)
         else:
             parser.print_help()
 

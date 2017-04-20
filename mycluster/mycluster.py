@@ -9,6 +9,8 @@ from fabric.decorators import with_settings
 from datetime import timedelta
 from os.path import join as pj
 
+from jinja2 import Environment, FileSystemLoader
+
 JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
                   'PBS', 'TORQUE', 'MAUI', 'LOADLEVELER')
 
@@ -29,7 +31,16 @@ def get_data(filename):
     return fullname
 
 
+def load_template(template_name):
+    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+    return env.get_template(template_name)
+
+
 def detect_scheduling_sys():
+
+    # Test for custom scheduler
+    if os.getenv('MYCLUSTER_SCHED') is not None:
+        return my_import(os.getenv('MYCLUSTER_SCHED'))
 
     # Test for SLURM
     if os.getenv('SLURMHOME') is not None:
@@ -41,7 +52,6 @@ def detect_scheduling_sys():
             return my_import('mycluster.slurm')
     except:
         pass
-
 
     # Test for PBS
     try:
@@ -57,7 +67,7 @@ def detect_scheduling_sys():
     # Test for lsf
     try:
         line = check_output('lsid')
-        if line.split(' ')[0] == 'Platform':
+        if line.split(' ')[0] == 'Platform' or line.split(' ')[0] == 'IBM':
             return my_import('mycluster.lsf')
     except:
         pass
@@ -68,6 +78,12 @@ def detect_scheduling_sys():
 def queues():
     if scheduler is not None:
         return scheduler.queues()
+    else:
+        return []
+
+def accounts():
+    if scheduler is not None:
+        return scheduler.accounts()
     else:
         return []
 
@@ -487,21 +503,22 @@ def appdata_update(job_id, appdata):
         job_db.get(job_id).appdata(appdata)
 
 
-def init():
+def init(silent=False):
     global scheduler
     scheduler = detect_scheduling_sys()
     created = create_directory()
     if create_db() is not None:
         update_db()
 
-    print('MyCluster Initialisation Info')
-    print('-----------------------------')
-    print('Local database in: ' + get_directory())
-    print('User: ' + get_user())
-    print('Email: ' + get_email())
-    if not scheduler:
-        print('Local job scheduler: None')
-    else:
-        print('Local job scheduler: ' + scheduler.scheduler_type())
-        print('Site name: ' + get_site())
-    print('')
+    if not silent:
+        print('MyCluster Initialisation Info')
+        print('-----------------------------')
+        print('Local database in: ' + get_directory())
+        print('User: ' + get_user())
+        print('Email: ' + get_email())
+        if not scheduler:
+            print('Local job scheduler: None')
+        else:
+            print('Local job scheduler: ' + scheduler.scheduler_type())
+            print('Site name: ' + get_site())
+        print('')
