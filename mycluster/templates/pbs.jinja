@@ -70,7 +70,7 @@ echo -e "\nnumtasks={{num_tasks}}, numnodes={{num_nodes}}, tasks_per_node={{tpn}
 echo -e "\nExecuting command:\n==================\n{{my_script}}\n"
 
 # Run user script
-. {{my_script}}
+exitcode=. {{my_script}}
 
 # Report on completion
 echo -e "\nJob Complete:\n==================\n"
@@ -85,3 +85,4 @@ echo -e "\nJob Complete:\n==================\n"
     fi
 {% endif %}
 echo -e "Complete========\n"
+exit $exitcode
