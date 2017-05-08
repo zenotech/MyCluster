@@ -1,4 +1,4 @@
-Fabric
+Fabric==1.13.2
 ZODB
 SysScribe
 zodbpickle
