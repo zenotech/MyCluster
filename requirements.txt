@@ -1,6 +1,6 @@
 Fabric==1.13.2
 ZODB==5.2.3
-SysScribe
+SysScribe==0.1.2
 zodbpickle
 nose
 Jinja2
