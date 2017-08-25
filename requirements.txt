@@ -1,4 +1,4 @@
-Fabric==1.13.2
+Fabric==1.14.0
 ZODB==5.2.4
 SysScribe==0.1.2
 zodbpickle==0.6.0
