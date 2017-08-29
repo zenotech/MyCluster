@@ -95,6 +95,7 @@ def main():
                                     project_name=args.project,
                                     wall_clock=args.maxtime,
                                     shared=args.shared,
+                                    no_syscribe=True,
                                     openmpi_args = args.ompiargs,
                                     qos = args.qos)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
@@ -109,6 +110,7 @@ def main():
                                     tasks_per_node=args.taskpernode,
                                     num_threads_per_task=args.nthreadspertask,
                                     shared=args.shared,
+                                    no_syscribe=True,
                                     openmpi_args = args.ompiargs,
                                     qos = args.qos)
         else:
