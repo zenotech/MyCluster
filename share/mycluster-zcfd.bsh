@@ -8,7 +8,9 @@ export MYCLUSTER_APP_DATA=`h5dump --attribute /mesh/numCells $PROBLEM | grep "(0
 
 #$OMPI_CMD $ZCFD_HOME/smartlaunch.bsh $PROBLEM -c $CASE  >& ${CASE}_log
 
-exitcode=$ZCFD_HOME/run_zcfd --ntask $NUM_TASKS --tpn $TASKS_PER_NODE -p $PROBLEM -c $CASE >& ${CASE}_log
+$ZCFD_HOME/run_zcfd --ntask $NUM_TASKS --tpn $TASKS_PER_NODE -p $PROBLEM -c $CASE >& ${CASE}_log
+
+exitcode=$?
 
 zdeactivate
 
