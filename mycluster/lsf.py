@@ -31,7 +31,7 @@ def queues():
     queue_list = []
 
     with os.popen('bqueues -w -u `whoami`') as f:
-        f.readline(); # read header
+        f.readline()  # read header
         for line in f:
             q = line.split(' ')[0].strip()
             queue_list.append(q)
@@ -183,21 +183,21 @@ def submit(script_name,immediate, depends_on = None, depends_on_always_run = Fal
             try:
                 job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     elif depends_on is not None:
         with os.popen('bsub -w "done(%s)" < %s ' % (depends_on, script_name)) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     else:
         with os.popen('bsub <'+script_name) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[1].replace('<','').replace('>',''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     return job_id
 
 
@@ -210,7 +210,7 @@ def status():
     status_dict = {}
     with os.popen('bjobs -w') as f:
         try:
-            f.readline(); # read header
+            f.readline()  # read header
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 job_id = int(new_line.split(' ')[0])
@@ -220,7 +220,7 @@ def status():
                 else:
                     status_dict[job_id] = state
         except e:
-            print e
+            print(e)
 
     return status_dict
 
@@ -229,12 +229,12 @@ def job_stats(job_id):
     stats_dict = {}
     with os.popen('bacct -l '+str(job_id)) as f:
         try:
-            line = f.readline();
+            line = f.readline()
             new_line = re.sub(' +',' ',line.strip())
-            stats_dict['wallclock']  = new_line.split(' ')[0]
+            stats_dict['wallclock'] = new_line.split(' ')[0]
             stats_dict['cpu'] = new_line.split(' ')[1]
             stats_dict['queue'] = new_line.split(' ')[2]
-            stats_dict['mem'] = '-'#float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
+            stats_dict['mem'] = '-'  # float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
         except:
             print('LSF: Error reading job stats')
 
@@ -269,17 +269,17 @@ def job_stats_enhanced(job_id):
             with os.popen('bhist -l '+str(job_id)) as f:
                 try:
                     output = f.readlines()
-            for line in output:
+                    for line in output:
                         if "Done successfully" in line:
                             stats_dict['status'] = 'DONE'
-                return stats_dict
+                            return stats_dict
                         elif "Completed <exit>" in line:
                             stats_dict['status'] = 'EXIT'
-                return stats_dict
+                            return stats_dict
                         else:
                             stats_dict['status'] = 'UNKNOWN'
                 except Exception as e:
-                print(e)
+                    print(e)
                     print('LSF: Error reading job stats')
                     stats_dict['status'] = 'UNKNOWN'
     return stats_dict
@@ -289,7 +289,7 @@ def running_stats(job_id):
     stats_dict = {}
     with os.popen('bjobs -W '+str(job_id)) as f:
         try:
-            line = f.readline();
+            line = f.readline()
             new_line = re.sub(' +',' ',line.strip())
             stats_dict['wallclock']  = new_line.split(' ')[0]
         except:
@@ -297,7 +297,7 @@ def running_stats(job_id):
 
     with os.popen('bjobs -W '+str(job_id)) as f:
         try:
-            line = f.readline();
+            line = f.readline()
             new_line = re.sub(' +',' ',line.strip())
             ntasks = int(new_line.split(' ')[2])
             stats_dict['mem']  = float(new_line.split(' ')[1])*ntasks
