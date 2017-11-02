@@ -426,7 +426,7 @@ def create_directory():
 def create_db():
     global job_db
     try:
-        from persist import JobDB
+        from mycluster.persist import JobDB
         job_db = JobDB()
     except Exception as e:
         print('Database failed to initialise. Error Message: ' + str(e))
