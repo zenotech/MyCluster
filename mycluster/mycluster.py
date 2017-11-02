@@ -338,7 +338,7 @@ def submit(script_name, immediate, depends=None):
         if job_id is not None:
             print('Job submitted with ID {0}'.format(job_id))
         if job_db is not None and job_id is not None:
-            from persist import Job
+            from mycluster.persist import Job
             job = Job(job_id, time.time())
             with open(script_name, 'r') as f:
                 for line in f:

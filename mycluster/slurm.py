@@ -364,7 +364,7 @@ def is_in_queue(job_id):
                 q_id = int(new_line.split(' ')[0])
                 if q_id == job_id:
                     return True
-        except e:
+        except:
             pass
     return False
 

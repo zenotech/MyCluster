@@ -219,7 +219,7 @@ def status():
                     status_dict[job_id] = 'r'
                 else:
                     status_dict[job_id] = state
-        except e:
+        except Exception as e:
             print(e)
 
     return status_dict

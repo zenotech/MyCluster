@@ -329,7 +329,7 @@ def status():
                 state = new_line.split(' ')[4]
 
                 status_dict[job_id] = state
-        except e:
+        except Exception as e:
             print(e)
 
     return status_dict
@@ -346,7 +346,7 @@ def job_stats(job_id):
         except:
             pass
     import datetime
-    from mycluster import print_timedelta
+    from mycluster.mycluster import print_timedelta
     stats_dict['wallclock'] = datetime.timedelta(seconds=int(output['ru_wallclock']))
     stats_dict['mem'] = output['mem']
     stats_dict['cpu'] = datetime.timedelta(seconds=int(output['cpu'].split('.')[0]))
