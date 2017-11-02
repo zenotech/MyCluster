@@ -2,8 +2,8 @@ import os
 import re
 import math
 from string import Template
-from mycluster import get_data
-from mycluster import load_template
+from mycluster.mycluster import get_data
+from mycluster.mycluster import load_template
 
 """"
 SGE notes

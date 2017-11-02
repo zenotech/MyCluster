@@ -3,8 +3,8 @@ import os
 from string import Template
 import subprocess
 
-from mycluster import get_data
-from mycluster import load_template
+from mycluster.mycluster import get_data
+from mycluster.mycluster import load_template
 
 def scheduler_type():
     return 'pbs'
