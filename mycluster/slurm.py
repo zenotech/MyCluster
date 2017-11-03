@@ -4,10 +4,10 @@ import re
 import math
 from string import Template
 # from datetime import timedelta
-from mycluster import get_timedelta
+from mycluster.mycluster import get_timedelta
 # from subprocess import Popen, PIPE, check_output
-from mycluster import get_data
-from mycluster import load_template
+from mycluster.mycluster import get_data
+from mycluster.mycluster import load_template
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -172,21 +172,21 @@ def submit(script_name, immediate, depends_on = None, depends_on_always_run = Fa
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output   
+                    print('Job submission failed: '+output)
         elif depends_on is not None:
             with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output   
+                    print('Job submission failed: '+output)
         else:
             with os.popen('sbatch '+script_name) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output
+                    print('Job submission failed: '+output)
                 # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" ' + script_name
@@ -202,7 +202,7 @@ def submit(script_name, immediate, depends_on = None, depends_on_always_run = Fa
             job = f.readline().rstrip()
 
         cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' bash ./'+script_name
-        print cmd_line
+        print(cmd_line)
 
         import subprocess
         try:
@@ -236,7 +236,7 @@ def status():
                 else:
                     status_dict[job_id] = state
         except Exception as e:
-            print e
+            print(e)
 
     return status_dict
 
@@ -251,6 +251,8 @@ def job_stats(job_id):
             line = f.readline()
             if len(line) > 0:
                 next_line = line.split('|')
+            else:
+                next_line = None
 
             wallclock_str = first_line[1]
             stats_dict['wallclock'] = get_timedelta(wallclock_str)
@@ -304,7 +306,7 @@ def job_stats_enhanced(job_id):
             line = f.readline()
             if line in ["SLURM accounting storage is disabled",
                         "slurm_load_job error: Invalid job id specified"]:
-                raise
+                raise ValueError(line)
             cols = line.split('|')
             stats_dict['job_id'] = cols[0]
             stats_dict['wallclock'] = get_timedelta(cols[1])
@@ -362,7 +364,7 @@ def is_in_queue(job_id):
                 q_id = int(new_line.split(' ')[0])
                 if q_id == job_id:
                     return True
-        except e:
+        except:
             pass
     return False
 

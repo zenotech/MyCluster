@@ -1,7 +1,9 @@
 language: python
 python:
   - "2.7"
-
+  - "3.5"
+  - "3.6"
+  
 notifications:
   webhooks:
     urls:
@@ -10,6 +12,5 @@ notifications:
     on_failure: always
     on_start: always
 
-
-install: "pip install -r requirements.txt"
+install: "pip install ."
 script: nosetests

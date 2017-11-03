@@ -2,8 +2,8 @@ import os
 import re
 import math
 from string import Template
-from mycluster import get_data
-from mycluster import load_template
+from mycluster.mycluster import get_data
+from mycluster.mycluster import load_template
 
 """"
 SGE notes
@@ -52,8 +52,8 @@ def queues():
 
     for parallel_env in parallel_env_list:
         with os.popen('qstat -pe '+parallel_env+' -U `whoami` -g c') as f:
-            f.readline(); # read header
-            f.readline(); # read separator
+            f.readline()  # read header
+            f.readline()  # read separator
             for line in f:
                 queue_name = line.split(' ')[0].strip()
                 # Check if user has permission to use queue
@@ -82,8 +82,8 @@ def available_tasks(queue_id):
     parallel_env = queue_id.split(':')[0]
     queue_name   = queue_id.split(':')[1]
     with os.popen(' qstat -pe '+parallel_env+' -U `whoami` -g c') as f:
-        f.readline(); # read header
-        f.readline(); # read separator
+        f.readline()  # read header
+        f.readline()  # read separator
         for line in f:
             # remove multiple white space
             new_line = re.sub(' +',' ',line)
@@ -158,8 +158,8 @@ def node_config(queue_id):
             for line in f:
                 for host_name in line.split(' '):
                     with os.popen('qhost -q -h '+host_name) as f:
-                        header = f.readline(); # read header
-                        f.readline(); # read separator
+                        header = f.readline()  # read header
+                        f.readline()  # read separator
                         new_header = re.sub(' +',' ',header).strip()
                         if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
                             for line in f:
@@ -190,8 +190,8 @@ def node_config(queue_id):
         #Is a host
         host_name = host_group
         with os.popen('qhost -q -h '+host_name) as f:
-            header = f.readline(); # read header
-            f.readline(); # read separator
+            header = f.readline()  # read header
+            f.readline()  # read separator
             new_header = re.sub(' +',' ',header).strip()
             if (new_header.split(' ')[3]) == 'LOAD': #sge <=6.2u4 style
                 for line in f:
@@ -307,8 +307,8 @@ def submit(script_name, immediate, depends=None):
         try:
             job_id = int(f.readline().strip())
         except:
-            print 'job id not returned'
-            print f.readline()
+            print('job id not returned')
+            print(f.readline())
             pass
         # Get job id and record in database
     return job_id
@@ -321,16 +321,16 @@ def status():
     status_dict = {}
     with os.popen('qstat') as f:
         try:
-            f.readline(); # read header
-            f.readline(); # read separator
+            f.readline()  # read header
+            f.readline()  # read separator
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 job_id = int(new_line.split(' ')[0])
                 state = new_line.split(' ')[4]
 
                 status_dict[job_id] = state
-        except e:
-            print e
+        except Exception as e:
+            print(e)
 
     return status_dict
 
@@ -339,14 +339,14 @@ def job_stats(job_id):
     output={}
     with os.popen('qacct -j '+str(job_id)) as f:
         try:
-            f.readline(); # read header
+            f.readline()  # read header
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 output[new_line.split(' ')[0]] = new_line.split(' ',1)[1]
         except:
             pass
     import datetime
-    from mycluster import print_timedelta
+    from mycluster.mycluster import print_timedelta
     stats_dict['wallclock'] = datetime.timedelta(seconds=int(output['ru_wallclock']))
     stats_dict['mem'] = output['mem']
     stats_dict['cpu'] = datetime.timedelta(seconds=int(output['cpu'].split('.')[0]))
@@ -359,7 +359,7 @@ def running_stats(job_id):
     output={}
     with os.popen('qstat -j '+str(job_id)) as f:
         try:
-            f.readline(); # read header
+            f.readline()  # read header
             for line in f:
                 new_line = re.sub(' +',' ',line.strip())
                 if new_line.split(' ')[0] == 'usage':

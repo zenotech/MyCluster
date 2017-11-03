@@ -1,7 +1,7 @@
 
 from persistent import Persistent
 from ZODB import FileStorage, DB
-from mycluster import get_directory, scheduler
+from mycluster.mycluster import get_directory, scheduler
 # from BTrees.OOBTree import OOBTree
 import transaction
 import logging

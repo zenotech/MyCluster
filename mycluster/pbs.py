@@ -3,8 +3,8 @@ import os
 from string import Template
 import subprocess
 
-from mycluster import get_data
-from mycluster import load_template
+from mycluster.mycluster import get_data
+from mycluster.mycluster import load_template
 
 def scheduler_type():
     return 'pbs'
@@ -19,9 +19,9 @@ def queues():
         lines = output.splitlines()[2:]
         for queue in lines:
             queue_list.append(queue.split(' ')[0])
-    except Exception,e:
-        print "ERROR"
-        print e
+    except Exception as e:
+        print("ERROR")
+        print(e)
         pass
     return queue_list
 
@@ -127,8 +127,8 @@ def submit(script_name, immediate, depends=None):
         try:
             job_id = f.readline.strip()
         except:
-            print 'Failed to launch job'
-            print f.readline()
+            print('Failed to launch job')
+            print(f.readline())
             pass
     return job_id
 
