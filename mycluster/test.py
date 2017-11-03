@@ -1,6 +1,9 @@
+import six 
 
-
-import mycluster
+if six.PY2:
+  import mycluster
+else: 
+  from mycluster import mycluster
 
 mycluster.init()
 
