@@ -1,6 +1,6 @@
 
 
-from mycluster import mycluster
+import mycluster
 
 mycluster.init()
 
