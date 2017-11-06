@@ -191,8 +191,7 @@ def submit(script_name, immediate, depends_on=None,
                     print 'Job submission failed: ' + output
                 # Get job id and record in database
     else:
-        with os.popen('grep -- "SBATCH -p" ' + script_name
-                      + ' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH -p" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             partition = f.readline().rstrip()
         with os.popen('grep -- "SBATCH --nodes" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             nnodes = f.readline().rstrip()
@@ -382,14 +381,12 @@ def running_stats(job_id):
         except:
             pass
 
-    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '
-                  + str(job_id)) as f:
+    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
             ntasks = int(new_line.split(' ')[2])
-            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', ''))
-                                 * ntasks)
+            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', '')) * ntasks)
             stats_dict['cpu'] = '-'  # float(new_line.split(' ')[0])*ntasks
         except:
             pass
