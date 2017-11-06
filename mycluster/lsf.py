@@ -183,7 +183,8 @@ def submit(script_name, immediate, depends_on=None,
     job_id = None
 
     if depends_on and depends_on_always_run:
-        with os.popen('bsub -w "ended(%s)" < %s ' % (depends_on, script_name)) as f:
+        cmd = 'bsub -w "ended(%s)" < %s ' % (depends_on, script_name)
+        with os.popen(cmd) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[1].replace(
@@ -191,7 +192,8 @@ def submit(script_name, immediate, depends_on=None,
             except:
                 print 'Job submission failed: ' + output
     elif depends_on is not None:
-        with os.popen('bsub -w "done(%s)" < %s ' % (depends_on, script_name)) as f:
+        cmd = 'bsub -w "done(%s)" < %s ' % (depends_on, script_name)
+        with os.popen(cmd) as f:
             output = f.readline()
             try:
                 job_id = int(output.split(' ')[1].replace(
