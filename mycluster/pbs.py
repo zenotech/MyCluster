@@ -3,8 +3,8 @@ import os
 from string import Template
 import subprocess
 
-from mycluster import get_data
-from mycluster import load_template
+from .mycluster import get_data
+from .mycluster import load_template
 
 
 def scheduler_type():
@@ -22,7 +22,7 @@ def queues():
         lines = output.splitlines()[2:]
         for queue in lines:
             queue_list.append(queue.split(' ')[0])
-    except Exception, e:
+    except Exception as e:
         print "ERROR"
         print e
         pass

@@ -4,10 +4,10 @@ import re
 import math
 from string import Template
 # from datetime import timedelta
-from mycluster import get_timedelta
+from .mycluster import get_timedelta
 # from subprocess import Popen, PIPE, check_output
-from mycluster import get_data
-from mycluster import load_template
+from .mycluster import get_data
+from .mycluster import load_template
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -92,7 +92,7 @@ def node_config(queue_id):
             config['max thread'] = tasks
             config['max memory'] = memory
         else:
-            raise StandardError(
+            raise Exception(
                 "Requested partition %s has no nodes" % queue_name)
 
     return config

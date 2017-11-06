@@ -2,8 +2,8 @@ import os
 import re
 import math
 from string import Template
-from mycluster import get_data
-from mycluster import load_template
+from .mycluster import get_data
+from .mycluster import load_template
 
 """"
 SGE notes
@@ -372,7 +372,7 @@ def job_stats(job_id):
         except:
             pass
     import datetime
-    from mycluster import print_timedelta
+    from .mycluster import print_timedelta
     stats_dict['wallclock'] = datetime.timedelta(
         seconds=int(output['ru_wallclock']))
     stats_dict['mem'] = output['mem']

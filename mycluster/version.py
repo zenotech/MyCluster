@@ -57,7 +57,7 @@ def call_git_describe(abbrev=4):
             p.stderr.close()
             line = p.stdout.readlines()[0]
             return line.strip()
-    except Exception, e:
+    except Exception as e:
         return None
 
 

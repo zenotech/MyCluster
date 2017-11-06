@@ -102,8 +102,8 @@ def remote_cmd():
     output_file = '~/.mycluster/' + str(uuid.uuid4())
     with hide('output', 'running', 'warnings'), settings(warn_only=True):
         run('mycluster -p >' + output_file, pty=False)
-        import StringIO
-        contents = StringIO.StringIO()
+        import io
+        contents = io.StringIO()
         get(output_file, contents)
         # operate on 'contents' like a file object here, e.g. 'print
         return contents.getvalue()
@@ -331,7 +331,7 @@ def submit(script_name, immediate, depends=None):
         if job_id is not None:
             print('Job submitted with ID {0}'.format(job_id))
         if job_db is not None and job_id is not None:
-            from persist import Job
+            from .persist import Job
             job = Job(job_id, time.time())
             with open(script_name, 'r') as f:
                 for line in f:
@@ -419,7 +419,7 @@ def create_directory():
 def create_db():
     global job_db
     try:
-        from persist import JobDB
+        from .persist import JobDB
         job_db = JobDB()
     except Exception as e:
         print('Database failed to initialise. Error Message: ' + str(e))

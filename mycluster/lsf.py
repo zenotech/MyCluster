@@ -5,8 +5,8 @@ import math
 from string import Template
 from datetime import timedelta
 from subprocess import Popen, PIPE, check_output
-from mycluster import get_data
-from mycluster import load_template
+from .mycluster import get_data
+from .mycluster import load_template
 
 """
 
