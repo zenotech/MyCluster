@@ -14,10 +14,10 @@ class JobDB(object):
         directory = get_directory()
 
         self.logger = logging.getLogger('ZODB.FileStorage')
-        fh = logging.FileHandler(directory+'db.log')
+        fh = logging.FileHandler(directory + 'db.log')
         self.logger.addHandler(fh)
 
-        self.storage = FileStorage.FileStorage(directory+'db.fs')
+        self.storage = FileStorage.FileStorage(directory + 'db.fs')
         self.db = DB(self.storage)
         self.connection = self.db.open()
 
@@ -86,7 +86,7 @@ class JobDB(object):
     def add_job(self, job):
         # Get unique key
         job_key = self.job_key['val']
-        self.job_key['val'] = job_key+1
+        self.job_key['val'] = job_key + 1
         transaction.commit()
         # Add job
         self.job_db[job_key] = job
@@ -110,7 +110,7 @@ class JobDB(object):
             if self.job_db[key].job_id == job_id:
                 return self.job_db[key]
 
-        raise KeyError('Key: '+str(job_id)+' not found')
+        raise KeyError('Key: ' + str(job_id) + ' not found')
 
     def list(self):
         pass
@@ -125,12 +125,14 @@ class JobDB(object):
 
 
 class RemoteSite(Persistent):
+
     def __init__(self, name, user):
         self.name = name
         self.user = user
 
 
 class Site(Persistent):
+
     def __init__(self, name, scheduler_type):
         self.name = name
         self.PUE = 0.0
@@ -142,6 +144,7 @@ class Site(Persistent):
 
 
 class Queue(Persistent):
+
     def __init__(self, name, site_name):
         self.name = name
         self.site_name = site_name
@@ -150,6 +153,7 @@ class Queue(Persistent):
 
 
 class User(Persistent):
+
     def __init__(self, first_name, last_name, email):
         self.first_name = first_name
         self.last_name = last_name
@@ -169,6 +173,7 @@ class User(Persistent):
 
 
 class Job(Persistent):
+
     def __init__(self, job_id, time_stamp):
         self.job_id = job_id
         self.time_stamp = time_stamp
@@ -185,7 +190,6 @@ class Job(Persistent):
         self.job_name = 'unknown'
         self.job_dir = 'unknown'
         self.queue = 'unknown'
-
 
     def update_status(self, new_status):
 
@@ -205,7 +209,6 @@ class Job(Persistent):
     def appname(self, name):
         self.app_name = name
         transaction.commit()
-
 
     def appdata(self, data):
 

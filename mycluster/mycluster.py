@@ -32,7 +32,8 @@ def get_data(filename):
 
 
 def load_template(template_name):
-    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+    env = Environment(loader=FileSystemLoader(
+        os.path.join(os.path.dirname(__file__), 'templates')))
     return env.get_template(template_name)
 
 
@@ -80,6 +81,7 @@ def queues():
         return scheduler.queues()
     else:
         return []
+
 
 def accounts():
     if scheduler is not None:
@@ -205,8 +207,10 @@ def printjobs(num_lines):
         efficiency = '-'
         if time_ratio:
             try:
-                efficiency = (time_ratio / (int(jobs[j].num_tasks) *
-                              int(jobs[j].threads_per_task)) * 100.0)
+                efficiency = (
+                    time_ratio /
+                    (int(jobs[j].num_tasks) * int(jobs[j].threads_per_task)) *
+                    100.0)
                 efficiency = '{:.1f}'.format(efficiency)
             except:
                 pass
@@ -220,7 +224,8 @@ def printjobs(num_lines):
                                                     status,
                                                     str(jobs[j].num_tasks) +
                                                     ' (' +
-                                                    str(jobs[j].threads_per_task) +
+                                                    str(jobs[j].
+                                                        threads_per_task) +
                                                     ')',
                                                     cputime,
                                                     wallclock,
@@ -234,42 +239,30 @@ def printjobs(num_lines):
             efficiency = '-'
             if time_ratio:
                 try:
-                    efficiency = (time_ratio / (int(jobs[j].num_tasks) *
-                                  int(jobs[j].threads_per_task)) * 100.0)
+                    efficiency = (
+                        time_ratio /
+                        (int(jobs[j].num_tasks) *
+                         int(jobs[j].threads_per_task)) * 100.0)
                     efficiency = '{:.1f}'.format(efficiency)
                 except:
                     pass
-            print('{0:4} | {1:^10} | {2:^10} |\
+            print(
+                '{0:4} | {1:^10} | {2:^10} |\
                    {3:^10} | {4:^12} | {5:^12} |\
-                   {6:^5} | {7:^20} | {8:50}'.format(i + 1,
-                                                     job_id,
-                                                     status,
-                                                     str(jobs[j].num_tasks) +
-                                                     ' (' +
-                                                     str(jobs[j].threads_per_task) +
-                                                     ')',
-                                                     cputime,
-                                                     wallclock,
-                                                     efficiency,
-                                                     jobs[j].job_name,
-                                                     jobs[j].job_dir)
-                  )
+                   {6:^5} | {7:^20} | {8:50}'.
+                format(
+                    i + 1, job_id, status, str(jobs[j].num_tasks) + ' (' +
+                    str(jobs[j].threads_per_task) + ')', cputime, wallclock,
+                    efficiency, jobs[j].job_name, jobs[j].job_dir))
         else:
-            print('{0:4} | {1:^10} | {2:^10} |\
+            print(
+                '{0:4} | {1:^10} | {2:^10} |\
                    {3:^10} | {4:^12} | {5:^12} |\
-                   {6:^5} | {7:^20} | {8:50}'.format(i + 1,
-                                                     job_id,
-                                                     status,
-                                                     str(jobs[j].num_tasks) +
-                                                     ' (' +
-                                                     str(jobs[j].threads_per_task) +
-                                                     ')',
-                                                     '-',
-                                                     '-',
-                                                     efficiency,
-                                                     jobs[j].job_name,
-                                                     jobs[j].job_dir)
-                  )
+                   {6:^5} | {7:^20} | {8:50}'.
+                format(
+                    i + 1, job_id, status, str(jobs[j].num_tasks) + ' (' +
+                    str(jobs[j].threads_per_task) + ')', '-', '-', efficiency,
+                    jobs[j].job_name, jobs[j].job_dir))
 
     remotes = remote_sites()
     for i, j in enumerate(remotes):
@@ -372,7 +365,7 @@ def delete(job_id):
     scheduler_type = job_db.site_db[site_name].scheduler_type
 
     if (scheduler.name() == site_name and
-       scheduler.scheduler_type() == scheduler_type):
+            scheduler.scheduler_type() == scheduler_type):
         scheduler.delete(job_id)
     else:
         print('JobID: ' + str(job_id) + ' not found at current site')

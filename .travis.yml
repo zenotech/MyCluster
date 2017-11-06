@@ -11,5 +11,9 @@ notifications:
     on_start: always
 
 
-install: "pip install -r requirements.txt"
-script: nosetests
+install:
+    - pip install -r requirements.txt
+    - pip install pep8
+script:
+    - pep8 mycluster
+    - nosetests
