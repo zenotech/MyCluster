@@ -13,7 +13,7 @@ notifications:
 
 install:
     - pip install -r requirements.txt
-    - pip install pep8
+    - pip install pycodestyle
 script:
-    - pep8 mycluster
+    - pycodestyle --ignore=E501,E722 mycluster
     - nosetests
