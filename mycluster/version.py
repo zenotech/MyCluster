@@ -57,7 +57,7 @@ def call_git_describe(abbrev=4):
             p.stderr.close()
             line = p.stdout.readlines()[0]
             return line.strip()
-    except Exception, e:
+    except Exception as e:
         return None
 
 
@@ -79,8 +79,9 @@ def read_release_version():
                 if os.path.isfile(filename):
                     f = open(filename, 'r')
                 else:
-                    filename = resource_filename(Requirement.parse("MyCluster"),
-                                                 "RELEASE-VERSION")
+                    filename = resource_filename(
+                        Requirement.parse("MyCluster"),
+                        "RELEASE-VERSION")
                     f = open(filename, 'r')
         try:
             version = f.readlines()[0]

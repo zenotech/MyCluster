@@ -1,7 +1,7 @@
 
 from persistent import Persistent
 from ZODB import FileStorage, DB
-from mycluster import get_directory, scheduler
+from .mycluster import get_directory, scheduler
 # from BTrees.OOBTree import OOBTree
 import transaction
 import logging
@@ -14,16 +14,16 @@ class JobDB(object):
         directory = get_directory()
 
         self.logger = logging.getLogger('ZODB.FileStorage')
-        fh = logging.FileHandler(directory+'db.log')
+        fh = logging.FileHandler(directory + 'db.log')
         self.logger.addHandler(fh)
 
-        self.storage = FileStorage.FileStorage(directory+'db.fs')
+        self.storage = FileStorage.FileStorage(directory + 'db.fs')
         self.db = DB(self.storage)
         self.connection = self.db.open()
 
         dbroot = self.connection.root()
 
-        if not dbroot.has_key('job_key'):
+        if 'job_key' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['job_key'] = OOBTree()
             dbroot['job_key']['val'] = 0
@@ -32,13 +32,13 @@ class JobDB(object):
 
         # Ensure that a 'job_db' key is present
         # in the root
-        if not dbroot.has_key('job_db'):
+        if 'job_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['job_db'] = OOBTree()
 
         self.job_db = dbroot['job_db']
 
-        if not dbroot.has_key('user_db'):
+        if 'user_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['user_db'] = OOBTree()
             self.user_db = dbroot['user_db']
@@ -46,7 +46,7 @@ class JobDB(object):
 
         self.user_db = dbroot['user_db']
 
-        if not dbroot.has_key('site_db'):
+        if 'site_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['site_db'] = OOBTree()
             self.site_db = dbroot['site_db']
@@ -57,15 +57,15 @@ class JobDB(object):
             self.site_db[scheduler.name()] = Site(scheduler.name(),
                                                   scheduler.scheduler_type())
 
-        if not dbroot.has_key('queue_db'):
+        if 'queue_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['queue_db'] = OOBTree()
             self.queue_db = dbroot['queue_db']
 
         self.queue_db = dbroot['queue_db']
 
-        from version import get_git_version
-        if not dbroot.has_key('version'):
+        from .version import get_git_version
+        if 'version' not in dbroot:
             dbroot['version'] = get_git_version()
         else:
             current_version = dbroot['version']
@@ -76,7 +76,7 @@ class JobDB(object):
 
             dbroot['version'] = new_version
 
-        if not dbroot.has_key('remote_site_db'):
+        if 'remote_site_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['remote_site_db'] = OOBTree()
             self.remote_site_db = dbroot['remote_site_db']
@@ -86,19 +86,19 @@ class JobDB(object):
     def add_job(self, job):
         # Get unique key
         job_key = self.job_key['val']
-        self.job_key['val'] = job_key+1
+        self.job_key['val'] = job_key + 1
         transaction.commit()
         # Add job
         self.job_db[job_key] = job
         transaction.commit()
 
     def add_queue(self, queue, site):
-        if not self.queue_db.has_key(queue):
+        if queue not in self.queue_db:
             self.queue_db[queue] = Queue(queue, site)
             transaction.commit()
 
     def add_remote(self, remote_site):
-        if not self.remote_site_db.has_key(remote_site):
+        if remote_site not in self.remote_site_db:
             user = remote_site.split('@')[0]
             site = remote_site.split('@')[1]
             self.remote_site_db[site] = RemoteSite(site, user)
@@ -106,11 +106,11 @@ class JobDB(object):
 
     def get(self, job_id):
         # Find
-        for key in self.job_db.keys():
+        for key in list(self.job_db.keys()):
             if self.job_db[key].job_id == job_id:
                 return self.job_db[key]
 
-        raise KeyError('Key: '+str(job_id)+' not found')
+        raise KeyError('Key: ' + str(job_id) + ' not found')
 
     def list(self):
         pass
@@ -125,12 +125,14 @@ class JobDB(object):
 
 
 class RemoteSite(Persistent):
+
     def __init__(self, name, user):
         self.name = name
         self.user = user
 
 
 class Site(Persistent):
+
     def __init__(self, name, scheduler_type):
         self.name = name
         self.PUE = 0.0
@@ -142,6 +144,7 @@ class Site(Persistent):
 
 
 class Queue(Persistent):
+
     def __init__(self, name, site_name):
         self.name = name
         self.site_name = site_name
@@ -150,6 +153,7 @@ class Queue(Persistent):
 
 
 class User(Persistent):
+
     def __init__(self, first_name, last_name, email):
         self.first_name = first_name
         self.last_name = last_name
@@ -169,6 +173,7 @@ class User(Persistent):
 
 
 class Job(Persistent):
+
     def __init__(self, job_id, time_stamp):
         self.job_id = job_id
         self.time_stamp = time_stamp
@@ -185,7 +190,6 @@ class Job(Persistent):
         self.job_name = 'unknown'
         self.job_dir = 'unknown'
         self.queue = 'unknown'
-
 
     def update_status(self, new_status):
 
@@ -205,7 +209,6 @@ class Job(Persistent):
     def appname(self, name):
         self.app_name = name
         transaction.commit()
-
 
     def appdata(self, data):
 

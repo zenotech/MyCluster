@@ -22,6 +22,8 @@
 #SBATCH --exclusive
 # Do not requeue job on node failure
 #SBATCH --no-requeue
+# High performance cpu governor
+#SBATCH --cpu-freq=Performance
 # How much wallclock time will be required?
 #SBATCH --time={{wall_clock}}
 {% if qos %}

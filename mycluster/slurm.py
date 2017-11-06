@@ -4,13 +4,12 @@ import re
 import math
 from string import Template
 # from datetime import timedelta
-from mycluster import get_timedelta
+from .mycluster import get_timedelta
 # from subprocess import Popen, PIPE, check_output
-from mycluster import get_data
-from mycluster import load_template
+from .mycluster import get_data
+from .mycluster import load_template
 
 from jinja2 import Environment, FileSystemLoader
-
 
 
 """
@@ -38,6 +37,7 @@ def accounts():
 
     return account_list
 
+
 def queues():
     queue_list = []
 
@@ -57,12 +57,12 @@ def available_tasks(queue_id):
     max_tasks = 0
     queue_name = queue_id
     nc = node_config(queue_id)
-    with os.popen('sinfo -sh -p '+queue_name) as f:
+    with os.popen('sinfo -sh -p ' + queue_name) as f:
         line = f.readline()
         new_line = re.sub(' +', ' ', line.strip())
         line = new_line.split(' ')[3]
-        free_tasks = int(line.split('/')[1])*nc['max task']
-        max_tasks = int(line.split('/')[3])*nc['max task']
+        free_tasks = int(line.split('/')[1]) * nc['max task']
+        max_tasks = int(line.split('/')[3]) * nc['max task']
 
     return {'available': free_tasks, 'max tasks': max_tasks}
 
@@ -70,7 +70,7 @@ def available_tasks(queue_id):
 def tasks_per_node(queue_id):
     queue_name = queue_id
     tasks = 0
-    with os.popen('sinfo -Nelh -p '+queue_name) as f:
+    with os.popen('sinfo -Nelh -p ' + queue_name) as f:
         line = f.readline()
         new_line = re.sub(' +', ' ', line.strip())
         tasks = int(new_line.split(' ')[4])
@@ -82,7 +82,7 @@ def node_config(queue_id):
     queue_name = queue_id
     tasks = 0
     config = {}
-    with os.popen('sinfo -Nelh -p '+queue_name) as f:
+    with os.popen('sinfo -Nelh -p ' + queue_name) as f:
         line = f.readline()
         if len(line):
             new_line = re.sub(' +', ' ', line.strip())
@@ -92,7 +92,8 @@ def node_config(queue_id):
             config['max thread'] = tasks
             config['max memory'] = memory
         else:
-            raise StandardError("Requested partition %s has no nodes" % queue_name)
+            raise Exception(
+                "Requested partition %s has no nodes" % queue_name)
 
     return config
 
@@ -131,39 +132,40 @@ def create_submit(queue_id, **kwargs):
     if ':' not in wall_clock:
         wall_clock = wall_clock + ':00:00'
 
-    num_nodes = int(math.ceil(float(num_tasks)/float(tpn)))
+    num_nodes = int(math.ceil(float(num_tasks) / float(tpn)))
 
-    num_queue_slots = num_nodes*queue_tpn
+    num_queue_slots = num_nodes * queue_tpn
 
     no_syscribe = kwargs.get('no_syscribe', False)
 
     record_job = not no_syscribe
-  
+
     openmpi_args = kwargs.get('openmpi_args', "-bysocket -bind-to-socket")
 
     qos = kwargs.get('qos', None)
- 
+
     template = load_template('slurm.jinja')
 
-    script_str = template.render(my_name = my_name,
-                                 my_script = my_script,
-                                 my_output = my_output,
-                                 user_email = user_email,
-                                 queue_name = queue_name,
-                                 num_queue_slots = num_queue_slots,
-                                 num_tasks = num_tasks,
-                                 tpn = tpn,
-                                 num_threads_per_task = num_threads_per_task,
-                                 num_nodes = num_nodes,
-                                 project_name =  project_name,
-                                 wall_clock = wall_clock,
-                                 record_job = record_job,
-                                 openmpi_args =  openmpi_args,
-                                 qos = qos)
+    script_str = template.render(my_name=my_name,
+                                 my_script=my_script,
+                                 my_output=my_output,
+                                 user_email=user_email,
+                                 queue_name=queue_name,
+                                 num_queue_slots=num_queue_slots,
+                                 num_tasks=num_tasks,
+                                 tpn=tpn,
+                                 num_threads_per_task=num_threads_per_task,
+                                 num_nodes=num_nodes,
+                                 project_name=project_name,
+                                 wall_clock=wall_clock,
+                                 record_job=record_job,
+                                 openmpi_args=openmpi_args,
+                                 qos=qos)
     return script_str
 
 
-def submit(script_name, immediate, depends_on = None, depends_on_always_run = False):
+def submit(script_name, immediate, depends_on=None,
+           depends_on_always_run=False):
     job_id = None
     if not immediate:
         if depends_on and depends_on_always_run:
@@ -172,36 +174,36 @@ def submit(script_name, immediate, depends_on = None, depends_on_always_run = Fa
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output   
+                    print 'Job submission failed: ' + output
         elif depends_on is not None:
             with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output   
+                    print 'Job submission failed: ' + output
         else:
-            with os.popen('sbatch '+script_name) as f:
+            with os.popen('sbatch ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: '+output
+                    print 'Job submission failed: ' + output
                 # Get job id and record in database
     else:
-        with os.popen('grep -- "SBATCH -p" ' + script_name
-                      + ' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH -p" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             partition = f.readline().rstrip()
-        with os.popen('grep -- "SBATCH --nodes" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH --nodes" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             nnodes = f.readline().rstrip()
-        with os.popen('grep -- "SBATCH --ntasks" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH --ntasks" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             ntasks = f.readline().rstrip()
-        with os.popen('grep -- "SBATCH -A" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH -A" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             project = f.readline().rstrip()
-        with os.popen('grep -- "SBATCH -J" '+script_name+' | sed \'s/#SBATCH//\'') as f:
+        with os.popen('grep -- "SBATCH -J" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
             job = f.readline().rstrip()
 
-        cmd_line = 'salloc --exclusive '+nnodes+' '+partition+' '+ntasks+' '+project+' '+job+' bash ./'+script_name
+        cmd_line = 'salloc --exclusive ' + nnodes + ' ' + partition + ' ' + \
+            ntasks + ' ' + project + ' ' + job + ' bash ./' + script_name
         print cmd_line
 
         import subprocess
@@ -226,7 +228,7 @@ def status():
     status_dict = {}
     with os.popen('squeue -u `whoami`') as f:
         try:
-            f.readline() # read header
+            f.readline()  # read header
             for line in f:
                 new_line = re.sub(' +', ' ', line.strip())
                 job_id = int(new_line.split(' ')[0])
@@ -243,7 +245,7 @@ def status():
 
 def job_stats(job_id):
     stats_dict = {}
-    with os.popen('sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode -P -j '+str(job_id)) as f:
+    with os.popen('sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode -P -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             first_line = line.split('|')
@@ -278,7 +280,8 @@ def job_stats(job_id):
             elif next_line:
                 stats_dict['exit_code'] = int(next_line[7].split(':')[0])
 
-            # stats_dict['mem'] = 0 #float(new_line.split(' ')[4])*int(new_line.split(' ')[3])
+            # stats_dict['mem'] = 0 #float(new_line.split('
+            # ')[4])*int(new_line.split(' ')[3])
         except:
             print('SLURM: Error reading job stats')
 
@@ -299,7 +302,7 @@ def job_stats_enhanced(job_id):
     Get full job and step stats for job_id
     """
     stats_dict = {}
-    with os.popen('sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode,start,end -P -j '+str(job_id)) as f:
+    with os.popen('sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode,start,end -P -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             if line in ["SLURM accounting storage is disabled",
@@ -342,7 +345,7 @@ def job_stats_enhanced(job_id):
                 except:
                     print('SLURM: Error reading job stats')
                     stats_dict['status'] = 'UNKNOWN'
-    with os.popen('squeue --format %%S -h -j '+str(job_id)) as f:
+    with os.popen('squeue --format %%S -h -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             if len(line) > 0:
@@ -353,12 +356,13 @@ def job_stats_enhanced(job_id):
             print('SLURM: Error getting start time')
     return stats_dict
 
+
 def is_in_queue(job_id):
     with os.popen('squeue -j %s' % job_id) as f:
         try:
-            f.readline() # read header
+            f.readline()  # read header
             for line in f:
-                new_line = re.sub(' +',' ',line.strip())
+                new_line = re.sub(' +', ' ', line.strip())
                 q_id = int(new_line.split(' ')[0])
                 if q_id == job_id:
                     return True
@@ -369,7 +373,7 @@ def is_in_queue(job_id):
 
 def running_stats(job_id):
     stats_dict = {}
-    with os.popen('sacct --noheader --format Elapsed -j '+str(job_id)) as f:
+    with os.popen('sacct --noheader --format Elapsed -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
@@ -377,25 +381,14 @@ def running_stats(job_id):
         except:
             pass
 
-    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j '
-                  + str(job_id)) as f:
+    with os.popen('sstat --noheader --format AveCPU,AveRSS,NTasks -j ' + str(job_id)) as f:
         try:
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
             ntasks = int(new_line.split(' ')[2])
-            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', ''))
-                                 * ntasks)
+            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', '')) * ntasks)
             stats_dict['cpu'] = '-'  # float(new_line.split(' ')[0])*ntasks
         except:
             pass
 
     return stats_dict
-
-
-
-
-
-
-
-
-
