@@ -4,8 +4,6 @@
 #
 # Job name
 #PBS -N {{my_name}}
-# Redirect output stream to this file.
-#PBS -o {{my_output}}.$PBS_JOBID
 # Join the error stream to the output stream.
 #PBS -j oe
 # Send status information to this email address.
@@ -19,8 +17,7 @@
 # Maximum wall clock
 #PBS -l walltime={{wall_clock}}
 # Request number of nodes
-#PBS -l nodes={{num_nodes}}:ppn={{tpn}}
-
+#PBS -l select={{num_nodes}}
 
 export MYCLUSTER_QUEUE={{queue_name}}
 export MYCLUSTER_JOB_NAME={{my_name}}

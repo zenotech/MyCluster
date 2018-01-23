@@ -131,7 +131,7 @@ def create_submit(queue_id, **kwargs):
 
 def submit(script_name, immediate, depends=None):
     job_id = None
-    with os.popen('qsub' + script_name) as f:
+    with os.popen('qsub ' + script_name) as f:
         job_id = 0
         try:
             job_id = f.readline.strip()
