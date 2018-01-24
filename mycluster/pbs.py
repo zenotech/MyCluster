@@ -5,7 +5,7 @@ import subprocess
 
 from .mycluster import get_data
 from .mycluster import load_template
-
+from .mycluster import get_timedelta
 
 def scheduler_type():
     return 'pbs'
@@ -202,7 +202,11 @@ def job_stats_enhanced(job_id):
                 elif line.startswith('stime'):
                     stats_dict['start'] = line.split('=')[1].strip()
                 line = f.readline().strip()
-        except:
+            if stats_dict['status'] == 'F' and 'exit_code' not in stats_dict:
+                stats_dict['status'] = 'CA'
+            elif stats_dict['status'] == 'F' and stats_dict['exit_code'] == '0':
+                stats_dict['status'] = 'PBS_F'
+        except Exception as e:
             with os.popen('qstat -xaw ' + str(job_id)) as f:
                 try:
                     output = f.readlines()
