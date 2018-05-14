@@ -7,6 +7,7 @@ from .mycluster import get_data
 from .mycluster import load_template
 from .mycluster import get_timedelta
 
+
 def scheduler_type():
     return 'pbs'
 
@@ -176,6 +177,7 @@ def job_stats(job_id):
 
     return stats_dict
 
+
 def job_stats_enhanced(job_id):
     """
     Get full job and step stats for job_id
@@ -223,6 +225,7 @@ def job_stats_enhanced(job_id):
                     print('PBS: Error reading job stats')
                     stats_dict['status'] = 'UNKNOWN'
     return stats_dict
+
 
 def running_stats(job_id):
     stats_dict = {}
