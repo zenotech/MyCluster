@@ -15,5 +15,5 @@ install:
     - pip install -r requirements.txt
     - pip install pycodestyle
 script:
-    - pycodestyle --ignore=E501,E722 mycluster
+    - pycodestyle --ignore=E501,E722,W504,W605 mycluster
     - nosetests
