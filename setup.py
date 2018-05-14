@@ -29,7 +29,7 @@ setup(
     classifiers=classifiers,
     description='Utilities to support interacting with multiple HPC clusters',
     long_description=open('README.md').read(),
-    install_requires=['ZODB', 'SysScribe', 'fabric', 'zodbpickle', 'Jinja2'],
+    install_requires=['ZODB', 'SysScribe', 'fabric<2.0', 'zodbpickle', 'Jinja2'],
     scripts=['scripts/mycluster'],
     include_package_data=True,
     package_data={
