@@ -54,6 +54,8 @@ export I_MPI_PIN_DOMAIN=omp:compact # Domains are $$OMP_NUM_THREADS cores in siz
 export I_MPI_PIN_ORDER=scatter # Adjacent domains have minimal sharing of caches/sockets
 #export I_MPI_FABRICS=shm:ofa
 export IMPI_CMD="mpiexec -n $NUM_TASKS -ppn $TASKS_PER_NODE"
+export I_MPI_HYDRA_BOOTSTRAP=lsf
+export I_MPI_LSF_USE_COLLECTIVE_LAUNCH=1
 
 # Summarise environment
 echo -e "JobID: $LSB_JOBID\n======"
