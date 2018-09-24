@@ -34,14 +34,58 @@ def accounts():
     return []
 
 
+def _get_vnode_name(queue_id):
+    try:
+        output = subprocess.check_output(['qstat', '-Qf', queue_id])
+        for line in output.splitlines():
+            if line.strip().startswith("default_chunk.vntype"):
+                return line.split("=")[-1].strip()
+    except Exception as e:
+        print "ERROR"
+        print e
+    return None
+
+
 def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0
+    assigned_tasks = 0
+    try:
+        vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+        for line in output.splitlines():
+            for item in line.split("|"):
+                [key, value] = item.strip().split('=')
+                if key.strip() == 'resources_available.ncpus':
+                    max_tasks += int(value)
+                elif key.strip() == 'resources_assigned.ncpus':
+                    assigned_tasks += int(value)
+        free_tasks = max_tasks - assigned_tasks
+    except Exception as e:
+        print "ERROR"
+        print e
+        pass
     return {'available': free_tasks, 'max tasks': max_tasks}
 
 
 def tasks_per_node(queue_id):
-    return 2
+    tpn = 1
+    try:
+        vnode_type = vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+            for line in output.splitlines():
+                for item in line.split("|"):
+                    [key, value] = item.strip().split('=')
+                    if key.strip() == 'resources_available.ncpus':
+                        if int(value) > tpn:
+                            tpn = int(value)
+    except Exception as e:
+        print "ERROR"
+        print e
+        pass
+    return tpn
 
 
 def min_tasks_per_node(queue_id):
@@ -49,7 +93,29 @@ def min_tasks_per_node(queue_id):
 
 
 def node_config(queue_id):
-    return {'max thread': 1, 'max memory': "Unknown"}
+    max_threads = 1
+    max_memory = 1 
+    try:
+        tpn = tasks_per_node(queue_id)
+        vnode_type = vnode_type = vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+        for line in output.splitlines():
+            for item in line.split("|"):
+                [key, value] = item.strip().split('=')
+                if key.strip() == 'resources_available.vps_per_ppu':
+                    if int(value) > max_threads:
+                        max_threads = int(value) * tpn
+                if key.strip() == 'resources_available.mem':
+                    # strip kb and convert to mb
+                    mem = float(value[:-2]) / 1024
+                    if mem > max_memory:
+                        max_memory = mem
+    except Exception as e:
+        print "ERROR"
+        print e
+        pass
+    return {'max thread': max_threads, 'max memory': max_memory}
 
 
 def create_submit(queue_id, **kwargs):
