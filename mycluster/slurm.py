@@ -388,7 +388,8 @@ def running_stats(job_id):
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
             ntasks = int(new_line.split(' ')[2])
-            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', '')) * ntasks)
+            stats_dict['mem'] = (
+                float(new_line.split(' ')[1].replace('K', '')) * ntasks)
             stats_dict['cpu'] = '-'  # float(new_line.split(' ')[0])*ntasks
         except:
             pass

@@ -213,8 +213,8 @@ def printjobs(num_lines):
             try:
                 efficiency = (
                     old_div(time_ratio,
-                    (int(jobs[j].num_tasks) * int(jobs[j].threads_per_task)) *
-                    100.0))
+                            (int(jobs[j].num_tasks) * int(jobs[j].threads_per_task)) *
+                            100.0))
                 efficiency = '{:.1f}'.format(efficiency)
             except:
                 pass
@@ -245,8 +245,8 @@ def printjobs(num_lines):
                 try:
                     efficiency = (
                         old_div(time_ratio,
-                        (int(jobs[j].num_tasks) *
-                         int(jobs[j].threads_per_task)) * 100.0))
+                                (int(jobs[j].num_tasks) *
+                                 int(jobs[j].threads_per_task)) * 100.0))
                     efficiency = '{:.1f}'.format(efficiency)
                 except:
                     pass
