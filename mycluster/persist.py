@@ -1,4 +1,6 @@
 
+from builtins import str
+from builtins import object
 from persistent import Persistent
 from ZODB import FileStorage, DB
 from .mycluster import get_directory, scheduler

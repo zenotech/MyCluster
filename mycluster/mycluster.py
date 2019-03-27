@@ -1,4 +1,7 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 import sys
 import os
 from subprocess import Popen, PIPE, check_output
@@ -209,9 +212,9 @@ def printjobs(num_lines):
         if time_ratio:
             try:
                 efficiency = (
-                    time_ratio /
+                    old_div(time_ratio,
                     (int(jobs[j].num_tasks) * int(jobs[j].threads_per_task)) *
-                    100.0)
+                    100.0))
                 efficiency = '{:.1f}'.format(efficiency)
             except:
                 pass
@@ -241,9 +244,9 @@ def printjobs(num_lines):
             if time_ratio:
                 try:
                     efficiency = (
-                        time_ratio /
+                        old_div(time_ratio,
                         (int(jobs[j].num_tasks) *
-                         int(jobs[j].threads_per_task)) * 100.0)
+                         int(jobs[j].threads_per_task)) * 100.0))
                     efficiency = '{:.1f}'.format(efficiency)
                 except:
                     pass
