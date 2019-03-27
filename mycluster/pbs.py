@@ -55,7 +55,8 @@ def available_tasks(queue_id):
     try:
         vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
         for line in output.splitlines():
             for item in line.split("|"):
                 [key, value] = item.strip().split('=')
@@ -76,7 +77,8 @@ def tasks_per_node(queue_id):
     try:
         vnode_type = vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
             for line in output.splitlines():
                 for item in line.split("|"):
                     [key, value] = item.strip().split('=')
@@ -96,12 +98,13 @@ def min_tasks_per_node(queue_id):
 
 def node_config(queue_id):
     max_threads = 1
-    max_memory = 1 
+    max_memory = 1
     try:
         tpn = tasks_per_node(queue_id)
         vnode_type = vnode_type = vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output('pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell = True)
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
         for line in output.splitlines():
             for item in line.split("|"):
                 [key, value] = item.strip().split('=')
@@ -256,7 +259,8 @@ def job_stats_enhanced(job_id):
             line = f.readline().strip()
             while line:
                 if line.startswith('Job Id:'):
-                    stats_dict['job_id'] = line.split(':')[1].split('.')[0].strip()
+                    stats_dict['job_id'] = line.split(
+                        ':')[1].split('.')[0].strip()
                 elif line.startswith('resources_used.walltime'):
                     stats_dict['wallclock'] = get_timedelta(line.split('=')[1])
                 elif line.startswith('resources_used.cput'):
