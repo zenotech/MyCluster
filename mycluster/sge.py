@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 import math
@@ -330,8 +331,8 @@ def submit(script_name, immediate, depends=None):
         try:
             job_id = int(f.readline().strip())
         except:
-            print 'job id not returned'
-            print f.readline()
+            print('job id not returned')
+            print(f.readline())
             pass
         # Get job id and record in database
     return job_id
@@ -355,7 +356,7 @@ def status():
 
                 status_dict[job_id] = state
         except e:
-            print e
+            print(e)
 
     return status_dict
 

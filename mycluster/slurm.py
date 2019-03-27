@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 import re
@@ -174,21 +175,21 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         elif depends_on is not None:
             with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         else:
             with os.popen('sbatch ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
                 # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
@@ -204,7 +205,7 @@ def submit(script_name, immediate, depends_on=None,
 
         cmd_line = 'salloc --exclusive ' + nnodes + ' ' + partition + ' ' + \
             ntasks + ' ' + project + ' ' + job + ' bash ./' + script_name
-        print cmd_line
+        print(cmd_line)
 
         import subprocess
         try:
@@ -238,7 +239,7 @@ def status():
                 else:
                     status_dict[job_id] = state
         except Exception as e:
-            print e
+            print(e)
 
     return status_dict
 

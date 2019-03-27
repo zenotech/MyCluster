@@ -32,6 +32,7 @@
 #   include RELEASE-VERSION
 
 
+from __future__ import print_function
 from subprocess import Popen, PIPE
 import os
 import sys
@@ -132,4 +133,4 @@ def get_git_version(abbrev=4):
 
 
 if __name__ == "__main__":
-    print get_git_version()
+    print(get_git_version())

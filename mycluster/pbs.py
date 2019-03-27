@@ -1,3 +1,4 @@
+from __future__ import print_function
 import math
 import os
 from string import Template
@@ -24,8 +25,8 @@ def queues():
         for queue in lines:
             queue_list.append(queue.split(' ')[0])
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
         pass
     return queue_list
 
@@ -41,8 +42,8 @@ def _get_vnode_name(queue_id):
             if line.strip().startswith("default_chunk.vntype"):
                 return line.split("=")[-1].strip()
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
     return None
 
 
@@ -63,8 +64,8 @@ def available_tasks(queue_id):
                     assigned_tasks += int(value)
         free_tasks = max_tasks - assigned_tasks
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
         pass
     return {'available': free_tasks, 'max tasks': max_tasks}
 
@@ -82,8 +83,8 @@ def tasks_per_node(queue_id):
                         if int(value) > tpn:
                             tpn = int(value)
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
         pass
     return tpn
 
@@ -112,8 +113,8 @@ def node_config(queue_id):
                     if mem > max_memory:
                         max_memory = mem
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
         pass
     return {'max thread': max_threads, 'max memory': max_memory}
 
@@ -206,23 +207,23 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         elif depends_on is not None:
             with os.popen('qsub -W depend=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         else:
             with os.popen('qsub ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
     else:
-        print "immediate not yet implemented for PBS"
+        print("immediate not yet implemented for PBS")
     return job_id
 
 
