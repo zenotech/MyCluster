@@ -167,23 +167,29 @@ def create_submit(queue_id, **kwargs):
 def submit(script_name, immediate, depends_on=None,
            depends_on_always_run=False):
     job_id = None
+    
+    # Enable external specification of additional options
+    additional_cmd = ''
+    if 'MYCLUSTER_SUBMIT_OPT' in os.environ:
+        aditional_cmd = os.environ['MYCLUSTER_SUBMIT_OPT']
+    
     if not immediate:
         if depends_on and depends_on_always_run:
-            with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterany:%s %s' % (depends_on, script_name)) as f:
+            with os.popen('sbatch %s --kill-on-invalid-dep=yes --dependency=afterany:%s %s' % (aditional_cmd, depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
                     print 'Job submission failed: ' + output
         elif depends_on is not None:
-            with os.popen('sbatch --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (depends_on, script_name)) as f:
+            with os.popen('sbatch %s --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (aditional_cmd, depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
                     print 'Job submission failed: ' + output
         else:
-            with os.popen('sbatch ' + script_name) as f:
+            with os.popen('sbatch %s %s' % (aditional_cmd, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
