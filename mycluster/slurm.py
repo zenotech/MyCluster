@@ -167,12 +167,12 @@ def create_submit(queue_id, **kwargs):
 def submit(script_name, immediate, depends_on=None,
            depends_on_always_run=False):
     job_id = None
-    
+
     # Enable external specification of additional options
     additional_cmd = ''
     if 'MYCLUSTER_SUBMIT_OPT' in os.environ:
         aditional_cmd = os.environ['MYCLUSTER_SUBMIT_OPT']
-    
+
     if not immediate:
         if depends_on and depends_on_always_run:
             with os.popen('sbatch %s --kill-on-invalid-dep=yes --dependency=afterany:%s %s' % (aditional_cmd, depends_on, script_name)) as f:
