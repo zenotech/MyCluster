@@ -301,7 +301,7 @@ def create_submit(queue_id, script_name=None, **kwargs):
             email = job_db.user_db['user'].email
             if email != 'unknown':
                 kwargs['user_email'] = email
-    
+
         if 'MYCLUSTER_EMAIL' in os.environ:
             kwargs['user_email'] = os.environ['MYCLUSTER_EMAIL']
 
