@@ -296,11 +296,14 @@ def print_queue_info():
 
 def create_submit(queue_id, script_name=None, **kwargs):
 
-    if job_db is not None:
-        if 'user_email' not in kwargs:
+    if 'user_email' not in kwargs:
+        if job_db is not None:
             email = job_db.user_db['user'].email
             if email != 'unknown':
                 kwargs['user_email'] = email
+
+        if 'MYCLUSTER_EMAIL' in os.environ:
+            kwargs['user_email'] = os.environ['MYCLUSTER_EMAIL']
 
     if scheduler is not None:
         script = scheduler.create_submit(queue_id, **kwargs)
