@@ -113,7 +113,7 @@ def create_submit(queue_id, **kwargs):
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']

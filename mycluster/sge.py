@@ -257,8 +257,9 @@ def create_submit(queue_id, **kwargs):
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
+
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     nc = node_config(queue_id)
     qc = available_tasks(queue_id)
