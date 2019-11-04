@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import str
 import os
 import re
 import math
@@ -255,8 +257,9 @@ def create_submit(queue_id, **kwargs):
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
+
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     nc = node_config(queue_id)
     qc = available_tasks(queue_id)
@@ -330,8 +333,8 @@ def submit(script_name, immediate, depends=None):
         try:
             job_id = int(f.readline().strip())
         except:
-            print 'job id not returned'
-            print f.readline()
+            print('job id not returned')
+            print(f.readline())
             pass
         # Get job id and record in database
     return job_id
@@ -355,7 +358,7 @@ def status():
 
                 status_dict[job_id] = state
         except e:
-            print e
+            print(e)
 
     return status_dict
 

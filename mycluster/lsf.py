@@ -1,4 +1,6 @@
+from __future__ import print_function
 
+from builtins import str
 import os
 import re
 import math
@@ -117,8 +119,9 @@ def create_submit(queue_id, **kwargs):
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
+
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     nc = node_config(queue_id)
     qc = available_tasks(queue_id)
@@ -190,7 +193,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     elif depends_on is not None:
         cmd = 'bsub -w "done(%s)" < %s ' % (depends_on, script_name)
         with os.popen(cmd) as f:
@@ -199,7 +202,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     else:
         with os.popen('bsub <' + script_name) as f:
             output = f.readline()
@@ -207,7 +210,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print 'Job submission failed: ' + output
+                print('Job submission failed: ' + output)
     return job_id
 
 
@@ -230,7 +233,7 @@ def status():
                 else:
                     status_dict[job_id] = state
         except e:
-            print e
+            print(e)
 
     return status_dict
 

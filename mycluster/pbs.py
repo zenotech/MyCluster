@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import str
 import math
 import os
 from string import Template
@@ -24,8 +26,8 @@ def queues():
         for queue in lines:
             queue_list.append(queue.split(' ')[0])
     except Exception as e:
-        print "ERROR"
-        print e
+        print("ERROR")
+        print(e)
         pass
     return queue_list
 
@@ -34,14 +36,60 @@ def accounts():
     return []
 
 
+def _get_vnode_name(queue_id):
+    try:
+        output = subprocess.check_output(['qstat', '-Qf', queue_id])
+        for line in output.splitlines():
+            if line.strip().startswith("default_chunk.vntype"):
+                return line.split("=")[-1].strip()
+    except Exception as e:
+        print("ERROR")
+        print(e)
+    return None
+
+
 def available_tasks(queue_id):
     free_tasks = 0
     max_tasks = 0
+    assigned_tasks = 0
+    try:
+        vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
+        for line in output.splitlines():
+            for item in line.split("|"):
+                [key, value] = item.strip().split('=')
+                if key.strip() == 'resources_available.ncpus':
+                    max_tasks += int(value)
+                elif key.strip() == 'resources_assigned.ncpus':
+                    assigned_tasks += int(value)
+        free_tasks = max_tasks - assigned_tasks
+    except Exception as e:
+        print("ERROR")
+        print(e)
+        pass
     return {'available': free_tasks, 'max tasks': max_tasks}
 
 
 def tasks_per_node(queue_id):
-    return 2
+    tpn = 1
+    try:
+        vnode_type = vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
+            for line in output.splitlines():
+                for item in line.split("|"):
+                    [key, value] = item.strip().split('=')
+                    if key.strip() == 'resources_available.ncpus':
+                        if int(value) > tpn:
+                            tpn = int(value)
+    except Exception as e:
+        print("ERROR")
+        print(e)
+        pass
+    return tpn
 
 
 def min_tasks_per_node(queue_id):
@@ -49,7 +97,30 @@ def min_tasks_per_node(queue_id):
 
 
 def node_config(queue_id):
-    return {'max thread': 1, 'max memory': "Unknown"}
+    max_threads = 1
+    max_memory = 1
+    try:
+        tpn = tasks_per_node(queue_id)
+        vnode_type = vnode_type = vnode_type = _get_vnode_name(queue_id)
+        if vnode_type is not None:
+            output = subprocess.check_output(
+                'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
+        for line in output.splitlines():
+            for item in line.split("|"):
+                [key, value] = item.strip().split('=')
+                if key.strip() == 'resources_available.vps_per_ppu':
+                    if int(value) > max_threads:
+                        max_threads = int(value) * tpn
+                if key.strip() == 'resources_available.mem':
+                    # strip kb and convert to mb
+                    mem = float(value[:-2]) / 1024
+                    if mem > max_memory:
+                        max_memory = mem
+    except Exception as e:
+        print("ERROR")
+        print(e)
+        pass
+    return {'max thread': max_threads, 'max memory': max_memory}
 
 
 def create_submit(queue_id, **kwargs):
@@ -61,8 +132,9 @@ def create_submit(queue_id, **kwargs):
 
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
+
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     nc = node_config(queue_id)
     qc = available_tasks(queue_id)
@@ -140,23 +212,23 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         elif depends_on is not None:
             with os.popen('qsub -W depend=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         else:
             with os.popen('qsub ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
     else:
-        print "immediate not yet implemented for PBS"
+        print("immediate not yet implemented for PBS")
     return job_id
 
 
@@ -188,7 +260,8 @@ def job_stats_enhanced(job_id):
             line = f.readline().strip()
             while line:
                 if line.startswith('Job Id:'):
-                    stats_dict['job_id'] = line.split(':')[1].split('.')[0].strip()
+                    stats_dict['job_id'] = line.split(
+                        ':')[1].split('.')[0].strip()
                 elif line.startswith('resources_used.walltime'):
                     stats_dict['wallclock'] = get_timedelta(line.split('=')[1])
                 elif line.startswith('resources_used.cput'):

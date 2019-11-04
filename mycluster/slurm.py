@@ -1,4 +1,6 @@
+from __future__ import print_function
 
+from builtins import str
 import os
 import re
 import math
@@ -111,7 +113,7 @@ def create_submit(queue_id, **kwargs):
     tpn = tasks_per_node(queue_id)
     queue_tpn = tpn
     if 'tasks_per_node' in kwargs:
-        tpn = min(tpn, kwargs['tasks_per_node'])
+        tpn = kwargs['tasks_per_node']
 
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']
@@ -180,21 +182,21 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         elif depends_on is not None:
             with os.popen('sbatch %s --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (additional_cmd, depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
         else:
             with os.popen('sbatch %s %s' % (additional_cmd, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print 'Job submission failed: ' + output
+                    print('Job submission failed: ' + output)
                 # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
@@ -210,7 +212,7 @@ def submit(script_name, immediate, depends_on=None,
 
         cmd_line = 'salloc --exclusive ' + nnodes + ' ' + partition + ' ' + \
             ntasks + ' ' + project + ' ' + job + ' bash ./' + script_name
-        print cmd_line
+        print(cmd_line)
 
         import subprocess
         try:
@@ -244,7 +246,7 @@ def status():
                 else:
                     status_dict[job_id] = state
         except Exception as e:
-            print e
+            print(e)
 
     return status_dict
 
@@ -392,7 +394,8 @@ def running_stats(job_id):
             line = f.readline()
             new_line = re.sub(' +', ' ', line.strip())
             ntasks = int(new_line.split(' ')[2])
-            stats_dict['mem'] = (float(new_line.split(' ')[1].replace('K', '')) * ntasks)
+            stats_dict['mem'] = (
+                float(new_line.split(' ')[1].replace('K', '')) * ntasks)
             stats_dict['cpu'] = '-'  # float(new_line.split(' ')[0])*ntasks
         except:
             pass
