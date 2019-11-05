@@ -49,7 +49,7 @@ def call_git_describe(abbrev=4):
         if return_code == 0:
             p.stderr.close()
             line = p.stdout.readlines()[0]
-            return str(line.strip())
+            return line.strip().decode("utf-8")
         else:
             p.stderr.close()
             p.stdout.close()
@@ -57,7 +57,7 @@ def call_git_describe(abbrev=4):
                       stdout=PIPE, stderr=PIPE)
             p.stderr.close()
             line = p.stdout.readlines()[0]
-            return str(line.strip())
+            return line.strip().decode("utf-8")
     except Exception as e:
         return None
 
