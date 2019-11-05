@@ -29,3 +29,4 @@ deploy:
     tags: true
     branch: master
   skip_cleanup: true
+  skip_existing: true
