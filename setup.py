@@ -28,6 +28,7 @@ setup(
     url='https://github.com/zenotech/MyCluster',
     classifiers=classifiers,
     description='Utilities to support interacting with multiple HPC clusters',
+    long_description_content_type="text/markdown",
     long_description=open('README.md').read(),
     install_requires=['ZODB', 'SysScribe', 'future', 'fabric3', 'zodbpickle', 'Jinja2'],
     scripts=['scripts/mycluster'],
