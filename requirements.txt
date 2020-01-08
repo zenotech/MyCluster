@@ -2,6 +2,6 @@ future
 Fabric3
 ZODB==5.5.1
 SysScribe==0.1.2
-zodbpickle==0.7.0
+zodbpickle==1.0.3
 nose==1.3.7
 Jinja2>=2.10.1
