@@ -334,7 +334,7 @@ def submit(script_name, immediate, depends=None):
             job_id = int(f.readline().strip())
         except:
             print('job id not returned')
-            print(f.readline())
+            print((f.readline()))
             pass
         # Get job id and record in database
     return job_id

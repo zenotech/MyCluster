@@ -212,21 +212,21 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         elif depends_on is not None:
             with os.popen('qsub -W depend=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         else:
             with os.popen('qsub ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
     else:
         print("immediate not yet implemented for PBS")
     return job_id

@@ -182,21 +182,21 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         elif depends_on is not None:
             with os.popen('sbatch %s --kill-on-invalid-dep=yes --dependency=afterok:%s %s' % (additional_cmd, depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         else:
             with os.popen('sbatch %s %s' % (additional_cmd, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = int(output.split(' ')[-1].strip())
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
                 # Get job id and record in database
     else:
         with os.popen('grep -- "SBATCH -p" ' + script_name + ' | sed \'s/#SBATCH//\'') as f:
@@ -219,9 +219,9 @@ def submit(script_name, immediate, depends_on=None,
             try:
                 job_id = int(output.split(' ')[-1].strip())
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
         except:
-            print('Job submission failed: ' + cmd_line)
+            print(('Job submission failed: ' + cmd_line))
 
     return job_id
 

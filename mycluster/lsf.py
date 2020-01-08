@@ -195,7 +195,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     elif depends_on is not None:
         cmd = 'bsub -w "done(%s)" < %s ' % (depends_on, script_name)
         with os.popen(cmd) as f:
@@ -204,7 +204,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     else:
         with os.popen('bsub <' + script_name) as f:
             output = f.readline()
@@ -212,7 +212,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     return job_id
 
 
