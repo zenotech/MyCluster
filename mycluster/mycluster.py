@@ -1,10 +1,9 @@
-from __future__ import print_function
-from __future__ import division
+
+
 from past.utils import old_div
 import io
 import sys
 import os
-from subprocess import Popen, PIPE, check_output
 import time
 import uuid
 from datetime import timedelta
@@ -17,6 +16,14 @@ JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
 
 scheduler = None
 job_db = None
+
+
+def check_output(**kwargs):
+    """
+    check_output wrapper that decodes to a str instead of bytes
+    """
+    from subprocess import check_output as sp_check_output
+    return sp_check_output.decode('UTF-8')
 
 
 def get_data(filename):
@@ -50,7 +57,7 @@ def detect_scheduling_sys():
 
     try:
         line = check_output(['scontrol', 'ping'])
-        if line.split(b'(')[0] == b'Slurmctld':
+        if line.split('(')[0] == 'Slurmctld':
             return my_import('mycluster.slurm')
     except:
         pass
@@ -69,7 +76,7 @@ def detect_scheduling_sys():
     # Test for lsf
     try:
         line = check_output('lsid')
-        if line.split(b' ')[0] == b'Platform' or line.split(b' ')[0] == b'IBM':
+        if line.split(' ')[0] == 'Platform' or line.split(' ')[0] == 'IBM':
             return my_import('mycluster.lsf')
     except:
         pass

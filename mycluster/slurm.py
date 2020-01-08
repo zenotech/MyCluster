@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 from builtins import str
 import os
@@ -6,8 +6,8 @@ import re
 import math
 from string import Template
 # from datetime import timedelta
+from .mycluster import check_output
 from .mycluster import get_timedelta
-# from subprocess import Popen, PIPE, check_output
 from .mycluster import get_data
 from .mycluster import load_template
 
@@ -214,9 +214,8 @@ def submit(script_name, immediate, depends_on=None,
             ntasks + ' ' + project + ' ' + job + ' bash ./' + script_name
         print(cmd_line)
 
-        import subprocess
         try:
-            output = subprocess.check_output(cmd_line, shell=True)
+            output = check_output(cmd_line, shell=True)
             try:
                 job_id = int(output.split(' ')[-1].strip())
             except:

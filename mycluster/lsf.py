@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 from builtins import str
 import os
@@ -6,9 +6,10 @@ import re
 import math
 from string import Template
 from datetime import timedelta
-from subprocess import Popen, PIPE, check_output
+from subprocess import Popen, PIPE
 from .mycluster import get_data
 from .mycluster import load_template
+from .mycluster import check_output
 
 """
 
@@ -16,6 +17,7 @@ bjobs -u all -q emerald
 bqueues -l emerald
 
 """
+
 
 
 def scheduler_type():
