@@ -2,14 +2,12 @@ from __future__ import print_function
 from __future__ import division
 from builtins import str
 from past.utils import old_div
+import io
 import sys
 import os
 from subprocess import Popen, PIPE, check_output
 import time
 import uuid
-from fabric.api import env, run, cd, get, hide, settings, remote_tunnel, show
-from fabric.tasks import execute
-from fabric.decorators import with_settings
 from datetime import timedelta
 from os.path import join as pj
 
@@ -101,21 +99,19 @@ def remote_sites():
         return []
 
 
-@with_settings(warn_only=True)
 def remote_cmd():
     output_file = '~/.mycluster/' + str(uuid.uuid4())
-    with hide('output', 'running', 'warnings'), settings(warn_only=True):
-        run('mycluster -p >' + output_file, pty=False)
-        import io
-        contents = io.StringIO()
-        get(output_file, contents)
-        # operate on 'contents' like a file object here, e.g. 'print
-        return contents.getvalue()
+    c.run('mycluster -p >' + output_file, pty=False, warn_only=True, hide=('output', 'running', 'warnings'))
+    contents = io.StringIO()
+    c.get(output_file, contents)
+    # operate on 'contents' like a file object here, e.g. 'print
+    return contents.getvalue()
 
 
 def remote_job_list(site):
-    env.use_ssh_config = True
-    return execute(remote_cmd, hosts=[site])
+    return []
+    # TODO: reinstate this
+    #return execute(remote_cmd, hosts=[site])
 
 
 def print_timedelta(td):
