@@ -1,6 +1,5 @@
 from __future__ import print_function
 from __future__ import division
-from builtins import str
 from past.utils import old_div
 import io
 import sys
@@ -51,7 +50,7 @@ def detect_scheduling_sys():
 
     try:
         line = check_output(['scontrol', 'ping'])
-        if line.split('(')[0] == 'Slurmctld':
+        if line.split(b'(')[0] == b'Slurmctld':
             return my_import('mycluster.slurm')
     except:
         pass
@@ -70,7 +69,7 @@ def detect_scheduling_sys():
     # Test for lsf
     try:
         line = check_output('lsid')
-        if line.split(' ')[0] == 'Platform' or line.split(' ')[0] == 'IBM':
+        if line.split(b' ')[0] == b'Platform' or line.split(b' ')[0] == b'IBM':
             return my_import('mycluster.lsf')
     except:
         pass
