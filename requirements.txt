@@ -1,5 +1,5 @@
 future
-Fabric
+fabric>=2.5
 ZODB==5.5.1
 SysScribe==0.1.2
 zodbpickle==0.7.0
