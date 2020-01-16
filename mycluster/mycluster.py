@@ -9,6 +9,8 @@ import uuid
 from datetime import timedelta
 from os.path import join as pj
 
+from fabric import Connection
+
 from jinja2 import Environment, FileSystemLoader
 
 JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
@@ -105,7 +107,7 @@ def remote_sites():
         return []
 
 
-def remote_cmd():
+def remote_cmd(c):
     output_file = '~/.mycluster/' + str(uuid.uuid4())
     c.run('mycluster -p >' + output_file, pty=False, warn_only=True, hide=('output', 'running', 'warnings'))
     contents = io.StringIO()
@@ -115,10 +117,8 @@ def remote_cmd():
 
 
 def remote_job_list(site):
-    return []
-    # TODO: reinstate this
-    #return execute(remote_cmd, hosts=[site])
-
+    c = Connection(site)
+    return remote_cmd(c)
 
 def print_timedelta(td):
     if (td.days > 0):
