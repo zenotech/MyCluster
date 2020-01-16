@@ -19,7 +19,6 @@ bqueues -l emerald
 """
 
 
-
 def scheduler_type():
     return 'lsf'
 

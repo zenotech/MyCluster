@@ -32,7 +32,6 @@
 #   include RELEASE-VERSION
 
 
-
 from subprocess import Popen, PIPE
 import os
 import sys

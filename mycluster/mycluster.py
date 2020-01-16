@@ -120,6 +120,7 @@ def remote_job_list(site):
     c = Connection(site)
     return remote_cmd(c)
 
+
 def print_timedelta(td):
     if (td.days > 0):
         if td.days > 1:
@@ -190,7 +191,7 @@ def get_stats_time(stats):
 
 def printjobs(num_lines):
     print(('User name: {0} {1}'.format(job_db.user_db['user'].first_name,
-                                      job_db.user_db['user'].last_name)))
+                                       job_db.user_db['user'].last_name)))
     jobs = job_list()
     print(('     | {0:^10} | {1:^10} |\
           {2:^10} | {3:^12} | {4:^12} |\
