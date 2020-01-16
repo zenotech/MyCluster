@@ -202,8 +202,7 @@ def printjobs(num_lines):
                                             'Wallclock',
                                             'Util %',
                                             'Job Name',
-                                            'Job Dir',)
-          ))
+                                            'Job Dir',)))
     for i, j in enumerate(jobs):
         job_id = jobs[j].job_id
         status = jobs[j].status
@@ -238,8 +237,7 @@ def printjobs(num_lines):
                                                     wallclock,
                                                     efficiency,
                                                     jobs[j].job_name,
-                                                    jobs[j].job_dir)
-                  ))
+                                                    jobs[j].job_dir)))
         elif status == 'running':
             stats = scheduler.running_stats(job_id)
             cputime, wallclock, time_ratio = get_stats_time(stats)
