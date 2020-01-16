@@ -1,13 +1,13 @@
-from __future__ import print_function
+
 from builtins import str
 import math
 import os
 from string import Template
-import subprocess
 
 from .mycluster import get_data
 from .mycluster import load_template
 from .mycluster import get_timedelta
+from .mycluster import check_output
 
 
 def scheduler_type():
@@ -21,7 +21,7 @@ def name():
 def queues():
     queue_list = []
     try:
-        output = subprocess.check_output(['qstat', '-Q'])
+        output = check_output(['qstat', '-Q'])
         lines = output.splitlines()[2:]
         for queue in lines:
             queue_list.append(queue.split(' ')[0])
@@ -38,7 +38,7 @@ def accounts():
 
 def _get_vnode_name(queue_id):
     try:
-        output = subprocess.check_output(['qstat', '-Qf', queue_id])
+        output = check_output(['qstat', '-Qf', queue_id])
         for line in output.splitlines():
             if line.strip().startswith("default_chunk.vntype"):
                 return line.split("=")[-1].strip()
@@ -55,7 +55,7 @@ def available_tasks(queue_id):
     try:
         vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output(
+            output = check_output(
                 'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
         for line in output.splitlines():
             for item in line.split("|"):
@@ -77,7 +77,7 @@ def tasks_per_node(queue_id):
     try:
         vnode_type = vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output(
+            output = check_output(
                 'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
             for line in output.splitlines():
                 for item in line.split("|"):
@@ -103,7 +103,7 @@ def node_config(queue_id):
         tpn = tasks_per_node(queue_id)
         vnode_type = vnode_type = vnode_type = _get_vnode_name(queue_id)
         if vnode_type is not None:
-            output = subprocess.check_output(
+            output = check_output(
                 'pbsnodes -a -F dsv | grep {}'.format(vnode_type), shell=True)
         for line in output.splitlines():
             for item in line.split("|"):
@@ -212,21 +212,21 @@ def submit(script_name, immediate, depends_on=None,
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         elif depends_on is not None:
             with os.popen('qsub -W depend=afterok:%s %s' % (depends_on, script_name)) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
         else:
             with os.popen('qsub ' + script_name) as f:
                 output = f.readline()
                 try:
                     job_id = output.strip().split('.')[0]
                 except:
-                    print('Job submission failed: ' + output)
+                    print(('Job submission failed: ' + output))
     else:
         print("immediate not yet implemented for PBS")
     return job_id

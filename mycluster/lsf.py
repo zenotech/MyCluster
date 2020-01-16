@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 from builtins import str
 import os
@@ -6,9 +6,10 @@ import re
 import math
 from string import Template
 from datetime import timedelta
-from subprocess import Popen, PIPE, check_output
+from subprocess import Popen, PIPE
 from .mycluster import get_data
 from .mycluster import load_template
+from .mycluster import check_output
 
 """
 
@@ -193,7 +194,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     elif depends_on is not None:
         cmd = 'bsub -w "done(%s)" < %s ' % (depends_on, script_name)
         with os.popen(cmd) as f:
@@ -202,7 +203,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     else:
         with os.popen('bsub <' + script_name) as f:
             output = f.readline()
@@ -210,7 +211,7 @@ def submit(script_name, immediate, depends_on=None,
                 job_id = int(output.split(' ')[1].replace(
                     '<', '').replace('>', ''))
             except:
-                print('Job submission failed: ' + output)
+                print(('Job submission failed: ' + output))
     return job_id
 
 

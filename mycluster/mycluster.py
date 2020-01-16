@@ -1,17 +1,15 @@
-from __future__ import print_function
-from __future__ import division
-from builtins import str
+
+
 from past.utils import old_div
+import io
 import sys
 import os
-from subprocess import Popen, PIPE, check_output
 import time
 import uuid
-from fabric.api import env, run, cd, get, hide, settings, remote_tunnel, show
-from fabric.tasks import execute
-from fabric.decorators import with_settings
 from datetime import timedelta
 from os.path import join as pj
+
+from fabric import Connection
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -20,6 +18,14 @@ JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
 
 scheduler = None
 job_db = None
+
+
+def check_output(**kwargs):
+    """
+    check_output wrapper that decodes to a str instead of bytes
+    """
+    from subprocess import check_output as sp_check_output
+    return sp_check_output.decode('UTF-8')
 
 
 def get_data(filename):
@@ -101,21 +107,18 @@ def remote_sites():
         return []
 
 
-@with_settings(warn_only=True)
-def remote_cmd():
+def remote_cmd(c):
     output_file = '~/.mycluster/' + str(uuid.uuid4())
-    with hide('output', 'running', 'warnings'), settings(warn_only=True):
-        run('mycluster -p >' + output_file, pty=False)
-        import io
-        contents = io.StringIO()
-        get(output_file, contents)
-        # operate on 'contents' like a file object here, e.g. 'print
-        return contents.getvalue()
+    c.run('mycluster -p >' + output_file, pty=False, warn_only=True, hide=('output', 'running', 'warnings'))
+    contents = io.StringIO()
+    c.get(output_file, contents)
+    # operate on 'contents' like a file object here, e.g. 'print
+    return contents.getvalue()
 
 
 def remote_job_list(site):
-    env.use_ssh_config = True
-    return execute(remote_cmd, hosts=[site])
+    c = Connection(site)
+    return remote_cmd(c)
 
 
 def print_timedelta(td):
@@ -187,10 +190,10 @@ def get_stats_time(stats):
 
 
 def printjobs(num_lines):
-    print('User name: {0} {1}'.format(job_db.user_db['user'].first_name,
-                                      job_db.user_db['user'].last_name))
+    print(('User name: {0} {1}'.format(job_db.user_db['user'].first_name,
+                                       job_db.user_db['user'].last_name)))
     jobs = job_list()
-    print('     | {0:^10} | {1:^10} |\
+    print(('     | {0:^10} | {1:^10} |\
           {2:^10} | {3:^12} | {4:^12} |\
           {5:^5} | {6:^20} | {7:50}'.format('Job ID',
                                             'Status',
@@ -199,8 +202,7 @@ def printjobs(num_lines):
                                             'Wallclock',
                                             'Util %',
                                             'Job Name',
-                                            'Job Dir',)
-          )
+                                            'Job Dir',)))
     for i, j in enumerate(jobs):
         job_id = jobs[j].job_id
         status = jobs[j].status
@@ -220,7 +222,7 @@ def printjobs(num_lines):
                 pass
 
         if status == 'completed':
-            print('{0:4} | {1:^10} |\
+            print(('{0:4} | {1:^10} |\
                   {2:^10} | {3:^10} |\
                   {4:^12} | {5:^12} |\
                   {6:^5} | {7:^20} | {8:50}'.format(i + 1,
@@ -235,8 +237,7 @@ def printjobs(num_lines):
                                                     wallclock,
                                                     efficiency,
                                                     jobs[j].job_name,
-                                                    jobs[j].job_dir)
-                  )
+                                                    jobs[j].job_dir)))
         elif status == 'running':
             stats = scheduler.running_stats(job_id)
             cputime, wallclock, time_ratio = get_stats_time(stats)
@@ -250,37 +251,37 @@ def printjobs(num_lines):
                     efficiency = '{:.1f}'.format(efficiency)
                 except:
                     pass
-            print(
+            print((
                 '{0:4} | {1:^10} | {2:^10} |\
                    {3:^10} | {4:^12} | {5:^12} |\
                    {6:^5} | {7:^20} | {8:50}'.
                 format(
                     i + 1, job_id, status, str(jobs[j].num_tasks) + ' (' +
                     str(jobs[j].threads_per_task) + ')', cputime, wallclock,
-                    efficiency, jobs[j].job_name, jobs[j].job_dir))
+                    efficiency, jobs[j].job_name, jobs[j].job_dir)))
         else:
-            print(
+            print((
                 '{0:4} | {1:^10} | {2:^10} |\
                    {3:^10} | {4:^12} | {5:^12} |\
                    {6:^5} | {7:^20} | {8:50}'.
                 format(
                     i + 1, job_id, status, str(jobs[j].num_tasks) + ' (' +
                     str(jobs[j].threads_per_task) + ')', '-', '-', efficiency,
-                    jobs[j].job_name, jobs[j].job_dir))
+                    jobs[j].job_name, jobs[j].job_dir)))
 
     remotes = remote_sites()
     for i, j in enumerate(remotes):
-        print('Remote Site: ' + remotes[j].name)
+        print(('Remote Site: ' + remotes[j].name))
         remote_list = remote_job_list(remotes[j].user + '@' + remotes[j].name)
         for r in remote_list:
-            print(remote_list[r])
+            print((remote_list[r]))
 
 
 def print_queue_info():
-    print('{0:25} | {1:^15} | {2:^15} | {3:^15} |\
+    print(('{0:25} | {1:^15} | {2:^15} | {3:^15} |\
            {4:^15} | {5:^15}'.format('Queue Name', 'Node Max Task',
                                      'Node Max Thread', 'Node Max Memory',
-                                     'Max Task', 'Available Task'))
+                                     'Max Task', 'Available Task')))
     for q in queues():
         try:
             nc = scheduler.node_config(q)
@@ -290,12 +291,12 @@ def print_queue_info():
             nc = None
             tpn = None
             avail = None
-        print('{0:25} | {1:^15} | {2:^15} |\
+        print(('{0:25} | {1:^15} | {2:^15} |\
                {3:^15} | {4:^15} | {5:^15}'.format(q, tpn,
                                                    nc['max thread'],
                                                    nc['max memory'],
                                                    avail['max tasks'],
-                                                   avail['available']))
+                                                   avail['available'])))
 
 
 def create_submit(queue_id, script_name=None, **kwargs):
@@ -318,8 +319,8 @@ def create_submit(queue_id, script_name=None, **kwargs):
                 with open(script_name, 'w') as f:
                     f.write(script)
             else:
-                print('Warning file: {0} already exists.\
-                       Please choose a different name'.format(script_name))
+                print(('Warning file: {0} already exists.\
+                       Please choose a different name'.format(script_name)))
         return script
     else:
         print('Warning job scheduler not detected')
@@ -336,7 +337,7 @@ def submit(script_name, immediate, depends=None):
     if os.path.isfile(script_name):
         job_id = scheduler.submit(script_name, immediate, depends)
         if job_id is not None:
-            print('Job submitted with ID {0}'.format(job_id))
+            print(('Job submitted with ID {0}'.format(job_id)))
         if job_db is not None and job_id is not None:
             from .persist import Job
             job = Job(job_id, time.time())
@@ -360,7 +361,7 @@ def submit(script_name, immediate, depends=None):
             job_db.add_job(job)
             job_db.add_queue(job.queue, scheduler.name())
     else:
-        print('Error file: {0} does not exist.'.format(script_name))
+        print(('Error file: {0} does not exist.'.format(script_name)))
 
     return job_id
 
@@ -375,7 +376,7 @@ def delete(job_id):
             scheduler.scheduler_type() == scheduler_type):
         scheduler.delete(job_id)
     else:
-        print('JobID: ' + str(job_id) + ' not found at current site')
+        print(('JobID: ' + str(job_id) + ' not found at current site'))
 
 
 def add_remote(remote_site):
@@ -429,7 +430,7 @@ def create_db():
         from .persist import JobDB
         job_db = JobDB()
     except Exception as e:
-        print('Database failed to initialise. Error Message: ' + str(e))
+        print(('Database failed to initialise. Error Message: ' + str(e)))
 
     return job_db
 
@@ -450,7 +451,7 @@ def update_db():
                         jobs[j].update_status('completed')
                         jobs[j].update_stats(scheduler.job_stats(job_id))
     except Exception as e:
-        print('Database failed to update. Error Message: ' + str(e))
+        print(('Database failed to update. Error Message: ' + str(e)))
 
 
 def sysscribe_update(job_id):
@@ -513,12 +514,12 @@ def init(silent=False):
     if not silent:
         print('MyCluster Initialisation Info')
         print('-----------------------------')
-        print('Local database in: ' + get_directory())
-        print('User: ' + get_user())
-        print('Email: ' + get_email())
+        print(('Local database in: ' + get_directory()))
+        print(('User: ' + get_user()))
+        print(('Email: ' + get_email()))
         if not scheduler:
             print('Local job scheduler: None')
         else:
-            print('Local job scheduler: ' + scheduler.scheduler_type())
-            print('Site name: ' + get_site())
+            print(('Local job scheduler: ' + scheduler.scheduler_type()))
+            print(('Site name: ' + get_site()))
         print('')

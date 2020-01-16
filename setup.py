@@ -10,8 +10,8 @@ classes = """
     License :: OSI Approved :: BSD License
     Topic :: System :: Logging
     Programming Language :: Python
-    Programming Language :: Python :: 2
-    Programming Language :: Python :: 2.7
+    Programming Language :: Python :: 3
+    Programming Language :: Python :: 3.7
     Operating System :: POSIX :: Linux
 """
 classifiers = [s.strip() for s in classes.split('\n') if s]
@@ -30,7 +30,7 @@ setup(
     description='Utilities to support interacting with multiple HPC clusters',
     long_description_content_type="text/markdown",
     long_description=open('README.md').read(),
-    install_requires=['ZODB', 'SysScribe', 'future', 'fabric3', 'zodbpickle', 'Jinja2'],
+    install_requires=['ZODB', 'SysScribe', 'future', 'Fabric', 'zodbpickle', 'Jinja2'],
     scripts=['scripts/mycluster'],
     include_package_data=True,
     package_data={
