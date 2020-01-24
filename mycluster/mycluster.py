@@ -20,12 +20,12 @@ scheduler = None
 job_db = None
 
 
-def check_output(**kwargs):
+def check_output(*args, **kwargs):
     """
     check_output wrapper that decodes to a str instead of bytes
     """
     from subprocess import check_output as sp_check_output
-    return sp_check_output.decode('UTF-8')
+    return sp_check_output(*args, **kwargs).decode('UTF-8')
 
 
 def get_data(filename):
