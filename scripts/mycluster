@@ -49,6 +49,8 @@ def main():
     parser.add_argument('--appdata', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--silent', default=False, action='store_true',
                         help='Non exclusive node use')
+    parser.add_argument('--pack_job', default=False, action='store_true',
+                        help='Run a slurm pack job')
     args = parser.parse_args()
 
     """
@@ -84,6 +86,10 @@ def main():
     if args.remote:
         mycluster.add_remote(args.remote)
     if args.create:
+        pack_job=False
+        if args.pack_job:
+            pack_job=True
+
         if args.create and args.jobqueue and args.script and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -97,7 +103,8 @@ def main():
                                     shared=args.shared,
                                     no_syscribe=True,
                                     openmpi_args = args.ompiargs,
-                                    qos = args.qos)
+                                    qos = args.qos,
+                                    pack_job=pack_job)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -112,7 +119,8 @@ def main():
                                     shared=args.shared,
                                     no_syscribe=True,
                                     openmpi_args = args.ompiargs,
-                                    qos = args.qos)
+                                    qos = args.qos,
+                                    pack_job=pack_job)
         else:
             parser.print_help()
 
