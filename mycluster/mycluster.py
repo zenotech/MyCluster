@@ -311,6 +311,10 @@ def create_submit(queue_id, script_name=None, **kwargs):
             kwargs['user_email'] = os.environ['MYCLUSTER_EMAIL']
 
     if scheduler is not None:
+        if 'pack_job' in kwargs and kwargs['pack_job'] and scheduler.scheduler_type() is not 'slurm':
+            print('Cannot run a pack job with a scheduler other than slurm')
+            return None
+
         script = scheduler.create_submit(queue_id, **kwargs)
 
         if script_name is not None:

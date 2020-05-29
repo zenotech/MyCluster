@@ -1,0 +1,11 @@
+{% extends "slurm.jinja" %}
+{% block extend_sbatch %}}
+#SBATCH packjob
+#SBATCH --nodes 1
+# Number of tasks
+#SBATCH --ntasks 1
+#SBATCH packjob
+#SBATCH --nodes 1
+# Number of tasks
+#SBATCH --ntasks 1
+{% endblock %}

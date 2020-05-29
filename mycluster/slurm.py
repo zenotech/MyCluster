@@ -148,6 +148,9 @@ def create_submit(queue_id, **kwargs):
 
     template = load_template('slurm.jinja')
 
+    if 'pack_job' in kwargs and kwargs['pack_job']:
+        template = load_template('slurm_pack.jinja')
+
     script_str = template.render(my_name=my_name,
                                  my_script=my_script,
                                  my_output=my_output,
