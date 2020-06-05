@@ -86,9 +86,6 @@ def main():
     if args.remote:
         mycluster.add_remote(args.remote)
     if args.create:
-        pack_job=False
-        if args.pack_job:
-            pack_job=True
 
         if args.create and args.jobqueue and args.script and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,
@@ -104,7 +101,7 @@ def main():
                                     no_syscribe=True,
                                     openmpi_args = args.ompiargs,
                                     qos = args.qos,
-                                    pack_job=pack_job)
+                                    pack_job=args.pack_job)
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
@@ -120,7 +117,7 @@ def main():
                                     no_syscribe=True,
                                     openmpi_args = args.ompiargs,
                                     qos = args.qos,
-                                    pack_job=pack_job)
+                                    pack_job=args.pack_job)
         else:
             parser.print_help()
 
