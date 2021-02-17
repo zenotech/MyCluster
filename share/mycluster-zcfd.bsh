@@ -6,6 +6,18 @@ source ${ZCFD_HOME:?"ZCFD_HOME has not been set. Please set it and run this scri
 : ${PROBLEM:?"PROBLEM is not set. Please set it and run this script again"}
 : ${CASE:?"CASE is not set. Please set it and run this script again"}
 
+OLDIFS=${IFS:-}
+IFS=":"
+set ${PROBLEM}
+count=$#
+set ${CASE}
+
+if [ ! $count -eq $# ]; then
+    echo "Length of PROBLEM and CASE is not the same. Please check that the variables have the same number of entries."
+    exit 1
+fi
+IFS=${OLDIFS}
+
 $ZCFD_HOME/run_zcfd --ntask ${NUM_TASKS:?"NUM_TASKS is not set. Please set this and run again"} --tpn ${TASKS_PER_NODE:?"TASKS_PER_NODE is not set. Please set this and run again"} -p ${PROBLEM//:/ } -c ${CASE//:/ } >& ${CASE%%:*}_log
 
 exitcode=$?
