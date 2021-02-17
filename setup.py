@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
-# import os
-# import re
-from mycluster.version import get_git_version
+import os
 
 
 classes = """
@@ -17,31 +15,33 @@ classes = """
 """
 classifiers = [s.strip() for s in classes.split('\n') if s]
 
+version = os.environ.get('RELEASE_VERSION', '0.0.0')
 
-setup(
-    name='MyCluster',
-    version=get_git_version(),
-    packages=['mycluster'],
-    package_dir={'mycluster': 'mycluster'},
-    license='BSD',
-    author='Zenotech',
-    author_email='admin@zenotech.com',
-    url='https://github.com/zenotech/MyCluster',
-    classifiers=classifiers,
-    description='Utilities to support interacting with multiple HPC clusters',
-    long_description_content_type="text/markdown",
-    long_description=open('README.md').read(),
-    install_requires=['ZODB', 'SysScribe', 'future', 'Fabric', 'zodbpickle', 'Jinja2'],
-    scripts=['scripts/mycluster'],
-    include_package_data=True,
-    package_data={
-        'mycluster': ['templates/*.jinja'],
-        '': ['*.md', 'RELEASE-VERSION']
-    },
-    data_files=[('share/MyCluster', ['RELEASE-VERSION']),
-                ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
-                                     'share/mycluster-fluent.bsh',
-                                     'share/mycluster-zcfd.bsh',
-                                     'share/mycluster-paraview.bsh'])
-                ],
-)
+if __name__ == "__main__":
+    setup(
+        name='MyCluster',
+        version=version
+        packages=['mycluster'],
+        package_dir={'mycluster': 'mycluster'},
+        license='BSD',
+        author='Zenotech',
+        author_email='admin@zenotech.com',
+        url='https://github.com/zenotech/MyCluster',
+        classifiers=classifiers,
+        description='Utilities to support interacting with multiple HPC clusters',
+        long_description_content_type="text/markdown",
+        long_description=open('README.md').read(),
+        install_requires=['ZODB', 'SysScribe', 'future', 'Fabric', 'zodbpickle', 'Jinja2'],
+        scripts=['scripts/mycluster'],
+        include_package_data=True,
+        package_data={
+            'mycluster': ['templates/*.jinja'],
+            '': ['*.md']
+            },
+        data_files=[('share/MyCluster',),
+            ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
+                'share/mycluster-fluent.bsh',
+                'share/mycluster-zcfd.bsh',
+                'share/mycluster-paraview.bsh'])
+            ],
+    )
