@@ -110,11 +110,10 @@ def create_submit(queue_id, **kwargs):
     else:
         raise ValueError("num_tasks must be specified")
 
-    tpn = tasks_per_node(queue_id)
-    queue_tpn = tpn
     if 'tasks_per_node' in kwargs:
         tpn = kwargs['tasks_per_node']
-
+    else:
+        tpn = tasks_per_node(queue_id)
     if 'num_threads_per_task' in kwargs:
         num_threads_per_task = kwargs['num_threads_per_task']
     else:
@@ -136,8 +135,6 @@ def create_submit(queue_id, **kwargs):
 
     num_nodes = int(math.ceil(float(num_tasks) / float(tpn)))
 
-    num_queue_slots = num_nodes * queue_tpn
-
     no_syscribe = kwargs.get('no_syscribe', False)
 
     record_job = not no_syscribe
@@ -153,7 +150,6 @@ def create_submit(queue_id, **kwargs):
                                  my_output=my_output,
                                  user_email=user_email,
                                  queue_name=queue_name,
-                                 num_queue_slots=num_queue_slots,
                                  num_tasks=num_tasks,
                                  tpn=tpn,
                                  num_threads_per_task=num_threads_per_task,
