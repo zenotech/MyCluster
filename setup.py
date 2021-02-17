@@ -38,7 +38,7 @@ if __name__ == "__main__":
             'mycluster': ['templates/*.jinja'],
             '': ['*.md']
             },
-        data_files=[('share/MyCluster',),
+        data_files=[
             ('share/MyCluster', ['share/mycluster-OF-simpleFoam.bsh',
                 'share/mycluster-fluent.bsh',
                 'share/mycluster-zcfd.bsh',
