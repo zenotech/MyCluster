@@ -1,8 +1,8 @@
 language: python
 dist: "xenial"
 python:
-  - "2.7"
   - "3.7"
+  - "3.8"
 
 notifications:
   webhooks:
@@ -19,7 +19,7 @@ install:
 script:
     - pycodestyle --ignore=E501,E722,W504,W605 mycluster
     - nosetests
-    
+
 deploy:
   provider: pypi
   user: "jappa"
