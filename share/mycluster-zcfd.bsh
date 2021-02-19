@@ -1,6 +1,6 @@
 #!/bin/bash -f
 
-set -euo pipefail
+set -eo pipefail
 
 source ${ZCFD_HOME:?"ZCFD_HOME has not been set. Please set it and run this script again"}/activate
 : ${PROBLEM:?"PROBLEM is not set. Please set it and run this script again"}
