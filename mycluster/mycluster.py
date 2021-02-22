@@ -30,13 +30,22 @@ def check_output(*args, **kwargs):
 
 def get_data(filename):
     packagedir = os.path.dirname(__file__)
-    dirname = pj(packagedir, '..', 'share', 'MyCluster')
+    # Need to traverse lib/python3.x/site-packages/mycluster
+    # So 4 directories above the current packagedir
+    dirname = pj(packagedir, '..', '..', '..', '..', 'share', 'MyCluster')
     fullname = os.path.join(dirname, filename)
+
+    if not os.path.isfile(fullname):
+        dirname = pj(packagedir, '..', 'share', 'MyCluster')
+        fullname = os.path.join(dirname, filename)
     # Need to check if file exists as
     # share location may also be sys.prefix/share
     if not os.path.isfile(fullname):
         dirname = pj(sys.prefix, 'share', 'MyCluster')
         fullname = os.path.join(dirname, filename)
+
+    if not os.path.isfile(fullname):
+        raise Exception(f"Unable to find file {fullname}")
 
     return fullname
 
