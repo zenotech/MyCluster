@@ -17,7 +17,6 @@ JOB_SCHEDULERS = ('SGE', 'SLURM', 'LSF',
                   'PBS', 'TORQUE', 'MAUI', 'LOADLEVELER')
 
 scheduler = None
-job_db = None
 
 
 def check_output(*args, **kwargs):
@@ -198,10 +197,10 @@ def get_stats_time(stats):
     return cputime, wallclock, time_ratio
 
 
-def printjobs(num_lines):
+def printjobs(num_lines, job_db=None):
     print(('User name: {0} {1}'.format(job_db.user_db['user'].first_name,
                                        job_db.user_db['user'].last_name)))
-    jobs = job_list()
+    jobs = job_list(job_db)
     print(('     | {0:^10} | {1:^10} |\
           {2:^10} | {3:^12} | {4:^12} |\
           {5:^5} | {6:^20} | {7:50}'.format('Job ID',
@@ -308,7 +307,7 @@ def print_queue_info():
                                                    avail['available'])))
 
 
-def create_submit(queue_id, script_name=None, **kwargs):
+def create_submit(queue_id, script_name=None, job_db=None, **kwargs):
 
     if 'user_email' not in kwargs:
         if job_db is not None:
@@ -336,7 +335,7 @@ def create_submit(queue_id, script_name=None, **kwargs):
         return None
 
 
-def submit(script_name, immediate, depends=None):
+def submit(script_name, immediate, depends=None, job_db=None):
 
     if scheduler is None:
         return None
@@ -375,7 +374,7 @@ def submit(script_name, immediate, depends=None):
     return job_id
 
 
-def delete(job_id):
+def delete(job_id, job_db):
     # Add check
     job = job_db.get(job_id)
     site_name = job.queue.site_name
@@ -388,7 +387,7 @@ def delete(job_id):
         print(('JobID: ' + str(job_id) + ' not found at current site'))
 
 
-def add_remote(remote_site):
+def add_remote(remote_site, job_db=None):
     if job_db is not None:
         job_db.add_remote(remote_site)
 
@@ -397,13 +396,13 @@ def export(job_id):
     pass
 
 
-def job_list():
+def job_list(job_db):
     if job_db is not None:
         return job_db.job_db
     return []
 
 
-def get_job(job_id):
+def get_job(job_id, job_db):
     if job_db is not None:
         return job_db.get(job_id)
     return None
@@ -433,22 +432,11 @@ def create_directory():
         return False
 
 
-def create_db():
-    global job_db
-    try:
-        from .persist import JobDB
-        job_db = JobDB()
-    except Exception as e:
-        print(('Database failed to initialise. Error Message: ' + str(e)))
-
-    return job_db
-
-
-def update_db():
+def update_db(job_db=None):
     try:
         if scheduler is not None:
             status_dict = scheduler.status()
-            jobs = job_list()
+            jobs = job_list(job_db)
             for j in jobs:
                 if jobs[j].status != 'completed':
                     job_id = jobs[j].job_id
@@ -463,28 +451,28 @@ def update_db():
         print(('Database failed to update. Error Message: ' + str(e)))
 
 
-def sysscribe_update(job_id):
+def sysscribe_update(job_id, job_db=None):
     if job_db is not None:
         from sysscribe import system
         job_db.get(job_id).update_sysscribe(system.system_dict())
 
 
-def email_update(email):
+def email_update(email, job_db=None):
     if job_db is not None:
         job_db.user_db['user'].update_email(email)
 
 
-def firstname_update(name):
+def firstname_update(name, job_db=None):
     if job_db is not None:
         job_db.user_db['user'].firstname(name)
 
 
-def lastname_update(name):
+def lastname_update(name, job_db=None):
     if job_db is not None:
         job_db.user_db['user'].lastname(name)
 
 
-def get_user():
+def get_user(job_db=None):
     if job_db is not None:
         return (job_db.user_db['user'].first_name + ' ' +
                 job_db.user_db['user'].last_name)
@@ -492,7 +480,7 @@ def get_user():
         return 'unknown'
 
 
-def get_email():
+def get_email(job_db=None):
     if job_db is not None:
         return job_db.user_db['user'].email
     else:
@@ -503,29 +491,27 @@ def get_site():
     return 'unknown'
 
 
-def appname_update(job_id, appname):
+def appname_update(job_id, appname, job_db=None):
     if job_db is not None:
         job_db.get(job_id).appname(appname)
 
 
-def appdata_update(job_id, appdata):
+def appdata_update(job_id, appdata, job_db=None):
     if job_db is not None:
         job_db.get(job_id).appdata(appdata)
 
 
-def init(silent=False):
+def init(silent=False, job_db=None):
     global scheduler
     scheduler = detect_scheduling_sys()
     created = create_directory()
-    if create_db() is not None:
-        update_db()
 
     if not silent:
         print('MyCluster Initialisation Info')
         print('-----------------------------')
         print(('Local database in: ' + get_directory()))
-        print(('User: ' + get_user()))
-        print(('Email: ' + get_email()))
+        print(('User: ' + get_user(job_db)))
+        print(('Email: ' + get_email(job_db)))
         if not scheduler:
             print('Local job scheduler: None')
         else:
