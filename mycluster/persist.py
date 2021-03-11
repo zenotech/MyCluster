@@ -66,18 +66,6 @@ class JobDB(object):
 
         self.queue_db = dbroot['queue_db']
 
-        from .version import get_git_version
-        if 'version' not in dbroot:
-            dbroot['version'] = get_git_version()
-        else:
-            current_version = dbroot['version']
-            new_version = get_git_version()
-            # Add any migrations required here
-            if current_version != new_version:
-                pass
-
-            dbroot['version'] = new_version
-
         if 'remote_site_db' not in dbroot:
             from BTrees.OOBTree import OOBTree
             dbroot['remote_site_db'] = OOBTree()
