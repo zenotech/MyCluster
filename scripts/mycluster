@@ -18,10 +18,6 @@ def create_db():
 
 
 def main():
-    job_db = create_db()
-    if job_db is not None:
-        mycluster.update_db(job_db=job_db)
-
     parser = argparse.ArgumentParser()
     parser.add_argument('-q', '--queues',
                         help='List all available queues', action="store_true")
@@ -58,6 +54,7 @@ def main():
                         help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
     parser.add_argument('-e', '--export', type=int, help='Export job data')
     parser.add_argument('--remote', help='Add remote site - user@site')
+    parser.add_argument('--nodb', default=False, action="store_true", help="Don't use a database to store job status")
     parser.add_argument('--sysscribe', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--jobid', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--appname', help=argparse.SUPPRESS)
@@ -65,6 +62,12 @@ def main():
     parser.add_argument('--silent', default=False, action='store_true',
                         help='Non exclusive node use')
     args = parser.parse_args()
+
+    job_db = None
+    if not args.nodb:
+        job_db = create_db()
+    if job_db is not None:
+        mycluster.update_db(job_db=job_db)
 
     """
     Module initialiser function
