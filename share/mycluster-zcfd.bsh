@@ -3,6 +3,9 @@
 set -eo pipefail
 
 source ${ZCFD_HOME:?"ZCFD_HOME has not been set. Please set it and run this script again"}/activate
+
+if [ -z ${OVERRIDE+x} ]; then
+
 : ${PROBLEM:?"PROBLEM is not set. Please set it and run this script again"}
 : ${CASE:?"CASE is not set. Please set it and run this script again"}
 
@@ -18,7 +21,26 @@ if [ ! $count -eq $# ]; then
 fi
 IFS=${OLDIFS}
 
-$ZCFD_HOME/run_zcfd --ntask ${NUM_TASKS:?"NUM_TASKS is not set. Please set this and run again"} --tpn ${TASKS_PER_NODE:?"TASKS_PER_NODE is not set. Please set this and run again"} -p ${PROBLEM//:/ } -c ${CASE//:/ } >& ${CASE%%:*}_log
+ZCFDARGS="-p ${PROBLEM//:/ } -c ${CASE//:/ }"
+REDIRECT_NAME="${CASE%%:*}_log"
+
+else
+
+ZCFDARGS="-f ${OVERRIDE}"
+REDIRECT_NAME="${OVERRIDE}_log"
+
+if [ ! -z ${PROBLEM+x} ]; then
+    echo "WARNING: \${PROBLEM} is set - this is ignored if \${OVERRIDE} is also set"
+fi
+
+if [ ! -z ${CASE+x} ]; then
+    echo "WARNING: \${CASE} is set - this is ignored if \${OVERRIDE} is also set"
+fi
+
+fi
+
+$ZCFD_HOME/run_zcfd --ntask ${NUM_TASKS:?"NUM_TASKS is not set. Please set this and run again"} --tpn ${TASKS_PER_NODE:?"TASKS_PER_NODE is not set. Please set this and run again"} ${ZCFDARGS} >& ${REDIRECT_NAME}
+
 
 exitcode=$?
 
