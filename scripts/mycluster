@@ -2,11 +2,22 @@
 
 
 from mycluster import mycluster
+from mycluster.persist import JobDB
 import argparse
 
 
-def main():
+def create_db():
+    job_db = None
+    try:
+        job_db = JobDB()
+    except Exception as e:
+        print(('Database failed to initialise. Error Message: ' + str(e)))
+        job_db = None
 
+    return job_db
+
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-q', '--queues',
                         help='List all available queues', action="store_true")
@@ -43,6 +54,7 @@ def main():
                         help='Print jobs 0 = all, 10 = first ten, -10 = last ten')
     parser.add_argument('-e', '--export', type=int, help='Export job data')
     parser.add_argument('--remote', help='Add remote site - user@site')
+    parser.add_argument('--nodb', default=False, action="store_true", help="Don't use a database to store job status")
     parser.add_argument('--sysscribe', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--jobid', type=int, help=argparse.SUPPRESS)
     parser.add_argument('--appname', help=argparse.SUPPRESS)
@@ -51,42 +63,49 @@ def main():
                         help='Non exclusive node use')
     args = parser.parse_args()
 
+    job_db = None
+    if not args.nodb:
+        job_db = create_db()
+    if job_db is not None:
+        mycluster.update_db(job_db=job_db)
+
     """
     Module initialiser function
     """
-    mycluster.init(args.silent)
+    mycluster.init(args.silent, job_db=job_db)
 
     if args.queues:
         mycluster.print_queue_info()
     if args.submit:
-        mycluster.submit(args.submit, args.immediate, args.depends)
+        mycluster.submit(args.submit, args.immediate, args.depends, job_db=job_db)
     if args.sysscribe:
-        mycluster.sysscribe_update(args.sysscribe)
+        mycluster.sysscribe_update(args.sysscribe, job_db=job_db)
     if args.jobid:
         if args.appname:
-            mycluster.appname_update(args.jobid, args.appname)
+            mycluster.appname_update(args.jobid, args.appname, job_db)
         if args.appdata:
-            mycluster.appdata_update(args.jobid, args.appdata)
+            mycluster.appdata_update(args.jobid, args.appdata, job_db)
         if not args.appname and not args.appdata:
             parser.print_help()
     if args.export:
         mycluster.export(args.export)
     if args.email:
-        mycluster.email_update(args.email)
+        mycluster.email_update(args.email, job_db)
     if args.firstname:
-        mycluster.firstname_update(args.firstname)
+        mycluster.firstname_update(args.firstname, job_db)
     if args.lastname:
-        mycluster.lastname_update(args.lastname)
+        mycluster.lastname_update(args.lastname, job_db)
     if args.printjobs is not None:
-        mycluster.printjobs(args.printjobs)
+        mycluster.printjobs(args.printjobs, job_db)
     if args.delete:
-        mycluster.delete(args.delete)
+        mycluster.delete(args.delete, job_db)
     if args.remote:
-        mycluster.add_remote(args.remote)
+        mycluster.add_remote(args.remote, job_db)
     if args.create:
         if args.create and args.jobqueue and args.script and not args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
+                                    job_db=job_db,
                                     my_script=args.script,
                                     my_name=args.jobname,
                                     my_output=args.jobname+'.out',
@@ -101,6 +120,7 @@ def main():
         elif args.create and args.jobqueue and args.script and args.taskpernode:
             mycluster.create_submit(args.jobqueue,
                                     script_name=args.create,
+                                    job_db=job_db,
                                     my_script=args.script,
                                     my_name=args.jobname,
                                     my_output=args.jobname+'.out',
