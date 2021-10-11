@@ -18,8 +18,10 @@
 #SBATCH --nodes {{num_nodes}}
 # Number of tasks
 #SBATCH --ntasks {{num_tasks}}
+{% if exclusive %}
 # Exclusive node use
 #SBATCH --exclusive
+{% endif %}
 # Do not requeue job on node failure
 #SBATCH --no-requeue
 # High performance cpu governor
@@ -91,18 +93,5 @@ echo -e "\nExecuting command:\n==================\n{{my_script}}\n"
 exitcode=$?
 
 # Report on completion
-echo -e "\nJob Complete:\n==================\n"
-
-{% if record_job %}
-echo -e "\nRecording hardware setup\n==================\n"
-mycluster --sysscribe $JOBID
-if [ "$MYCLUSTER_APP_NAME" ]; then
-    mycluster --jobid $JOBID --appname=$MYCLUSTER_APP_NAME
-fi
-if [ "$MYCLUSTER_APP_DATA" ]; then
-    mycluster --jobid $JOBID --appdata=$MYCLUSTER_APP_DATA
-fi
-{% endif %}
-
-echo -e "Complete with exit code $exitcode========\n"
+echo -e "\n Job Complete with exit code $exitcode========\n"
 exit $exitcode
