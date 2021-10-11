@@ -1,82 +1,88 @@
-
 from builtins import str
 from builtins import object
 from persistent import Persistent
 from ZODB import FileStorage, DB
 from .mycluster import get_directory, scheduler
+
 # from BTrees.OOBTree import OOBTree
 import transaction
 import logging
 
 
 class JobDB(object):
-
     def __init__(self):
 
         directory = get_directory()
 
-        self.logger = logging.getLogger('ZODB.FileStorage')
-        fh = logging.FileHandler(directory + 'db.log')
+        self.logger = logging.getLogger("ZODB.FileStorage")
+        fh = logging.FileHandler(directory + "db.log")
         self.logger.addHandler(fh)
 
-        self.storage = FileStorage.FileStorage(directory + 'db.fs')
+        self.storage = FileStorage.FileStorage(directory + "db.fs")
         self.db = DB(self.storage)
         self.connection = self.db.open()
 
         dbroot = self.connection.root()
 
-        if 'job_key' not in dbroot:
+        if "job_key" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['job_key'] = OOBTree()
-            dbroot['job_key']['val'] = 0
 
-        self.job_key = dbroot['job_key']
+            dbroot["job_key"] = OOBTree()
+            dbroot["job_key"]["val"] = 0
+
+        self.job_key = dbroot["job_key"]
 
         # Ensure that a 'job_db' key is present
         # in the root
-        if 'job_db' not in dbroot:
+        if "job_db" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['job_db'] = OOBTree()
 
-        self.job_db = dbroot['job_db']
+            dbroot["job_db"] = OOBTree()
 
-        if 'user_db' not in dbroot:
+        self.job_db = dbroot["job_db"]
+
+        if "user_db" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['user_db'] = OOBTree()
-            self.user_db = dbroot['user_db']
-            self.user_db['user'] = User('unknown', 'unknown', 'unknown')
 
-        self.user_db = dbroot['user_db']
+            dbroot["user_db"] = OOBTree()
+            self.user_db = dbroot["user_db"]
+            self.user_db["user"] = User("unknown", "unknown", "unknown")
 
-        if 'site_db' not in dbroot:
+        self.user_db = dbroot["user_db"]
+
+        if "site_db" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['site_db'] = OOBTree()
-            self.site_db = dbroot['site_db']
 
-        self.site_db = dbroot['site_db']
+            dbroot["site_db"] = OOBTree()
+            self.site_db = dbroot["site_db"]
+
+        self.site_db = dbroot["site_db"]
 
         if scheduler is not None:
-            self.site_db[scheduler.name()] = Site(scheduler.name(),
-                                                  scheduler.scheduler_type())
+            self.site_db[scheduler.name()] = Site(
+                scheduler.name(), scheduler.scheduler_type()
+            )
 
-        if 'queue_db' not in dbroot:
+        if "queue_db" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['queue_db'] = OOBTree()
-            self.queue_db = dbroot['queue_db']
 
-        self.queue_db = dbroot['queue_db']
+            dbroot["queue_db"] = OOBTree()
+            self.queue_db = dbroot["queue_db"]
 
-        if 'remote_site_db' not in dbroot:
+        self.queue_db = dbroot["queue_db"]
+
+        if "remote_site_db" not in dbroot:
             from BTrees.OOBTree import OOBTree
-            dbroot['remote_site_db'] = OOBTree()
-            self.remote_site_db = dbroot['remote_site_db']
 
-        self.remote_site_db = dbroot['remote_site_db']
+            dbroot["remote_site_db"] = OOBTree()
+            self.remote_site_db = dbroot["remote_site_db"]
+
+        self.remote_site_db = dbroot["remote_site_db"]
 
     def add_job(self, job):
         # Get unique key
-        job_key = self.job_key['val']
-        self.job_key['val'] = job_key + 1
+        job_key = self.job_key["val"]
+        self.job_key["val"] = job_key + 1
         transaction.commit()
         # Add job
         self.job_db[job_key] = job
@@ -89,8 +95,8 @@ class JobDB(object):
 
     def add_remote(self, remote_site):
         if remote_site not in self.remote_site_db:
-            user = remote_site.split('@')[0]
-            site = remote_site.split('@')[1]
+            user = remote_site.split("@")[0]
+            site = remote_site.split("@")[1]
             self.remote_site_db[site] = RemoteSite(site, user)
             transaction.commit()
 
@@ -100,7 +106,7 @@ class JobDB(object):
             if self.job_db[key].job_id == job_id:
                 return self.job_db[key]
 
-        raise KeyError('Key: ' + str(job_id) + ' not found')
+        raise KeyError("Key: " + str(job_id) + " not found")
 
     def list(self):
         pass
@@ -115,14 +121,12 @@ class JobDB(object):
 
 
 class RemoteSite(Persistent):
-
     def __init__(self, name, user):
         self.name = name
         self.user = user
 
 
 class Site(Persistent):
-
     def __init__(self, name, scheduler_type):
         self.name = name
         self.PUE = 0.0
@@ -134,7 +138,6 @@ class Site(Persistent):
 
 
 class Queue(Persistent):
-
     def __init__(self, name, site_name):
         self.name = name
         self.site_name = site_name
@@ -143,7 +146,6 @@ class Queue(Persistent):
 
 
 class User(Persistent):
-
     def __init__(self, first_name, last_name, email):
         self.first_name = first_name
         self.last_name = last_name
@@ -163,23 +165,22 @@ class User(Persistent):
 
 
 class Job(Persistent):
-
     def __init__(self, job_id, time_stamp):
         self.job_id = job_id
         self.time_stamp = time_stamp
-        self.status = 'submitted'
+        self.status = "submitted"
         self.num_tasks = 0
         self.tasks_per_node = 0
         self.threads_per_task = 0
         self.num_nodes = 0
         self.stats = {}
         self.sysscribe = None
-        self.app_name = 'unknown'
+        self.app_name = "unknown"
         self.app_data_metric = 0
-        self.job_script_name = 'unknown'
-        self.job_name = 'unknown'
-        self.job_dir = 'unknown'
-        self.queue = 'unknown'
+        self.job_script_name = "unknown"
+        self.job_name = "unknown"
+        self.job_dir = "unknown"
+        self.queue = "unknown"
 
     def update_status(self, new_status):
 
