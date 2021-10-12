@@ -78,7 +78,7 @@ export IMPI_CMD="mpiexec -n $NUM_TASKS -ppn $TASKS_PER_NODE"
 
 
 ## API
-Mycluster can be used programatically using the mycluster module. All schedulers implementat the base `mycluster.schedulers.base.Scheduler` class.
+Mycluster can be used programatically using the mycluster module. All schedulers implement the base `mycluster.schedulers.base.Scheduler` class.
 
 ```python
 import mycluster
