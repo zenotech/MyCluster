@@ -1,5 +1,5 @@
 # MyCluster
-[![PyPI version fury.io](https://badge.fury.io/py/pyepic.svg)](https://pypi.python.org/pypi/mycluster/)
+[![PyPI version fury.io](https://badge.fury.io/py/pyepic.svg)](https://pypi.python.org/pypi/MyCluster/)
 
 Library and command line interface to support interacting with multiple HPC clusters  
 
@@ -28,7 +28,7 @@ mycluster configure
 By default MyCluster will try and detect the underlying scheduler but this can be overridden by setting the MYCLUSTER_SCHED environment variable. This should be set to a string name of a Python class that implements the `mycluster.schedulers.base.Scheduler` class.
 
 #### Override the submission template
-In some cases you may want to override the submission templates, for example if you want to include additional parameters or scheduler commands. To do this set the MYCLUSTER_TEMPLATE environment variable to the template you wish to use.
+In some cases you may want to override the submission templates, for example if you want to include additional parameters or scheduler commands. To do this set the MYCLUSTER_TEMPLATE environment variable to the jinja template you wish to use. See mycluster/schedulers/templates for the base templates.
 
 ## Command Line
 MyClusyter installs the "mycluster" cli command.
