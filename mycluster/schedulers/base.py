@@ -86,8 +86,8 @@ class Scheduler(ABC):
         job_name,
         job_script,
         wall_clock,
-        openmpi_args,
-        project_name,
+        openmpi_args="-bysocket -bind-to-socket",
+        project_name="default",
         tasks_per_node=None,
         threads_per_task=1,
         user_email=None,
@@ -100,7 +100,7 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
-    def submit(self, script_name, immediate, depends_on=None):
+    def submit(self, script_name, immediate=False, depends_on=None, depends_on_always_run=False):
         """
         Submit the job file script_name to the scheduler
         """

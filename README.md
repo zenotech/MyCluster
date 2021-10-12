@@ -78,3 +78,31 @@ export IMPI_CMD="mpiexec -n $NUM_TASKS -ppn $TASKS_PER_NODE"
 
 
 ## API
+Mycluster can be used programatically using the mycluster module. All schedulers implementat the base `mycluster.schedulers.base.Scheduler` class.
+
+```python
+import mycluster
+
+# Detect the local scheduler
+scheduler_name = mycluster.detect_scheduling_sys()
+scheduler = mycluster.get_scheduler(scheduler_name)
+
+print(f"Scheduler loaded: {scheduler.scheduler_type}")
+
+# Create a batch script to submit a 48 task run of script.sh to the skylake queue
+script = scheduler.create("skylake", 48, "my_job", "script.sh", "01:00:00", tasks_per_node=24)
+
+# Write to a file
+with open("mysub.job", "w") as f:
+    f.write(script)
+
+# Submit the batch script
+job_id = scheduler.submit("mysub.job")
+
+# Check the status of the job
+print(scheduler.get_job_details(job_id))
+
+# Cancel the job
+scheduler.delete(job_id)
+
+```
