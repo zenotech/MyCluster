@@ -41,10 +41,6 @@ fi
 
 $ZCFD_HOME/run_zcfd --ntask ${NUM_TASKS:?"NUM_TASKS is not set. Please set this and run again"} --tpn ${TASKS_PER_NODE:?"TASKS_PER_NODE is not set. Please set this and run again"} ${ZCFDARGS} >& ${REDIRECT_NAME}
 
-
 exitcode=$?
-
-export MYCLUSTER_APP_NAME=zcfd
-export MYCLUSTER_APP_DATA=$(h5dump --attribute /mesh/numCells ${PROBLEM%%:*} | grep "(0):" | cut -d ":" -f 2)
 
 exit $exitcode
