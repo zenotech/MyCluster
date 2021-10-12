@@ -1,8 +1,5 @@
 #!/bin/bash -f
 
-export MYCLUSTER_APP_NAME=paraview
-export MYCLUSTER_APP_DATA=INTERACTIVE
-
 if [[ -n ${PARAVIEW_CMD} ]] ; then
 	eval ${PARAVIEW_CMD} $PARAVIEW_ARGS
 else

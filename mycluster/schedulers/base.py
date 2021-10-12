@@ -133,16 +133,31 @@ class Scheduler(ABC):
         """
         return []
 
+    def _get_template_name(self):
+        if "MYCLUSTER_TEMPLATE" in os.environ:
+            return os.environ["MYCLUSTER_TEMPLATE"]
+        else:
+            return f"{self.scheduler_type}.jinja"
+
     def _load_template(self, template_name):
         """
         Load the jinja2 template with name template_name
+        1. Check if template_name is absolute
+        2. Try loading it from templates dir
         """
-        env = Environment(
-            loader=FileSystemLoader(
-                os.path.join(os.path.dirname(__file__), "templates")
+        if os.path.isfile(template_name):
+            env = Environment(
+                    loader=FileSystemLoader(os.path.dirname(template_name))
+                    )
+                )
+            return env.get_template(os.path.basename(template_name))
+        else:
+            env = Environment(
+                loader=FileSystemLoader(
+                    os.path.join(os.path.dirname(__file__), "templates")
+                )
             )
-        )
-        return env.get_template(template_name)
+            return env.get_template(template_name)
 
     def _get_data(self, filename):
         """

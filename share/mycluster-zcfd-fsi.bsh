@@ -1,0 +1,27 @@
+#!/bin/bash -f
+
+source $ZCFD_HOME/activate
+
+export ABAQ_ROOT=/gpfs/zenotech/apps/simulia/Commands
+export LM_LICENSE_PATH=27001@clogin02.int.cfms.org.uk
+FSI_XML=shock_plate_zcfd.xml
+
+export CSE_HOST=$(srun --pack-group=1 --exclusive -n 1 -N 1 hostname)
+
+cat << EOF > abaqus.sub
+#!/bin/bash
+unset SLURM_GTIDS
+$ABAQ_ROOT/abaqus mp_mode=threads csedirector=${CSE_HOST}:10000 job=Plate interactive > abaqus.log 2>&1
+EOF
+
+chmod +x abaqus.sub
+srun --pack-group=1 --exclusive -n 1 -N 1 --ntasks-per-node=2 --cpus-per-task=1  $ZCFD_HOME/run_cse $FSI_XML > cse.log 2>&1 &
+srun --pack-group=2 --exclusive -n 1 -N 1 --ntasks-per-node=2 --cpus-per-task=1  abaqus.sub &
+
+$ZCFD_HOME/run_zcfd --ntask $NUM_TASKS --tpn $TASKS_PER_NODE -p $PROBLEM -c $CASE >& ${CASE}_log
+
+exitcode=$?
+
+zdeactivate
+
+exit $exitcode
