@@ -138,7 +138,7 @@ class Slurm(Scheduler):
         if "mycluster-" in job_script:
             job_script = self._get_data(job_script)
 
-        template = self._load_template("slurm.jinja")
+        template = self._load_template(self._get_template_name())
 
         script_str = template.render(
             my_name=job_name,
