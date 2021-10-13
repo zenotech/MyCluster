@@ -31,7 +31,7 @@ By default MyCluster will try and detect the underlying scheduler but this can b
 In some cases you may want to override the submission templates, for example if you want to include additional parameters or scheduler commands. To do this set the MYCLUSTER_TEMPLATE environment variable to the jinja template you wish to use. See mycluster/schedulers/templates for the base templates.
 
 ## Command Line
-MyClusyter installs the "mycluster" cli command.
+MyClusyter installs the "mycluster" cli command to interact with the local scheduler via the command line.
 
 Print command help
 ```
@@ -48,7 +48,7 @@ List jobs
 mycluster list
 ```
 
-Create a new submission file
+Create a new submission file, see --help for more submission options.
 ```
 mycluster create JOBFILE QUEUE RUNSCRIPT
 ```
