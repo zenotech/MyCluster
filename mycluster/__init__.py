@@ -65,7 +65,7 @@ def get_scheduler(scheduler_name):
         raise ConfigurationException(f"Invalid scheduler specified: {scheduler_name}")
 
 
-def detect_scheduling_sys():
+def detect_scheduler_name():
     """
     Try to automatically detect scheduler type
     """
@@ -111,3 +111,11 @@ def detect_scheduling_sys():
 
     logger.debug(f"All detection tests failed, unabled to detect local scheduler")
     raise ConfigurationException("Error, unabled to detect local scheduler")
+
+
+def detect_scheduling_sys():
+    """
+    Returns the scheduler implementation
+    """
+    name = detect_scheduler_name()
+    return get_scheduler(name)
