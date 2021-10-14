@@ -87,10 +87,9 @@ Mycluster can be used programatically using the mycluster module. All schedulers
 import mycluster
 
 # Detect the local scheduler
-scheduler_name = mycluster.detect_scheduling_sys()
-scheduler = mycluster.get_scheduler(scheduler_name)
+scheduler = mycluster.detect_scheduling_sys()
 
-print(f"Scheduler loaded: {scheduler.scheduler_type}")
+print(f"Scheduler loaded: {scheduler.scheduler_type()}")
 
 # Create a batch script to submit a 48 task run of script.sh to the skylake queue
 script = scheduler.create("skylake", 48, "my_job", "script.sh", "01:00:00", tasks_per_node=24)
