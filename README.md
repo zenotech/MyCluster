@@ -1,5 +1,5 @@
 # MyCluster
-[![PyPI version fury.io](https://badge.fury.io/py/pyepic.svg)](https://pypi.python.org/pypi/MyCluster/)
+[![PyPI version](https://badge.fury.io/py/mycluster.svg)](https://badge.fury.io/py/mycluster)
 
 Library and command line interface to support interacting with multiple HPC clusters  
 
