@@ -103,6 +103,7 @@ class Scheduler(ABC):
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         """
         Write a new job file
