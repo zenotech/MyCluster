@@ -82,6 +82,13 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
+    def available_tasks(self, queue_id):
+        """
+        Get the current status of the cluster
+        """
+        pass
+
+    @abstractmethod
     def create_submit(
         self,
         queue_id,
