@@ -285,7 +285,7 @@ class SGE(Scheduler):
                     tasks_per_node, self._min_tasks_per_node(queue_id)
                 )
 
-        template = load_template("sge.jinja")
+        template = self._load_template("sge.jinja")
 
         script_str = template.render(
             my_name=job_name,
@@ -312,13 +312,25 @@ class SGE(Scheduler):
         self, script_name, immediate=False, depends_on=None, depends_on_always_run=False
     ):
         job_id = None
-        with os.popen("qsub -V -terse " + script_name) as f:
+
+        output = subprocess.run(
+            f"qsub -V -terse {script_name}",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+        )
+        if output.returncode == 0:
             job_id = 0
+            out = output.stdout.decode("utf-8")
             try:
-                job_id = int(f.readline().strip())
+                job_id = int(out.readline().strip())
+                return job_id
             except:
                 raise SchedulerException("Error submitting job to SGE")
-        return job_id
+        else:
+            raise SchedulerException(
+                f"Error submitting job to SGE: {output.stderr.decode('utf-8')}"
+            )
 
     def list_current_jobs(self):
         jobs = []
@@ -330,6 +342,8 @@ class SGE(Scheduler):
         )
         if output.returncode == 0:
             for line in output.stdout.decode("utf-8").splitlines():
+                if line.startswith("job-ID") or line.startswith("---"):
+                    continue
                 job_info = re.sub(" +", " ", line.strip()).split(" ")
                 jobs.append(
                     {
