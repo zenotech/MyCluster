@@ -102,7 +102,7 @@ def detect_scheduler_name():
 
     # Test for lsf
     try:
-        line = check_output("lsid")
+        line = check_output("lsid", universal_newlines=True)
         if line.split(" ")[0] == "Platform" or line.split(" ")[0] == "IBM":
             logger.debug(f"lsid responded, LSF assumed")
             return "lsf"

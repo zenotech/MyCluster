@@ -86,12 +86,12 @@ class LSF(Scheduler):
 
     def tasks_per_node(self, queue_id):
         host_list = None
-        q_output = self._check_output()(["bqueues", "-l", queue_id]).splitlines()
+        q_output = self._check_output(["bqueues", "-l", queue_id]).splitlines()
         for line in q_output:
             if line.startswith("HOSTS:"):
                 host_list = line.strip().rsplit(" ", 1)[1].replace("/", "")
                 if host_list == "none":
-                    return 0
+                    return 1
         bhosts_output = self._check_output(["bhosts", "-l", host_list]).splitlines()
         line = re.sub(" +", " ", bhosts_output[2]).strip()
         tasks = int(line.split(" ")[3])
@@ -124,7 +124,7 @@ class LSF(Scheduler):
         job_name,
         job_script,
         wall_clock,
-        openmpi_arg="-bysocket -bind-to-socket",
+        openmpi_args="-bysocket -bind-to-socket",
         project_name="default",
         tasks_per_node=None,
         threads_per_task=1,
@@ -141,12 +141,15 @@ class LSF(Scheduler):
             threads_per_task = 1
 
         if ":" not in wall_clock:
-            wall_clock = wall_clock + ":00:00"
+            wall_clock = wall_clock + ":00"
+        elif len(wall_clock.split(":")) == 3:
+            # LSF format hh:mm, remove seconds
+            wall_clock = wall_clock.rsplit(":", 1)[0]
 
         if "mycluster-" in job_script:
             my_script = self._get_data(my_script)
 
-        num_queue_slots = num_nodes * tasks_per_node(queue_id)
+        num_queue_slots = num_nodes * self.tasks_per_node(queue_id)
 
         if output_name is None:
             output_name = job_name + ".out"
@@ -158,7 +161,7 @@ class LSF(Scheduler):
             my_script=job_script,
             my_output=output_name,
             user_email=user_email,
-            queue_name=queue_name,
+            queue_name=queue_id,
             num_queue_slots=num_queue_slots,
             num_tasks=num_tasks,
             tpn=tasks_per_node,
@@ -207,7 +210,7 @@ class LSF(Scheduler):
     def list_current_jobs(self):
         jobs = []
         output = subprocess.run(
-            'bjobs -u `whoami` -o "jobid queue job_name stat"',
+            'bjobs -noheader -u `whoami` -o "jobid queue job_name stat"',
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             shell=True,
@@ -222,7 +225,7 @@ class LSF(Scheduler):
                         "id": int(job_info[0]),
                         "queue": job_info[1],
                         "name": job_info[2],
-                        "state": job_info[4],
+                        "state": job_info[3],
                     }
                 )
         else:

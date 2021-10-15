@@ -225,8 +225,8 @@ class Scheduler(ABC):
 
         return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-    def _check_output(*args, **kwargs):
+    def _check_output(self, command_list):
         """
         check_output wrapper that decodes to a str instead of bytes
         """
-        return check_output(*args, **kwargs).decode("UTF-8")
+        return check_output(command_list).decode("UTF-8")
