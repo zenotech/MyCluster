@@ -35,6 +35,7 @@ import os
 import re
 import math
 import subprocess
+import datetime
 
 from .base import Scheduler
 from mycluster.exceptions import SchedulerException, ConfigurationException
@@ -246,11 +247,11 @@ class LSF(Scheduler):
                 cols = line.split("|")
                 stats_dict["job_id"] = cols[0]
                 if cols[1] != "-":
-                    stats_dict["wallclock"] = timedelta(
+                    stats_dict["wallclock"] = datetime.timedelta(
                         seconds=float(cols[1].split(" ")[0])
                     )
                 if cols[2] != "-":
-                    stats_dict["cpu"] = timedelta(seconds=float(cols[2].split(" ")[0]))
+                    stats_dict["cpu"] = datetime.timedelta(seconds=float(cols[2].split(" ")[0]))
                 stats_dict["queue"] = cols[3]
                 stats_dict["status"] = cols[5]
                 stats_dict["exit_code"] = cols[6]
@@ -258,9 +259,6 @@ class LSF(Scheduler):
                 stats_dict["start_time"] = cols[8]
                 if stats_dict["status"] in ["DONE", "EXIT"]:
                     stats_dict["end"] = cols[9]
-
-                steps = []
-                stats_dict["steps"] = steps
             except:
                 with os.popen("bhist -l " + str(job_id)) as f:
                     try:
