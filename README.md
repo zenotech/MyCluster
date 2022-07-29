@@ -9,10 +9,10 @@ and enables the creation of job submission scripts.
 Tested with SGE, LSF and slurm (PBS/TORQUE support under development)
 
 ## Getting started
-PyEpic can be installed from PyPi.
+MyCluster can be installed from PyPi.
 
 ```
-pip install pyepic
+pip install mycluster
 ```
 
 ## Configuration
