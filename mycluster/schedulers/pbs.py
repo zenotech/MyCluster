@@ -153,6 +153,7 @@ class PBS(Scheduler):
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         queue_name = queue_id
         if tasks_per_node is None:
@@ -178,12 +179,15 @@ class PBS(Scheduler):
                     tasks_per_node, self._min_tasks_per_node(queue_id)
                 )
 
+        if output_name is None:
+            output_name = job_name + ".out"
+
         template = self._load_template("pbs.jinja")
 
         script_str = template.render(
             my_name=job_name,
             my_script=job_script,
-            my_output=job_name,
+            my_output=output_name,
             user_email=user_email,
             queue_name=queue_name,
             num_queue_slots=num_queue_slots,
@@ -286,6 +290,8 @@ class PBS(Scheduler):
 
     def delete(self, job_id):
         cmd = f"qdel {job_id}"
-        output = subprocess.run(cmd, capture_output=True, shell=True)
+        output = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         if output.returncode != 0:
             raise SchedulerException(f"Error cancelling job {job_id}")

@@ -254,6 +254,7 @@ class SGE(Scheduler):
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         parallel_env = queue_id.split(":")[0]
         queue_name = queue_id.split(":")[1]
@@ -271,6 +272,9 @@ class SGE(Scheduler):
         if "mycluster-" in job_script:
             job_script = self._get_data(job_script)
 
+        if output_name is None:
+            output_name = job_name + ".out"
+
         # For exclusive node use total number of slots required
         # is number of nodes x number of slots offer by queue
         num_queue_slots = num_nodes * self.tasks_per_node(queue_id)
@@ -281,12 +285,12 @@ class SGE(Scheduler):
                     tasks_per_node, self._min_tasks_per_node(queue_id)
                 )
 
-        template = load_template("sge.jinja")
+        template = self._load_template("sge.jinja")
 
         script_str = template.render(
             my_name=job_name,
             my_script=job_script,
-            my_output=job_name,
+            my_output=output_name,
             user_email=user_email,
             queue_name=queue_name,
             parallel_env=parallel_env,
@@ -308,19 +312,38 @@ class SGE(Scheduler):
         self, script_name, immediate=False, depends_on=None, depends_on_always_run=False
     ):
         job_id = None
-        with os.popen("qsub -V -terse " + script_name) as f:
+
+        output = subprocess.run(
+            f"qsub -V -terse {script_name}",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+        )
+        if output.returncode == 0:
             job_id = 0
+            out = output.stdout.decode("utf-8")
             try:
-                job_id = int(f.readline().strip())
+                job_id = int(out.readline().strip())
+                return job_id
             except:
                 raise SchedulerException("Error submitting job to SGE")
-        return job_id
+        else:
+            raise SchedulerException(
+                f"Error submitting job to SGE: {output.stderr.decode('utf-8')}"
+            )
 
     def list_current_jobs(self):
         jobs = []
-        output = subprocess.run("qstat -u `whoami`", capture_output=True, shell=True)
+        output = subprocess.run(
+            "qstat -u `whoami`",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
+        )
         if output.returncode == 0:
             for line in output.stdout.decode("utf-8").splitlines():
+                if line.startswith("job-ID") or line.startswith("---"):
+                    continue
                 job_info = re.sub(" +", " ", line.strip()).split(" ")
                 jobs.append(
                     {
@@ -359,6 +382,8 @@ class SGE(Scheduler):
 
     def delete(self, job_id):
         cmd = f"qdel {job_id}"
-        output = subprocess.run(cmd, capture_output=True, shell=True)
+        output = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         if output.returncode != 0:
             raise SchedulerException(f"Error cancelling job {job_id}")

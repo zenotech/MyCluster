@@ -98,7 +98,6 @@ class Slurm(Scheduler):
             line = new_line.split(" ")[3]
             free_tasks = int(line.split("/")[1]) * nc["max task"]
             max_tasks = int(line.split("/")[3]) * nc["max task"]
-
         return {"available": free_tasks, "max tasks": max_tasks}
 
     def accounts(self):
@@ -124,6 +123,7 @@ class Slurm(Scheduler):
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         queue_name = queue_id
         if tasks_per_node is None:
@@ -138,12 +138,15 @@ class Slurm(Scheduler):
         if "mycluster-" in job_script:
             job_script = self._get_data(job_script)
 
-        template = self._load_template("slurm.jinja")
+        if output_name is None:
+            output_name = job_name + ".out"
+
+        template = self._load_template(self._get_template_name())
 
         script_str = template.render(
             my_name=job_name,
             my_script=job_script,
-            my_output=job_name,
+            my_output=output_name,
             user_email=user_email,
             queue_name=queue_name,
             num_tasks=num_tasks,
@@ -227,7 +230,10 @@ class Slurm(Scheduler):
     def list_current_jobs(self):
         jobs = []
         output = subprocess.run(
-            "squeue -h -u `whoami`", capture_output=True, shell=True
+            "squeue -h -u `whoami`",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True,
         )
         if output.returncode == 0:
             for line in output.stdout.decode("utf-8").splitlines():
@@ -252,7 +258,9 @@ class Slurm(Scheduler):
         stats_dict = {}
         sacct_cmd = f"sacct --noheader --format JobId,Elapsed,TotalCPU,Partition,NTasks,AveRSS,State,ExitCode,start,end -P -j {job_id}"
         squeue_cmd = f'squeue --format "%.18i %.9P %.8j %.8u %.2t %.10M %.6D %R %S" -h -j {job_id}'
-        output = subprocess.run(sacct_cmd, capture_output=True, shell=True)
+        output = subprocess.run(
+            sacct_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         if output.returncode != 0:
             raise SchedulerException("Error fetching job details from sacct")
         lines = output.stdout.decode("utf-8").splitlines()
@@ -286,7 +294,9 @@ class Slurm(Scheduler):
                     steps.append(step)
                 stats_dict["steps"] = steps
         else:
-            output = subprocess.run(squeue_cmd, capture_output=True, shell=True)
+            output = subprocess.run(
+                squeue_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+            )
             if output.returncode != 0:
                 raise SchedulerException(
                     "Error fetching job details from squeue, check job id."
@@ -305,6 +315,8 @@ class Slurm(Scheduler):
 
     def delete(self, job_id):
         cmd = f"scancel {job_id}"
-        output = subprocess.run(cmd, capture_output=True, shell=True)
+        output = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         if output.returncode != 0:
             raise SchedulerException(f"Error cancelling job {job_id}")

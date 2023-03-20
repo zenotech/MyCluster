@@ -32,10 +32,13 @@
 
 import os
 import sys
+import logging
 from abc import ABC, abstractmethod
 from jinja2 import Environment, FileSystemLoader
 from datetime import timedelta
 from subprocess import check_output
+
+logger = logging.getLogger(__name__)
 
 
 class Scheduler(ABC):
@@ -79,6 +82,13 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
+    def available_tasks(self, queue_id):
+        """
+        Get the current status of the cluster
+        """
+        pass
+
+    @abstractmethod
     def create_submit(
         self,
         queue_id,
@@ -93,6 +103,7 @@ class Scheduler(ABC):
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         """
         Write a new job file
@@ -100,7 +111,9 @@ class Scheduler(ABC):
         pass
 
     @abstractmethod
-    def submit(self, script_name, immediate=False, depends_on=None, depends_on_always_run=False):
+    def submit(
+        self, script_name, immediate=False, depends_on=None, depends_on_always_run=False
+    ):
         """
         Submit the job file script_name to the scheduler
         """
@@ -135,9 +148,12 @@ class Scheduler(ABC):
 
     def _get_template_name(self):
         if "MYCLUSTER_TEMPLATE" in os.environ:
+            logger.debug(
+                f'MYCLUSTER_TEMPLATE set, loading template from {os.environ["MYCLUSTER_TEMPLATE"]}'
+            )
             return os.environ["MYCLUSTER_TEMPLATE"]
         else:
-            return f"{self.scheduler_type}.jinja"
+            return f"{self.scheduler_type()}.jinja"
 
     def _load_template(self, template_name):
         """
@@ -146,12 +162,13 @@ class Scheduler(ABC):
         2. Try loading it from templates dir
         """
         if os.path.isfile(template_name):
-            env = Environment(
-                    loader=FileSystemLoader(os.path.dirname(template_name))
-                    )
-                )
+            logger.debug(f'File "{template_name}" exists, loading it.')
+            env = Environment(loader=FileSystemLoader(os.path.dirname(template_name)))
             return env.get_template(os.path.basename(template_name))
         else:
+            logger.debug(
+                f'Loading template "{template_name}" from "{os.path.join(os.path.dirname(__file__), "templates")}"'
+            )
             env = Environment(
                 loader=FileSystemLoader(
                     os.path.join(os.path.dirname(__file__), "templates")
@@ -181,6 +198,7 @@ class Scheduler(ABC):
         if not os.path.isfile(fullname):
             raise Exception(f"Unable to find file {fullname}")
 
+        logger.debug(f'Loading data file from "{fullname}"')
         return fullname
 
     def _get_timedelta(self, date_str):
@@ -207,8 +225,8 @@ class Scheduler(ABC):
 
         return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-    def _check_output(*args, **kwargs):
+    def _check_output(self, command_list):
         """
         check_output wrapper that decodes to a str instead of bytes
         """
-        return check_output(*args, **kwargs).decode("UTF-8")
+        return check_output(command_list).decode("UTF-8")

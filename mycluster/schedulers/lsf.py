@@ -35,6 +35,7 @@ import os
 import re
 import math
 import subprocess
+import datetime
 
 from .base import Scheduler
 from mycluster.exceptions import SchedulerException, ConfigurationException
@@ -86,12 +87,12 @@ class LSF(Scheduler):
 
     def tasks_per_node(self, queue_id):
         host_list = None
-        q_output = self._check_output()(["bqueues", "-l", queue_id]).splitlines()
+        q_output = self._check_output(["bqueues", "-l", queue_id]).splitlines()
         for line in q_output:
             if line.startswith("HOSTS:"):
                 host_list = line.strip().rsplit(" ", 1)[1].replace("/", "")
                 if host_list == "none":
-                    return 0
+                    return 1
         bhosts_output = self._check_output(["bhosts", "-l", host_list]).splitlines()
         line = re.sub(" +", " ", bhosts_output[2]).strip()
         tasks = int(line.split(" ")[3])
@@ -124,13 +125,14 @@ class LSF(Scheduler):
         job_name,
         job_script,
         wall_clock,
-        openmpi_arg="-bysocket -bind-to-socket",
+        openmpi_args="-bysocket -bind-to-socket",
         project_name="default",
         tasks_per_node=None,
         threads_per_task=1,
         user_email=None,
         qos=None,
         exclusive=True,
+        output_name=None,
     ):
         if tasks_per_node is None:
             tasks_per_node = self.tasks_per_node(queue_id)
@@ -140,21 +142,27 @@ class LSF(Scheduler):
             threads_per_task = 1
 
         if ":" not in wall_clock:
-            wall_clock = wall_clock + ":00:00"
+            wall_clock = wall_clock + ":00"
+        elif len(wall_clock.split(":")) == 3:
+            # LSF format hh:mm, remove seconds
+            wall_clock = wall_clock.rsplit(":", 1)[0]
 
         if "mycluster-" in job_script:
             my_script = self._get_data(my_script)
 
-        num_queue_slots = num_nodes * tasks_per_node(queue_id)
+        num_queue_slots = num_nodes * self.tasks_per_node(queue_id)
+
+        if output_name is None:
+            output_name = job_name + ".out"
 
         template = self._load_template("lsf.jinja")
 
         script_str = template.render(
             my_name=job_name,
             my_script=job_script,
-            my_output=job_name,
+            my_output=output_name,
             user_email=user_email,
-            queue_name=queue_name,
+            queue_name=queue_id,
             num_queue_slots=num_queue_slots,
             num_tasks=num_tasks,
             tpn=tasks_per_node,
@@ -203,8 +211,9 @@ class LSF(Scheduler):
     def list_current_jobs(self):
         jobs = []
         output = subprocess.run(
-            'bjobs -u `whoami` -o "jobid queue job_name stat"',
-            capture_output=True,
+            'bjobs -noheader -u `whoami` -o "jobid queue job_name stat"',
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             shell=True,
         )
         if output.returncode == 0:
@@ -217,7 +226,7 @@ class LSF(Scheduler):
                         "id": int(job_info[0]),
                         "queue": job_info[1],
                         "name": job_info[2],
-                        "state": job_info[4],
+                        "state": job_info[3],
                     }
                 )
         else:
@@ -238,11 +247,11 @@ class LSF(Scheduler):
                 cols = line.split("|")
                 stats_dict["job_id"] = cols[0]
                 if cols[1] != "-":
-                    stats_dict["wallclock"] = timedelta(
+                    stats_dict["wallclock"] = datetime.timedelta(
                         seconds=float(cols[1].split(" ")[0])
                     )
                 if cols[2] != "-":
-                    stats_dict["cpu"] = timedelta(seconds=float(cols[2].split(" ")[0]))
+                    stats_dict["cpu"] = datetime.timedelta(seconds=float(cols[2].split(" ")[0]))
                 stats_dict["queue"] = cols[3]
                 stats_dict["status"] = cols[5]
                 stats_dict["exit_code"] = cols[6]
@@ -250,9 +259,6 @@ class LSF(Scheduler):
                 stats_dict["start_time"] = cols[8]
                 if stats_dict["status"] in ["DONE", "EXIT"]:
                     stats_dict["end"] = cols[9]
-
-                steps = []
-                stats_dict["steps"] = steps
             except:
                 with os.popen("bhist -l " + str(job_id)) as f:
                     try:
@@ -274,6 +280,8 @@ class LSF(Scheduler):
 
     def delete(self, job_id):
         cmd = f"bkill {job_id}"
-        output = subprocess.run(cmd, capture_output=True, shell=True)
+        output = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
         if output.returncode != 0:
             raise SchedulerException(f"Error cancelling job {job_id}")

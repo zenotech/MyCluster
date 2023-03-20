@@ -70,10 +70,10 @@ def main(ctx, silent, email):
         click.echo(pyfiglet.Figlet().renderText("MyCluster"))
         click.echo(f"User email: '{config['email']}'")
     try:
-        scheduler_name = mycluster.detect_scheduling_sys()
+        scheduler = mycluster.detect_scheduling_sys()
         if not silent:
-            click.echo(f"Scheduler '{scheduler_name}' detected")
-        ctx.obj = (mycluster.get_scheduler(scheduler_name), config)
+            click.echo(f"Scheduler '{scheduler.scheduler_type()}' detected")
+        ctx.obj = (scheduler, config)
     except ConfigurationException as e:
         click.echo(e)
         exit(1)
