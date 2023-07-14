@@ -31,6 +31,10 @@
 {% if qos %}
 #SBATCH --qos {{qos}}
 {% endif %}
+{% if gres %}
+#SBATCH --gres={{gres}}
+{% endif %}
+
 
 export MYCLUSTER_QUEUE={{queue_name}}
 export MYCLUSTER_JOB_NAME={{my_name}}

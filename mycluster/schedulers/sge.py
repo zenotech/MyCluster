@@ -255,6 +255,7 @@ class SGE(Scheduler):
         qos=None,
         exclusive=True,
         output_name=None,
+        gres=None
     ):
         parallel_env = queue_id.split(":")[0]
         queue_name = queue_id.split(":")[1]

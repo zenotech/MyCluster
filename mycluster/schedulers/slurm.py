@@ -124,6 +124,7 @@ class Slurm(Scheduler):
         qos=None,
         exclusive=True,
         output_name=None,
+        gres=None
     ):
         queue_name = queue_id
         if tasks_per_node is None:
@@ -158,6 +159,7 @@ class Slurm(Scheduler):
             openmpi_args=openmpi_args,
             qos=qos,
             exclusive=exclusive,
+            gres=gres
         )
         return script_str
 

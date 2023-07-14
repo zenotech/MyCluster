@@ -133,6 +133,7 @@ class LSF(Scheduler):
         qos=None,
         exclusive=True,
         output_name=None,
+        gres=None
     ):
         if tasks_per_node is None:
             tasks_per_node = self.tasks_per_node(queue_id)
