@@ -104,6 +104,7 @@ class Scheduler(ABC):
         qos=None,
         exclusive=True,
         output_name=None,
+        gres=None,
     ):
         """
         Write a new job file

@@ -154,6 +154,7 @@ class PBS(Scheduler):
         qos=None,
         exclusive=True,
         output_name=None,
+        gres=None
     ):
         queue_name = queue_id
         if tasks_per_node is None:
