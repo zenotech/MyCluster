@@ -21,6 +21,8 @@
 {% if exclusive %}
 # Exclusive node use
 #SBATCH --exclusive
+{% else %}
+#SBATCH --cpus-per-task={{num_threads_per_task}}
 {% endif %}
 # Do not requeue job on node failure
 #SBATCH --no-requeue
