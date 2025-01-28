@@ -37,7 +37,7 @@ import math
 import subprocess
 
 from .base import Scheduler
-from mycluster.exceptions import SchedulerException, ConfigurationException
+from mycluster.exceptions import SchedulerException
 
 
 class Slurm(Scheduler):
@@ -92,12 +92,14 @@ class Slurm(Scheduler):
         max_tasks = 0
         queue_name = queue_id
         nc = self.node_config(queue_id)
-        with os.popen("sinfo -sh -p " + queue_name) as f:
+        with os.popen(f"sinfo -sh -p {queue_name} -o '%C'") as f:
             line = f.readline()
-            new_line = re.sub(" +", " ", line.strip())
-            line = new_line.split(" ")[3]
-            free_tasks = int(line.split("/")[1]) * nc["max task"]
-            max_tasks = int(line.split("/")[3]) * nc["max task"]
+            max_tasks = int(line.split("/")[3])
+
+        with os.popen(f"sinfo -sh -p {queue_name} -o '%C' | grep 'idle'") as f:
+            for line in f:
+                free_tasks += int(line.split("/")[1])
+
         return {"available": free_tasks, "max tasks": max_tasks}
 
     def accounts(self):
