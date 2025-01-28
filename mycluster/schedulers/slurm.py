@@ -96,7 +96,7 @@ class Slurm(Scheduler):
             line = f.readline()
             max_tasks = int(line.split("/")[3])
 
-        with os.popen(f"sinfo -sh -p {queue_name} -o '%C' | grep 'idle'") as f:
+        with os.popen(f"sinfo -h -p {queue_name} -o '%T %C' | grep 'idle' | cut -d ' ' -f 2") as f:
             for line in f:
                 free_tasks += int(line.split("/")[1])
 
